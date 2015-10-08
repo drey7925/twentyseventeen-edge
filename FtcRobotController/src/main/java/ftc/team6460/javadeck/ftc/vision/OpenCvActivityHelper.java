@@ -1,4 +1,4 @@
-package vision;
+package ftc.team6460.javadeck.ftc.vision;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,7 +32,7 @@ public class OpenCvActivityHelper {
     protected FaceView faceView;
     private Preview mPreview;
     private FtcRobotControllerActivity cx;
-    CopyOnWriteArraySet<MatCallback> callbacks = new CopyOnWriteArraySet<>();
+    CopyOnWriteArraySet<MatCallback> callbacks = new CopyOnWriteArraySet<MatCallback>();
 
     static volatile boolean running;
     private static int degrees;

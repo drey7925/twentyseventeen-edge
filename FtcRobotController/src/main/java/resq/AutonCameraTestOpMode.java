@@ -8,8 +8,9 @@ import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import ftc.team6460.javadeck.ftc.Utils;
+
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
-import org.ftccommunity.ftcxtensible.opmodes.Autonomous;
+import org.swerverobotics.library.interfaces.Autonomous;
 
 /**
  * Created by akh06977 on 9/18/2015.

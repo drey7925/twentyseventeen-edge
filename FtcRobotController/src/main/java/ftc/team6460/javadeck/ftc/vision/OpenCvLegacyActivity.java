@@ -1,5 +1,5 @@
 
-package vision;
+package ftc.team6460.javadeck.ftc.vision;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 
@@ -30,7 +29,7 @@ public class OpenCvLegacyActivity extends Activity {
     protected LegacyFaceView legacyFaceView;
     private LegacyPreview mLegacyPreview;
 
-    static HashSet<MatCallback> callbacks = new HashSet<>();
+    static HashSet<MatCallback> callbacks = new HashSet<MatCallback>();
 
     static volatile boolean running;
 
@@ -216,8 +215,7 @@ class LegacyFaceView extends View implements Camera.PreviewCallback {
         postInvalidate();
     }
 
-    AtomicReference<opencv_features2d.KeyPoint> kpRef = new AtomicReference<>(null);
-    AtomicReference<Point2f> lineRef = new AtomicReference<>(null);
+
     public String status = "";
 
     @Override

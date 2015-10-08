@@ -59,10 +59,14 @@ public class Util
             methods = clazz.getDeclaredMethods();
             }
         catch (Exception e)
-            {
+        {
             methods = new Method[0];
-            }
-        List<Method> result = new LinkedList<Method>();
+        }
+        catch (Error e)
+        {
+            methods = new Method[0];
+        }
+            List<Method> result = new LinkedList<Method>();
         result.addAll(Arrays.asList(methods));
         return result;
         }

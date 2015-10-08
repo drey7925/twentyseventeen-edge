@@ -31,10 +31,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
 import org.swerverobotics.library.internal.AnnotatedOpModeRegistrar;
+import resq.AutonCameraTestOpMode;
+import resq.GyroTestOpMode;
+import resq.RockerBogieTeleop;
+
+import java.util.HashSet;
 
 /**
  * Register Op Modes
@@ -63,11 +69,21 @@ public class FtcOpModeRegister implements OpModeRegister
      * @see org.swerverobotics.library.interfaces.OpModeRegistrar
      * @see org.swerverobotics.library.examples.SynchTeleOp
      */
+
+    private static HashSet<Class<? extends OpMode>> ops = new HashSet<Class<? extends OpMode>>();
+    public static void register(Class<? extends OpMode> clazz){
+        ops.add(clazz);
+    }
   public void register(OpModeManager manager) 
     {
-    AnnotatedOpModeRegistrar.register(manager);
-
-    /*
+        for(Class clazz : ops){
+            manager.register(clazz.getName(), clazz);
+        }
+    //AnnotatedOpModeRegistrar.register(manager);
+    manager.register("gyrotest",GyroTestOpMode.class);
+        manager.register("telop", RockerBogieTeleop.class);
+        manager.register("cameratest", AutonCameraTestOpMode.class);
+        /*
      * Uncomment any of the following lines if you want to register an op mode,
      * or do that registration in a static method annotated as @OpModeRegistrar.
      */

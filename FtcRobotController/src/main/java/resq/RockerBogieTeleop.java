@@ -10,18 +10,20 @@ import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
+import com.qualcomm.ftcrobotcontroller.opmodes.FtcOpModeRegister;
 import ftc.team6460.javadeck.ftc.Utils;
 import ftc.team6460.javadeck.ftc.vision.MatCallback;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.bytedeco.javacpp.opencv_core;
-import org.ftccommunity.ftcxtensible.opmodes.TeleOp;
 
 /**
  * Created by akh06977 on 9/18/2015.
  */
-@TeleOp
-public class RockerBogieTeleop extends RockerBogieCommon {
 
+public class RockerBogieTeleop extends RockerBogieCommon {
+    static{
+        FtcOpModeRegister.register(RockerBogieTeleop.class);
+    }
 
     double scaledPower;
 

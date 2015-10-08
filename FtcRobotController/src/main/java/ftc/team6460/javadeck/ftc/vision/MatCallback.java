@@ -1,4 +1,4 @@
-package vision;
+package ftc.team6460.javadeck.ftc.vision;
 
 import android.graphics.Canvas;
 import org.bytedeco.javacpp.opencv_core;
