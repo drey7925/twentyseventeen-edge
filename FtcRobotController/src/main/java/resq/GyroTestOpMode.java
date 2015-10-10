@@ -14,6 +14,7 @@ import org.swerverobotics.library.interfaces.*;
 @TeleOp(name="IMU Demo", group="Swerve Examples")
 public class GyroTestOpMode extends SynchronousOpMode
 {
+
     static {
         FtcOpModeRegister.register(GyroTestOpMode.class);
     }
@@ -35,10 +36,26 @@ public class GyroTestOpMode extends SynchronousOpMode
     int                     loopCycles;
     int                     i2cCycles;
     double                  ms;
-
+    private double xT;
+    private double yT;
+    private double zT;
+    private int counts;
     //----------------------------------------------------------------------------------------------
     // main() loop
+
+
     //----------------------------------------------------------------------------------------------
+
+    public void upd(){
+        angles = imu.getAngularOrientation();
+        position = imu.getPosition();
+        accel = imu.getLinearAcceleration();
+        // The rest of this is pretty cheap to acquire, but we may as well do it
+        // all while we're gathering the above.
+        loopCycles = getLoopCount();
+        i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+        ms = elapsed.time() * 1000.0;
+    }
 
     @Override public void main() throws InterruptedException
     {
@@ -49,25 +66,49 @@ public class GyroTestOpMode extends SynchronousOpMode
         parameters.angleunit      = IBNO055IMU.ANGLEUNIT.DEGREES;
         parameters.accelunit      = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = true;
+        parameters.mode           = IBNO055IMU.SENSOR_MODE.NDOF;
         parameters.loggingTag     = "BNO055";
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("bno055"), parameters);
         // Enable reporting of position using the naive integrator
-        imu.startAccelerationIntegration(new Position(), new Velocity());
 
         // Set up our dashboard computations
         composeDashboard();
 
         // Wait until we're told to go
-        waitForStart();
+        while(!this.isStarted()){
+            upd();
+            telemetry.update();
+        }
+
+        upd();
+        long t = System.currentTimeMillis();
+        xT = 0;
+        yT = 0;
+        zT = 0;
+        counts = 0;
+        while(System.currentTimeMillis()< t+10000){
+            upd();
+
+            telemetry.update();
+            xT += accel.accelX;
+            yT += accel.accelY;
+            zT += accel.accelZ;
+            counts++;
+            idle();
+        }
+        running = true;
+        imu.startAccelerationIntegration(new Position(), new Velocity(), new Acceleration(xT / counts, yT / counts, zT / counts, System.nanoTime()));
 
         // Loop and update the dashboard
         while (opModeIsActive())
         {
+            upd();
             telemetry.update();
+
             idle();
         }
     }
-
+boolean running = false;
     //----------------------------------------------------------------------------------------------
     // dashboard configuration
     //----------------------------------------------------------------------------------------------
@@ -79,20 +120,21 @@ public class GyroTestOpMode extends SynchronousOpMode
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
-        telemetry.addAction(new IAction() { @Override public void doAction()
-        {
-            // Acquiring the angles is relatively expensive; we don't want
-            // to do that in each of the three items that need that info, as that's
-            // three times the necessary expense.
-            angles     = imu.getAngularOrientation();
-            position   = imu.getPosition();
-            accel      = imu.getAcceleration();
-            // The rest of this is pretty cheap to acquire, but we may as well do it
-            // all while we're gathering the above.
-            loopCycles = getLoopCount();
-            i2cCycles  = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
-            ms         = elapsed.time() * 1000.0;
-        }
+        telemetry.addAction(new IAction() {
+            @Override
+            public void doAction() {
+                // Acquiring the angles is relatively expensive; we don't want
+                // to do that in each of the three items that need that info, as that's
+                // three times the necessary expense.
+                angles = imu.getAngularOrientation();
+                position = imu.getPosition();
+                accel = imu.getLinearAcceleration();
+                // The rest of this is pretty cheap to acquire, but we may as well do it
+                // all while we're gathering the above.
+                loopCycles = getLoopCount();
+                i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+                ms = elapsed.time() * 1000.0;
+            }
         });
         telemetry.addLine(
                 telemetry.item("loop count: ", new IFunc<Object>() {
@@ -215,6 +257,34 @@ public class GyroTestOpMode extends SynchronousOpMode
                         return formatPosition(accel.accelZ);
                     }
                 }));
+        telemetry.addLine(
+                telemetry.item("xav: ", new IFunc<Object>()
+                {
+                    public Object value()
+                    {
+                        return formatPosition(xT/counts);
+                    }
+                }),
+                telemetry.item("yav: ", new IFunc<Object>()
+                {
+                    public Object value()
+                    {
+                        return formatPosition(yT/counts);
+                    }
+                }),
+                telemetry.item("zav: ", new IFunc<Object>()
+                {
+                    public Object value()
+                    {
+                        return formatPosition(yT/counts);
+                    }
+                }));
+        telemetry.addLine(telemetry.item("run: ", new IFunc<Object>() {
+            @Override
+            public Object value() {
+                return running;
+            }
+        }));
     }
 
     String formatAngle(double angle)

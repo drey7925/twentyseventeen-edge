@@ -43,4 +43,6 @@ public interface IAccelerationIntegrator
      * @param acceleration
      */
     void update(Acceleration acceleration);
+
+        void initialize(Position initalPosition, Velocity initialVelocity, Acceleration acc);
     }
