@@ -8,32 +8,18 @@ android {
         minSdkVersion 19
         targetSdkVersion 19
     }
-}
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+    buildTypes {
+        release {
+            debuggable true
+        }
+        debug {
+            debuggable true
+        }
     }
 }
-
 repositories {
     flatDir {
         dirs 'libs'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        flatDir {
-            dirs 'out'
-        }
     }
 }
 

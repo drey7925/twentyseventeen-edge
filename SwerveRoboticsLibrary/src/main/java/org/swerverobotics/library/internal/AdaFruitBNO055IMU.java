@@ -1,8 +1,10 @@
 package org.swerverobotics.library.internal;
 
 import android.util.Log;
+
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.exceptions.*;
 import org.swerverobotics.library.interfaces.*;
@@ -16,15 +18,27 @@ import static org.swerverobotics.library.interfaces.NavUtil.*;
  * <a href="http://www.adafruit.com/products/2472">AdaFruit Absolute Orientation Sensor</a> that
  * is attached to a Modern Robotics Core Device Interface module.
  */
+<<<<<<< HEAD
 public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser {
+=======
+public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser, IOpModeStateTransitionEvents
+    {
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
     //------------------------------------------------------------------------------------------
     // State
     //------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
     private II2cDeviceClient deviceClient;
     private Parameters parameters;
     private DeathWatch deathWatch;
     private SENSOR_MODE currentMode;
+=======
+    private final OpMode           context;
+    private final II2cDeviceClient deviceClient;
+    private Parameters             parameters;
+    private SENSOR_MODE            currentMode;
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
 
     private final Object dataLock = new Object();
     private IAccelerationIntegrator accelerationAlgorithm;
@@ -50,6 +64,7 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
     /**
      * Instantiate an AdaFruitBNO055IMU on the indicated device whose I2C address is the one indicated.
      */
+<<<<<<< HEAD
     public AdaFruitBNO055IMU(I2cDevice i2cDevice, int i2cAddr8Bit) {
         this.deviceClient = ClassFactory.createI2cDeviceClient(ClassFactory.createI2cDevice(i2cDevice), i2cAddr8Bit);
         this.deviceClient.setReadWindow(lowerWindow);
@@ -59,18 +74,56 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
         this.accelerationMananger = null;
         this.deathWatch = null;
     }
+=======
+    public AdaFruitBNO055IMU(OpMode context, I2cDevice i2cDevice, int i2cAddr8Bit)
+        {
+        this.context                = context;
+
+        // We don't have the device auto-close since *we* handle the shutdown logic
+        this.deviceClient           = ClassFactory.createI2cDeviceClient(context, ClassFactory.createI2cDevice(i2cDevice), i2cAddr8Bit, false);
+        this.deviceClient.setReadWindow(lowerWindow);
+        this.deviceClient.arm();
+
+        this.parameters            = null;
+        this.currentMode           = null;
+        this.accelerationAlgorithm = new NaiveAccelerationIntegrator();
+        this.accelerationMananger  = null;
+
+        RobotStateTransitionNotifier.register(context, this);
+        }
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
 
     /**
      * Instantiate an AdaFruitBNO055IMU and then initialize it with the indicated set of parameters.
      */
+<<<<<<< HEAD
     public static IBNO055IMU create(I2cDevice i2cDevice, Parameters parameters) {
         // Create a sensor which is a client of i2cDevice
         IBNO055IMU result = new AdaFruitBNO055IMU(i2cDevice, parameters.i2cAddr8Bit.bVal);
 
+=======
+    public static IBNO055IMU create(OpMode context, I2cDevice i2cDevice, Parameters parameters)
+        {
+        // Create a sensor which is a client of i2cDevice
+        IBNO055IMU result = new AdaFruitBNO055IMU(context, i2cDevice, parameters.i2cAddr8Bit.bVal);
+        
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
         // Initialize it with the indicated parameters
         result.initialize(parameters);
         return result;
     }
+
+    @Override synchronized public boolean onUserOpModeStop()
+        {
+        this.close();
+        return true;
+        }
+
+    @Override synchronized public boolean onRobotShutdown()
+        {
+        this.close();
+        return true;
+        }
 
     //------------------------------------------------------------------------------------------
     // II2cDeviceClientUser
@@ -317,7 +370,6 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
         });
     }
 
-
     /**
      * Return the number by which we need to divide a raw angle as read from the device in order
      * to convert it to our current angular units. See Table 3-22 of the BNO055 spec
@@ -401,6 +453,7 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
             // Make a new thread on which to do the integration
             this.accelerationMananger = new HandshakeThreadStarter("integrator", new AccelerationManager(msPollInterval));
 
+<<<<<<< HEAD
             IStopActionRegistrar registrar = SynchronousOpMode.getStopActionRegistrar();
             if (registrar != null) {
                 // Running on synchronous thread; we can use the SynchronousOpMode to
@@ -430,6 +483,8 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
                 this.deathWatch.start();
             }
 
+=======
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
             // Start the whole schebang a rockin...
             this.accelerationMananger.start();
         }
@@ -482,6 +537,7 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
                 this.accelerationMananger.start();
             }
         }
+<<<<<<< HEAD
     }
 
     public void stopAccelerationIntegration() // needs a different lock
@@ -493,6 +549,13 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
                 this.deathWatch = null;
             }
 
+=======
+    
+    public void stopAccelerationIntegration() // needs a different lock than 'synchronized(this)'
+        {
+        synchronized (this.startStopLock)
+            {
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
             // Stop the integration thread
             if (this.accelerationMananger != null) {
                 this.accelerationMananger.stop(msAccelerationIntegrationStopWait);
@@ -741,8 +804,16 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
     private void delayLore(int ms) {
         try {
             Thread.sleep(ms);
+<<<<<<< HEAD
         } catch (InterruptedException e) {
             Util.handleCapturedInterrupt(e);
+=======
+            }
+        catch (InterruptedException e)
+            {
+            handleCapturedInterrupt(e);
+            }
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
         }
     }
 
@@ -754,11 +825,20 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
     private void delay(int ms) {
         try {
             Thread.sleep(ms);
+<<<<<<< HEAD
         } catch (InterruptedException e) {
             Util.handleCapturedInterrupt(e);
+=======
+            }
+        catch (InterruptedException e)
+            {
+            handleCapturedInterrupt(e);
+            }
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
         }
     }
 
+<<<<<<< HEAD
     private void enterConfigModeFor(IAction action) {
         SENSOR_MODE modePrev = this.currentMode;
         setSensorMode(SENSOR_MODE.CONFIG);
@@ -766,6 +846,19 @@ public final class AdaFruitBNO055IMU implements IBNO055IMU, II2cDeviceClientUser
         try {
             action.doAction();
         } finally {
+=======
+    private void enterConfigModeFor(Runnable action)
+        {
+        SENSOR_MODE modePrev = this.currentMode;
+        setSensorMode(SENSOR_MODE.CONFIG);
+        delayLoreExtra(25);
+        try
+            {
+            action.run();
+            }
+        finally
+            {
+>>>>>>> 215fcab9397d10ab7399c8d6430abf3ebaf4ff5a
             setSensorMode(modePrev);
             delayLoreExtra(20);
         }
