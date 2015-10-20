@@ -178,7 +178,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:dialogTitle="Time to beacon area clear"
                 android:inputType="number"
                 android:key="auton_beacon_area_clear_time"
-                android:summary="How long to wait for other robot to clear beacon area."
+                android:summary="How long to wait for other robot to clear beacon area, IN SECONDS."
                 android:title="Time to beacon area clear"/>
       </PreferenceCategory>
     </PreferenceScreen>

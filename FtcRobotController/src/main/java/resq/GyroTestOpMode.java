@@ -15,9 +15,7 @@ import org.swerverobotics.library.interfaces.*;
 public class GyroTestOpMode extends SynchronousOpMode
 {
 
-    static {
-        FtcOpModeRegister.register(GyroTestOpMode.class);
-    }
+
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
@@ -120,9 +118,9 @@ boolean running = false;
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
-        telemetry.addAction(new IAction() {
+        telemetry.addAction(new Runnable() {
             @Override
-            public void doAction() {
+            public void run() {
                 // Acquiring the angles is relatively expensive; we don't want
                 // to do that in each of the three items that need that info, as that's
                 // three times the necessary expense.

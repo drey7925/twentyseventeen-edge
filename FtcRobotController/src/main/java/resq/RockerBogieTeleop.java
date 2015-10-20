@@ -21,9 +21,7 @@ import org.bytedeco.javacpp.opencv_core;
  */
 
 public class RockerBogieTeleop extends RockerBogieCommon {
-    static{
-        FtcOpModeRegister.register(RockerBogieTeleop.class);
-    }
+
 
     double scaledPower;
 
@@ -34,34 +32,7 @@ public class RockerBogieTeleop extends RockerBogieCommon {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
         this.gamepad1.setJoystickDeadzone(0.1f);
-        final OpenCvActivityHelper ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity)hardwareMap.appContext);
-        ocvh.addCallback(new MatCallback() {
-            @Override
-            public void handleMat(opencv_core.Mat mat) {
-                Log.i("FRAME", "Processed a frame");
-                try {
-                    Thread.sleep(100); // imitate long process
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
 
-            @Override
-            public void draw(Canvas canvas) {
-                Paint p = new Paint();
-                p.setColor(Color.GREEN);
-                canvas.drawCircle(10, 10, 4, p);
-            }
-        });
-        final TextView tv = new TextView(hardwareMap.appContext);
-        ((Activity) this.hardwareMap.appContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                ocvh.attach();
-                ((FrameLayout)((Activity) RockerBogieTeleop.this.hardwareMap.appContext).findViewById(com.qualcomm.ftcrobotcontroller.R.id.previewLayout)).addView(tv);
-            }
-        });
     }
 
     @Override
