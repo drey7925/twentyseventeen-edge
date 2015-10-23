@@ -186,7 +186,6 @@ public interface IBNO055IMU
      */
     void startAccelerationIntegration(Position initalPosition, Velocity initialVelocity, int msPollInterval);
 
-        void startAccelerationIntegration(Position initalPosition, Velocity initialVelocity, Acceleration acc);
 
 
         /**

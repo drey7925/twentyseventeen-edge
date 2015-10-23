@@ -95,7 +95,7 @@ public class GyroTestOpMode extends SynchronousOpMode
             idle();
         }
         running = true;
-        imu.startAccelerationIntegration(new Position(), new Velocity(), new Acceleration(xT / counts, yT / counts, zT / counts, System.nanoTime()));
+        imu.startAccelerationIntegration(new Position(), new Velocity());
 
         // Loop and update the dashboard
         while (opModeIsActive())

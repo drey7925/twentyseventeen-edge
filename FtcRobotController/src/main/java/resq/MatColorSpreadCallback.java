@@ -16,6 +16,11 @@ import org.bytedeco.javacpp.opencv_core;
 public class MatColorSpreadCallback implements MatCallback {
     private Activity cx;
     private TextView tv;
+
+    public String getState() {
+        return state;
+    }
+
     private String state;
 
     public MatColorSpreadCallback(final Activity cx, final TextView tv) {

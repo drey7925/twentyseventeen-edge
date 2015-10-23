@@ -1,6 +1,7 @@
 package resq;
 
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -17,29 +18,50 @@ import java.util.Arrays;
 /**
  * Created by hon07726 on 10/2/2015.
  */
-public class ResqAuton extends SynchronousOpMode{
+public class ResqAuton extends SynchronousOpMode {
 
     private static Side startSide;
     private static Colors teamColor;
     private static double curX, curY, curYAW;
     private double delay;
+    int i = Integer.MAX_VALUE;
+    MatColorSpreadCallback cb;
 
     public void main() throws InterruptedException {
         fillInSettings();
+        waitTime(1000);
         startUpHardware();
+        startCamera();
+        // TEST AUTON TO SEE IF BACKEND WORKS
+        offsetPosition(0, 0, 0);
+        while (2 + 2 <= i) {
+            updateGamepads();
+            setLeftSpeed(gamepad1.left_stick_y);
+            setRightSpeed(gamepad1.right_stick_y);
+        }
+
+
+        if (2 + 2 <= Integer.MAX_VALUE) return;
+        navigateTo(4, 4, 90);
+        navigateTo(0, 0, 0);
+        turnTo(180);
+        turnTo(0);
+        turnTo(90);
+        if (2 + 2 <= Integer.MAX_VALUE) return;
+
         waitTime(1000);
         if (teamColor == Colors.BLUE) {
             if (startSide == Side.MOUNTAIN) {
-                offsetPosition(err(), err(), err());
+                offsetPosition(29/4.0, 2/3, 90);
             } else if (startSide == Side.MIDLINE) {
-                offsetPosition(err(), err(), err());
+                offsetPosition(17/6, 2/3, 90);
             }
 
         } else if (teamColor == Colors.RED) {
             if (startSide == Side.MOUNTAIN) {
-                offsetPosition(err(), err(), err());
+                offsetPosition(2/3.0, 29.0/4, 0);
             } else if (startSide == Side.MIDLINE) {
-                offsetPosition(err(), err(), err());
+                offsetPosition(2/3.0, 17/6.0, 0);
             }
 
         }
@@ -48,16 +70,35 @@ public class ResqAuton extends SynchronousOpMode{
         goForward(0.5); //Get away from wall
         if (teamColor == Colors.BLUE) {
             if (startSide == Side.MOUNTAIN) {
-                navigateTo(err(), err(), err()); //REPLACE
+                navigateTo(10.5, 9, 90); //REPLACE
             } else if (startSide == Side.MIDLINE) {
-                navigateTo(err(), err(), err()); //REPLACE
+                navigateTo(10.5, 9, 90); //REPLACE
             }
 
         } else if (teamColor == Colors.RED) {
             if (startSide == Side.MOUNTAIN) {
-                navigateTo(err(), err(), err()); //REPLACE
+                navigateTo(9, 10.5, 0); //REPLACE
             } else if (startSide == Side.MIDLINE) {
-                navigateTo(err(), err(), err()); //REPLACE
+                navigateTo(9, 10.5, 0); //REPLACE
+            }
+
+        }
+        detectAndHitBeacon();
+        //go to front of mountain, facing the mountain
+        boolean farMountain; // THIS IS A PLACEHOLDER
+        boolean closeMountain; //THIS IS A PLACEHOLDER
+        if (teamColor == Colors.RED) {
+            if (farMountain) {
+                navigateTo(10, 3.5, 315); //REPLACE
+            } else if (closeMountain) {
+                navigateTo(2, 8.5, 135); //REPLACE
+            }
+
+        } else if (teamColor == Colors.BLUE) {
+            if (farMountain) {
+                navigateTo(3.5, 10, 135); //REPLACE
+            } else if (closeMountain) {
+                navigateTo(8.5, 2, 315); //REPLACE
             }
 
         }
@@ -66,10 +107,14 @@ public class ResqAuton extends SynchronousOpMode{
 
     }
 
+    private void startCamera() {
+        cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
+    }
+
     private double err() {
         RuntimeException e = new RuntimeException("Fill in the caller!");
         e.printStackTrace();
-        for(StackTraceElement ste : e.getStackTrace()){
+        for (StackTraceElement ste : e.getStackTrace()) {
             Log.e("FILLIN", ste.toString());
         }
         throw e;
@@ -102,142 +147,187 @@ public class ResqAuton extends SynchronousOpMode{
         setRightSpeed(0);
 
     }
+
     public void goForward(double secs) {
-        goForward(secs,100);
+        goForward(secs, 100);
 
     }
 
 
     public void turnTo(double YAW) {
         curYAW = getGyroYAW();
-        double angle = curYAW-YAW;
-        if((curYAW-YAW)>180){
-            angle = Math.abs(360-angle);
+        double angle = curYAW - YAW;
+        if ((curYAW - YAW) > 180) {
+            angle = Math.abs(360 - angle);
         }
-        double incA = Math.min(15,angle); //the increment angle
+        double incA = Math.min(15, angle); //the increment angle
         double oriYAW = getGyroYAW();
         double incr = 0;
         //begin turning cases
-        if (((oriYAW>YAW) && (oriYAW-YAW)<180)) { //TURN RIGHT
+        if (((oriYAW > YAW) && (oriYAW - YAW) < 180)) { //TURN RIGHT
 
-            while((oriYAW-curYAW)<incA){
+            while ((oriYAW - curYAW) < incA) {
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
-                incr=100*((oriYAW-curYAW)/15);
-                if(oriYAW-curYAW==incA){
+                incr = 100 * ((oriYAW - curYAW) / 15);
+                if (oriYAW - curYAW == incA) {
                     break;
                 }
                 curYAW = getGyroYAW();
 
             }
-       	/* START INTERMEDIATE MAX SPEED TURN*/
-            while ((oriYAW - curYAW) < (angle - incA)){
+           /* START INTERMEDIATE MAX SPEED TURN*/
+            while ((oriYAW - curYAW) < (angle - incA)) {
                 setLeftSpeed(100);
                 setRightSpeed(-100);
                 curYAW = getGyroYAW();
             }
        	/* START DECLINING INCREMENT */
-            while((oriYAW-curYAW)<angle){
+            while ((oriYAW - curYAW) < angle) {
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
-                incr=(100*(-(YAW-curYAW)/15));
-                if(oriYAW-curYAW==incA){
+                incr = (100 * (-(YAW - curYAW) / 15));
+                if (oriYAW - curYAW == incA) {
                     break;
                 }
                 curYAW = getGyroYAW();
             }
             curYAW = getGyroYAW();
-            if(curYAW<=YAW){
+            if (curYAW <= YAW) {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
-        }
-
-        else if((oriYAW<YAW) && (oriYAW-YAW)>180){ //turn right past 0 line fuck the zero line btw
+        } else if ((oriYAW < YAW) && (YAW - oriYAW) > 180) { //turn right past 0 line fuck the zero line btw
             curYAW = getGyroYAW();
-            if(oriYAW>incA){
-                while((oriYAW-curYAW)<incA){
+            if (oriYAW > incA) {
+                while ((oriYAW - curYAW) < incA) {
                     setLeftSpeed(incr);
                     setRightSpeed(-incr);
-                    incr=100*((oriYAW-curYAW)/15);
-                    if(oriYAW-curYAW==incA){
+                    incr = 100 * ((oriYAW - curYAW) / 15);
+                    if (oriYAW - curYAW == incA) {
                         break;
                     }
                     curYAW = getGyroYAW();
                 }
-            }
-            else{
+            } else {
                 curYAW = getGyroYAW();
-                while(oriYAW+(360-curYAW)<incA){
+                while (oriYAW + (360 - curYAW) < incA) {
                     setLeftSpeed(incr);
                     setRightSpeed(-incr);
-                    incr=100*((oriYAW-curYAW)/15);
-                    if(oriYAW+(360-curYAW)==incA){
+                    incr = 100 * ((oriYAW - curYAW) / 15);
+                    if (oriYAW + (360 - curYAW) == incA) {
                         break;
                     }
                     curYAW = getGyroYAW();
                 }
             }
        	/* START INTERMEDIATE MAX SPEED TURN*/
-            while(curYAW<oriYAW){ //these two while loops are the same thing
+            while (curYAW < oriYAW) { //these two while loops are the same thing
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
                 curYAW = getGyroYAW();
             }
-            while((360-curYAW)<(angle-incA)){//they're just accounting for before the 0 line and after it
+            while ((360 - curYAW) < (angle - incA)) {//they're just accounting for before the 0 line and after it
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
                 curYAW = getGyroYAW();
             } //fuck the zero line so much @zeroline I hate u
        	/*START DECLINING INCREMENT SPEED */
-            while((oriYAW+(360-curYAW))<angle){
+            while ((oriYAW + (360 - curYAW)) < angle) {
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
-                incr = 100*(-(YAW-curYAW)/15);
+                incr = 100 * (-(YAW - curYAW) / 15);
                 curYAW = getGyroYAW();
             }
             curYAW = getGyroYAW();
-            if((oriYAW+(360-curYAW))>=angle){ //stops motors
+            if ((oriYAW + (360 - curYAW)) >= angle) { //stops motors
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
 
-        }
-        else if((oriYAW>YAW)&&((oriYAW-YAW)>180)){ // LEFT TURN (DO THIS!!)
-            while((curYAW-oriYAW)<incA){
+        } else if ((oriYAW < YAW) && ((YAW-oriYAW) < 180)) { // LEFT TURN (DO THIS!!)
+            while ((curYAW - oriYAW) < incA) {
                 setLeftSpeed(-incr);
                 setRightSpeed(incr);
-                incr=100*((curYAW-oriYAW)/15);
-                if(curYAW-oriYAW>=incA){
+                incr = 100 * ((curYAW - oriYAW) / 15);
+                if (curYAW - oriYAW >= incA) {
                     break;
                 }
                 curYAW = getGyroYAW();
 
             }
        	/* START INTERMEDIATE MAX SPEED TURN*/
-            while ((curYAW-oriYAW) < (angle - incA)){
+            while ((curYAW - oriYAW) < (angle - incA)) {
                 setLeftSpeed(-100);
                 setRightSpeed(100);
                 curYAW = getGyroYAW();
             }
        	/* START DECLINING INCREMENT */
-            while((curYAW-oriYAW)<angle){
+            while ((curYAW - oriYAW) < angle) {
                 setLeftSpeed(-incr);
                 setRightSpeed(incr);
-                incr=(100*(-(YAW-curYAW)/15));
-                if(curYAW-oriYAW==incA){
+                incr = (100 * (-(YAW - curYAW) / 15));
+                if (curYAW - oriYAW == incA) {
                     break;
                 }
                 curYAW = getGyroYAW();
             }
             curYAW = getGyroYAW();
-            if(curYAW>=YAW){
+            if (curYAW >= YAW) {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
         }
+        else if ((oriYAW>YAW) && (oriYAW-YAW)>180) { //turn right past 0 line fuck the zero line btw
+            curYAW = getGyroYAW();
+            if (oriYAW > incA) {
+                while ((oriYAW - curYAW) < incA) {
+                    setLeftSpeed(incr);
+                    setRightSpeed(-incr);
+                    incr = 100 * ((oriYAW - curYAW) / 15);
+                    if (oriYAW - curYAW == incA) {
+                        break;
+                    }
+                    curYAW = getGyroYAW();
+                }
+            } else {
+                curYAW = getGyroYAW();
+                while (oriYAW + (360 - curYAW) < incA) {
+                    setLeftSpeed(incr);
+                    setRightSpeed(-incr);
+                    incr = 100 * ((oriYAW - curYAW) / 15);
+                    if (oriYAW + (360 - curYAW) == incA) {
+                        break;
+                    }
+                    curYAW = getGyroYAW();
+                }
+            }
+       	/* START INTERMEDIATE MAX SPEED TURN*/
+            while (curYAW < oriYAW) { //these two while loops are the same thing
+                setLeftSpeed(incr);
+                setRightSpeed(-incr);
+                curYAW = getGyroYAW();
+            }
+            while ((360 - curYAW) < (angle - incA)) {//they're just accounting for before the 0 line and after it
+                setLeftSpeed(incr);
+                setRightSpeed(-incr);
+                curYAW = getGyroYAW();
+            } //fuck the zero line so much @zeroline I hate u
+       	/*START DECLINING INCREMENT SPEED */
+            while ((oriYAW + (360 - curYAW)) < angle) {
+                setLeftSpeed(incr);
+                setRightSpeed(-incr);
+                incr = 100 * (-(YAW - curYAW) / 15);
+                curYAW = getGyroYAW();
+            }
+            curYAW = getGyroYAW();
+            if ((oriYAW + (360 - curYAW)) >= angle) { //stops motors
+                setLeftSpeed(0);
+                setRightSpeed(0);
+            }
 
-    }
+    }}
+
     DcMotor l0;
     DcMotor l1;
     DcMotor l2;
@@ -274,19 +364,17 @@ public class ResqAuton extends SynchronousOpMode{
     }
 
 
-
-
-
-
     /**
      * wait <i>delay</i> seconds, then go on
      */
     public void waitAllianceTeamDelay() {
         waitTime(getAllyDelay());
     }
+
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
+
     public int getAllyDelay() {
-        return (int)Utils.getSafeDoublePref("auton_beacon_area_clear_time", sharedPref, 5);
+        return (int) Utils.getSafeDoublePref("auton_beacon_area_clear_time", sharedPref, 5);
     }
 //what does YAW give you -->
 
@@ -300,30 +388,29 @@ public class ResqAuton extends SynchronousOpMode{
         curY = getGyroY();
         curYAW = getGyroYAW();
         long sTime = System.nanoTime();
-        double bearing2Dest = Math.atan2(X-curX,Y-curY);
-        while (!(Math.abs(curX-X)<=0.05) || !(Math.abs(curY-Y)<=0.05)) {
-            while(Math.abs(bearing2Dest - curYAW)<= 2.5) {
-                bearing2Dest = Math.atan2(X-curX,Y-curY);
-                if(bearing2Dest - curYAW < 0)
-                    turnTo(curYAW+0.1);
+        double bearing2Dest = Math.atan2(X - curX, Y - curY);
+        while (!(Math.abs(curX - X) <= 0.05) || !(Math.abs(curY - Y) <= 0.05)) {
+            while (Math.abs(bearing2Dest - curYAW) <= 2.5) {
+                bearing2Dest = Math.atan2(X - curX, Y - curY);
+                if (bearing2Dest - curYAW < 0)
+                    turnTo(curYAW + 0.1);
                 else
-                    turnTo(curYAW-0.1);
+                    turnTo(curYAW - 0.1);
             }
             // divide by half a second
-            goForward(0.01, Math.min(Math.min((System.nanoTime()-sTime) / 500_000_000.0, 1.0), 2*Math.hypot(curX-X, curY-Y)));
+            goForward(0.01, Math.min(Math.min((System.nanoTime() - sTime) / 500000000.0, 1.0), 2 * Math.hypot(curX - X, curY - Y)));
             curX = getGyroX();
             curY = getGyroY();
             curYAW = getGyroYAW();
 
         }
-        if(YAW >=0) {
-            if (((curYAW>YAW) && (curYAW-YAW)<180) || ((curYAW<YAW) && (curYAW-YAW)>180)) {
-                while ((curYAW-YAW)>2.5 || (curYAW-YAW)<357.5) {
+        if (YAW >= 0) {
+            if (((curYAW > YAW) && (curYAW - YAW) < 180) || ((curYAW < YAW) && (curYAW - YAW) > 180)) {
+                while ((curYAW - YAW) > 2.5 || (curYAW - YAW) < 357.5) {
                     turnTo(YAW);
                 }
-            }
-            else {
-                while ((YAW-curYAW)>2.5 || (YAW-curYAW)<357.5) {
+            } else {
+                while ((YAW - curYAW) > 2.5 || (YAW - curYAW) < 357.5) {
                     turnTo(YAW);
                 }
             }
@@ -331,7 +418,98 @@ public class ResqAuton extends SynchronousOpMode{
     }
 
     public void detectAndHitBeacon() {
-        throw new RuntimeException("Andrei will make something awesome here. Hit the beacon!");
+        if (getTeam() == Colors.BLUE) {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(0.33);
+                setRightSpeed(0.33);
+                doPeriodicTasks();
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(0.33);
+                setRightSpeed(0.33);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        break;
+                    }
+                    if(cb.getState().equals("RR")){
+                        return;
+                    }
+                    if(cb.getState().contains("G")){
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            } else {
+                setLeftSpeed(-0.33);
+                setRightSpeed(-0.33);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        break;
+                    }
+                    if(cb.getState().equals("RR")){
+                        return;
+                    }
+                    if(cb.getState().contains("G")){
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            }
+        } else {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(-0.33);
+                setRightSpeed(-0.33);
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(-0.33);
+                setRightSpeed(-0.33);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        break;
+                    }
+                    if(cb.getState().equals("BB")){
+                        return;
+                    }
+                    if(cb.getState().contains("G")){
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            } else {
+                setLeftSpeed(0.33);
+                setRightSpeed(0.33);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        break;
+                    }
+                    if(cb.getState().equals("BB")){
+                        return;
+                    }
+                    if(cb.getState().contains("G")){
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            }
+        }
+
+
+    }
+
+    private void pushButton() {
+        throw new RuntimeException("PUSH!");
     }
 
     public enum Side {
@@ -346,9 +524,9 @@ public class ResqAuton extends SynchronousOpMode{
         RIGHT, LEFT, FORWARDS, BACKWARDS
     }
 
-    IBNO055IMU              imu;
-    ElapsedTime elapsed    = new ElapsedTime();
-    IBNO055IMU.Parameters   parameters = new IBNO055IMU.Parameters();
+    IBNO055IMU imu;
+    ElapsedTime elapsed = new ElapsedTime();
+    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
 
     // Here we have state we use for updating the dashboard. The first of these is important
     // to read only once per update, as its acquisition is expensive. The remainder, though,
@@ -356,6 +534,7 @@ public class ResqAuton extends SynchronousOpMode{
     EulerAngles angles;
     Position position;
     Acceleration accel;
+
     private void startUpHardware() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -381,11 +560,11 @@ public class ResqAuton extends SynchronousOpMode{
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         lastEncoderL = new int[]{l0.getCurrentPosition(), l1.getCurrentPosition(), l2.getCurrentPosition()};
         lastEncoderR = new int[]{r0.getCurrentPosition(), r1.getCurrentPosition(), r2.getCurrentPosition()};
-        parameters.angleunit      = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit      = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
+        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = true;
-        parameters.mode           = IBNO055IMU.SENSOR_MODE.NDOF;
-        parameters.loggingTag     = "BNO055";
+        parameters.mode = IBNO055IMU.SENSOR_MODE.NDOF;
+        parameters.loggingTag = "BNO055";
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("bno055"), parameters);
         // Enable reporting of position using the naive integrator
 
@@ -410,37 +589,56 @@ public class ResqAuton extends SynchronousOpMode{
     double y = 0;
     int[] lastEncoderL = new int[3];
     int[] lastEncoderR = new int[3];
+
     public void doPeriodicTasks() {
         angles = imu.getAngularOrientation();
         position = imu.getPosition();
         accel = imu.getLinearAcceleration();
-        int[] uEL = new int[]{l0.getCurrentPosition()- lastEncoderL[0], l1.getCurrentPosition()- lastEncoderL[1], l2.getCurrentPosition()- lastEncoderL[2]};
-        int[] uER = new int[]{r0.getCurrentPosition()- lastEncoderR[0], r1.getCurrentPosition()- lastEncoderR[1], r2.getCurrentPosition()- lastEncoderR[2]};
+
+        int l0p = l0.getCurrentPosition();
+        int l1p = l1.getCurrentPosition();
+        int l2p = l2.getCurrentPosition();
+        int[] uEL = new int[]{l0p - lastEncoderL[0], l1p - lastEncoderL[1], l2p - lastEncoderL[2]};
+        int r0p = r0.getCurrentPosition();
+        int r1p = r1.getCurrentPosition();
+        int r2p = r2.getCurrentPosition();
+        int[] uER = new int[]{r0p - lastEncoderR[0], r1p - lastEncoderR[1], r2p - lastEncoderR[2]};
+
         Arrays.sort(uEL);
         Arrays.sort(uER);
-        int delta = weightPositionEffects(uEL[1], uER[1]);
+        int delta = weightPositionEffects(l0p - lastEncoderL[0], r0p - lastEncoderR[0]);
+        //int delta = weightPositionEffects(uEL[1], uER[1]);
         double dist = remapWheelDiameter(delta);
         x += (dist * Math.cos(getGyroYAW()));
         y += (dist * Math.sin(getGyroYAW()));
+        lastEncoderL = new int[]{l0p, l1p, l2p};
+        lastEncoderR = new int[]{r0p, r1p, r2p};
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
         i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
         ms = elapsed.time() * 1000.0;
+        try {
+            idle();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private double remapWheelDiameter(int delta) {
-        throw new RuntimeException("BOO BUILDERS!");
+        // 3.205 inches
+        return 3.205 * 2 * Math.PI * delta / 1440 / 12;
     }
 
     private int weightPositionEffects(int l, int r) {
-        return (l+r)/2;
+        return (l + r) / 2;
     }
 
-    int                     loopCycles;
-    int                     i2cCycles;
-    double                  ms;
-    void composeDashboard()    {
+    int loopCycles;
+    int i2cCycles;
+    double ms;
+
+    void composeDashboard() {
         // The default dashboard update rate is a little to slow for us, so we update faster
         telemetry.setUpdateIntervalMs(200);
 
@@ -475,170 +673,173 @@ public class ResqAuton extends SynchronousOpMode{
                 }));
 
         telemetry.addLine(
-                telemetry.item("loop rate: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("loop rate: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatRate(ms / loopCycles);
                     }
                 }),
-                telemetry.item("i2c cycle rate: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("i2c cycle rate: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatRate(ms / i2cCycles);
                     }
                 }));
 
         telemetry.addLine(
-                telemetry.item("status: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("status: ", new IFunc<Object>() {
+                    public Object value() {
                         return decodeStatus(imu.getSystemStatus());
                     }
                 }),
-                telemetry.item("calib: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("calib: ", new IFunc<Object>() {
+                    public Object value() {
                         return decodeCalibration(imu.read8(IBNO055IMU.REGISTER.CALIB_STAT));
                     }
                 }));
 
         telemetry.addLine(
-                telemetry.item("heading: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("heading: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatAngle(angles.heading);
                     }
                 }),
-                telemetry.item("roll: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("roll: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatAngle(angles.roll);
                     }
                 }),
-                telemetry.item("pitch: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("pitch: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatAngle(angles.pitch);
                     }
                 }));
 
         telemetry.addLine(
-                telemetry.item("x: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("x: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(position.x);
                     }
                 }),
-                telemetry.item("y: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("y: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(position.y);
                     }
                 }),
-                telemetry.item("z: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("z: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(position.z);
                     }
                 }));
-
         telemetry.addLine(
-                telemetry.item("cal: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("X!!: ", new IFunc<Object>() {
+                    public Object value() {
+                        return formatPosition(getGyroX());
+                    }
+                }),
+                telemetry.item("Y!!: ", new IFunc<Object>() {
+                    public Object value() {
+                        return formatPosition(getGyroY());
+                    }
+                }),
+                telemetry.item("YAW!!: ", new IFunc<Object>() {
+                    public Object value() {
+                        return formatPosition(getGyroYAW());
+                    }
+                }));
+        telemetry.addLine(
+                telemetry.item("cal: ", new IFunc<Object>() {
+                    public Object value() {
                         return imu.isSystemCalibrated();
                     }
                 })
         );
         telemetry.addLine(
-                telemetry.item("xa: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("xa: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(accel.accelX);
                     }
                 }),
-                telemetry.item("ya: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("ya: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(accel.accelY);
                     }
                 }),
-                telemetry.item("za: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("za: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(accel.accelZ);
+                    }
+                }));
+
+        telemetry.addLine(
+                telemetry.item("STATE: ", new IFunc<Object>() {
+                    public Object value() {
+                        return cb.getState();
                     }
                 }));
 
     }
 
-    String formatAngle(double angle)    {
-        return parameters.angleunit==IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+    String formatAngle(double angle) {
+        return parameters.angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
-    String formatRadians(double radians)
-    {
+
+    String formatRadians(double radians) {
         return formatDegrees(degreesFromRadians(radians));
     }
-    String formatDegrees(double degrees)
-    {
+
+    String formatDegrees(double degrees) {
         return String.format("%.1f", normalizeDegrees(degrees));
     }
-    String formatRate(double cyclesPerSecond)
-    {
+
+    String formatRate(double cyclesPerSecond) {
         return String.format("%.2f", cyclesPerSecond);
     }
-    String formatPosition(double coordinate)
-    {
-        String unit = parameters.accelunit== IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+
+    String formatPosition(double coordinate) {
+        String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
         return String.format("%.2f%s", coordinate, unit);
     }
 
-    /** Normalize the angle into the range [-180,180) */
-    double normalizeDegrees(double degrees)
-    {
+    /**
+     * Normalize the angle into the range [-180,180)
+     */
+    double normalizeDegrees(double degrees) {
         while (degrees >= 360) degrees -= 360.0;
         while (degrees < 0.0) degrees += 360.0;
         return degrees;
     }
-    double degreesFromRadians(double radians)
-    {
+
+    double degreesFromRadians(double radians) {
         return radians * 180.0 / Math.PI;
     }
 
-    /** Turn a system status into something that's reasonable to show in telemetry */
-    String decodeStatus(int status)
-    {
-        switch (status)
-        {
-            case 0: return "idle";
-            case 1: return "syserr";
-            case 2: return "periph";
-            case 3: return "sysinit";
-            case 4: return "selftest";
-            case 5: return "fusion";
-            case 6: return "running";
+    /**
+     * Turn a system status into something that's reasonable to show in telemetry
+     */
+    String decodeStatus(int status) {
+        switch (status) {
+            case 0:
+                return "idle";
+            case 1:
+                return "syserr";
+            case 2:
+                return "periph";
+            case 3:
+                return "sysinit";
+            case 4:
+                return "selftest";
+            case 5:
+                return "fusion";
+            case 6:
+                return "running";
         }
         return "unk";
     }
 
-    /** Turn a calibration code into something that is reasonable to show in telemetry */
-    String decodeCalibration(int status)
-    {
+    /**
+     * Turn a calibration code into something that is reasonable to show in telemetry
+     */
+    String decodeCalibration(int status) {
         StringBuilder result = new StringBuilder();
 
         result.append(String.format("s%d", (status >> 6) & 0x03));  // SYS calibration status
