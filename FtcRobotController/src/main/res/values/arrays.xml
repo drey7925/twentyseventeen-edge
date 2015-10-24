@@ -15,8 +15,8 @@
     </string-array>
 
     <string-array name="rampAlias">
-        <item>"MOUNTAIN"</item>
-        <item>"MIDLINE"</item>
+        <item>"NEAR"</item>
+        <item>"FAR"</item>
     </string-array>
     <string-array name="startPos">
         <item>3 inches (+/- 1 in) from mountain edge</item>

@@ -85,8 +85,8 @@ public class ResqAuton extends SynchronousOpMode {
         }
         detectAndHitBeacon();
         //go to front of mountain, facing the mountain
-        boolean farMountain; // THIS IS A PLACEHOLDER
-        boolean closeMountain; //THIS IS A PLACEHOLDER
+        boolean farMountain = isFarMountain(); // THIS IS A PLACEHOLDER
+        boolean closeMountain = !isFarMountain(); //THIS IS A PLACEHOLDER
         if (teamColor == Colors.RED) {
             if (farMountain) {
                 navigateTo(10, 3.5, 315); //REPLACE
@@ -510,6 +510,10 @@ public class ResqAuton extends SynchronousOpMode {
 
     private void pushButton() {
         throw new RuntimeException("PUSH!");
+    }
+
+    public boolean isFarMountain() {
+        return sharedPref.getString("auton_ramp_selection", "FAR").equals("FAR");
     }
 
     public enum Side {
