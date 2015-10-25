@@ -15,7 +15,6 @@ public abstract class RockerBogieCommon extends OpMode {
     DcMotor r1;
     DcMotor r2;
     DcMotor w;
-    GyroHelper gh;
     @Override
     public void init() {
         l0 = hardwareMap.dcMotor.get("l0");
@@ -40,8 +39,6 @@ public abstract class RockerBogieCommon extends OpMode {
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r2.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        gh = new GyroHelper(this);
-        gh.startUpGyro();
 
     }
 }

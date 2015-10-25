@@ -539,9 +539,9 @@ public class ResqAuton extends SynchronousOpMode {
 
         w = hardwareMap.dcMotor.get("w");
 
-        r0.setDirection(DcMotor.Direction.REVERSE);
-        r1.setDirection(DcMotor.Direction.REVERSE);
-        r2.setDirection(DcMotor.Direction.REVERSE);
+        l0.setDirection(DcMotor.Direction.REVERSE);
+        l1.setDirection(DcMotor.Direction.REVERSE);
+        l2.setDirection(DcMotor.Direction.REVERSE);
 
         l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
