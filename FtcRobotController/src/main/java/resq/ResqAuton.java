@@ -7,9 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import ftc.team6460.javadeck.ftc.Utils;
-import org.swerverobotics.library.ClassFactory;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.*;
 
@@ -23,6 +21,7 @@ public class ResqAuton extends SynchronousOpMode {
     private static Side startSide;
     private static Colors teamColor;
     private static double curX, curY, curYAW;
+    final GyroHelper gyroHelper = new GyroHelper(this);
     private double delay;
     int i = Integer.MAX_VALUE;
     MatColorSpreadCallback cb;
@@ -528,17 +527,6 @@ public class ResqAuton extends SynchronousOpMode {
         RIGHT, LEFT, FORWARDS, BACKWARDS
     }
 
-    IBNO055IMU imu;
-    ElapsedTime elapsed = new ElapsedTime();
-    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
-
-    // Here we have state we use for updating the dashboard. The first of these is important
-    // to read only once per update, as its acquisition is expensive. The remainder, though,
-    // could probably be read once per item, at only a small loss in display accuracy.
-    EulerAngles angles;
-    Position position;
-    Acceleration accel;
-
     private void startUpHardware() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -564,17 +552,10 @@ public class ResqAuton extends SynchronousOpMode {
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         lastEncoderL = new int[]{l0.getCurrentPosition(), l1.getCurrentPosition(), l2.getCurrentPosition()};
         lastEncoderR = new int[]{r0.getCurrentPosition(), r1.getCurrentPosition(), r2.getCurrentPosition()};
-        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = true;
-        parameters.mode = IBNO055IMU.SENSOR_MODE.NDOF;
-        parameters.loggingTag = "BNO055";
-        imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("bno055"), parameters);
-        // Enable reporting of position using the naive integrator
-
-        // Set up our dashboard computations
+        gyroHelper.startUpGyro();
         composeDashboard();
     }
+
 
     public double getGyroX() {
         return x;
@@ -585,7 +566,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     public double getGyroYAW() {
-        return normalizeDegrees(angles.heading - initYaw);
+        return normalizeDegrees(gyroHelper.getAngles().heading - initYaw);
     }
 
     double initYaw = 0;
@@ -595,9 +576,7 @@ public class ResqAuton extends SynchronousOpMode {
     int[] lastEncoderR = new int[3];
 
     public void doPeriodicTasks() {
-        angles = imu.getAngularOrientation();
-        position = imu.getPosition();
-        accel = imu.getLinearAcceleration();
+        gyroHelper.update();
 
         int l0p = l0.getCurrentPosition();
         int l1p = l1.getCurrentPosition();
@@ -620,8 +599,8 @@ public class ResqAuton extends SynchronousOpMode {
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
-        i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
-        ms = elapsed.time() * 1000.0;
+        i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+        ms = gyroHelper.getElapsed().time() * 1000.0;
         try {
             idle();
         } catch (InterruptedException e) {
@@ -654,14 +633,12 @@ public class ResqAuton extends SynchronousOpMode {
                 // Acquiring the angles is relatively expensive; we don't want
                 // to do that in each of the three items that need that info, as that's
                 // three times the necessary expense.
-                angles = imu.getAngularOrientation();
-                position = imu.getPosition();
-                accel = imu.getLinearAcceleration();
+                gyroHelper.update();
                 // The rest of this is pretty cheap to acquire, but we may as well do it
                 // all while we're gathering the above.
                 loopCycles = getLoopCount();
-                i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
-                ms = elapsed.time() * 1000.0;
+                i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+                ms = gyroHelper.getElapsed().time() * 1000.0;
             }
         });
         telemetry.addLine(
@@ -691,46 +668,46 @@ public class ResqAuton extends SynchronousOpMode {
         telemetry.addLine(
                 telemetry.item("status: ", new IFunc<Object>() {
                     public Object value() {
-                        return decodeStatus(imu.getSystemStatus());
+                        return decodeStatus(gyroHelper.getImu().getSystemStatus());
                     }
                 }),
                 telemetry.item("calib: ", new IFunc<Object>() {
                     public Object value() {
-                        return decodeCalibration(imu.read8(IBNO055IMU.REGISTER.CALIB_STAT));
+                        return decodeCalibration(gyroHelper.getImu().read8(IBNO055IMU.REGISTER.CALIB_STAT));
                     }
                 }));
 
         telemetry.addLine(
                 telemetry.item("heading: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.heading);
+                        return formatAngle(gyroHelper.getAngles().heading);
                     }
                 }),
                 telemetry.item("roll: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.roll);
+                        return formatAngle(gyroHelper.getAngles().roll);
                     }
                 }),
                 telemetry.item("pitch: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.pitch);
+                        return formatAngle(gyroHelper.getAngles().pitch);
                     }
                 }));
 
         telemetry.addLine(
                 telemetry.item("x: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(position.x);
+                        return formatPosition(gyroHelper.getPosition().x);
                     }
                 }),
                 telemetry.item("y: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(position.y);
+                        return formatPosition(gyroHelper.getPosition().y);
                     }
                 }),
                 telemetry.item("z: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(position.z);
+                        return formatPosition(gyroHelper.getPosition().z);
                     }
                 }));
         telemetry.addLine(
@@ -752,24 +729,24 @@ public class ResqAuton extends SynchronousOpMode {
         telemetry.addLine(
                 telemetry.item("cal: ", new IFunc<Object>() {
                     public Object value() {
-                        return imu.isSystemCalibrated();
+                        return gyroHelper.getImu().isSystemCalibrated();
                     }
                 })
         );
         telemetry.addLine(
                 telemetry.item("xa: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(accel.accelX);
+                        return formatPosition(gyroHelper.getAccel().accelX);
                     }
                 }),
                 telemetry.item("ya: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(accel.accelY);
+                        return formatPosition(gyroHelper.getAccel().accelY);
                     }
                 }),
                 telemetry.item("za: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatPosition(accel.accelZ);
+                        return formatPosition(gyroHelper.getAccel().accelZ);
                     }
                 }));
 
@@ -783,7 +760,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     String formatAngle(double angle) {
-        return parameters.angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+        return gyroHelper.getParameters().angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
 
     String formatRadians(double radians) {
@@ -799,7 +776,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     String formatPosition(double coordinate) {
-        String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+        String unit = gyroHelper.getParameters().accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
         return String.format("%.2f%s", coordinate, unit);
     }
