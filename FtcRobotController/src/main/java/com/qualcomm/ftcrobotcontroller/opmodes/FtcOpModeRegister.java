@@ -36,10 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
 import org.swerverobotics.library.internal.AnnotatedOpModeRegistrar;
-import resq.AutonCameraTestOpMode;
-import resq.GyroTestOpMode;
-import resq.RockerBogieTeleop;
-import resq.SynchTestOpMode;
+import resq.*;
 
 import java.util.HashSet;
 
@@ -78,6 +75,7 @@ public class FtcOpModeRegister implements OpModeRegister
         manager.register("telop", RockerBogieTeleop.class);
         manager.register("cameratest", AutonCameraTestOpMode.class);
         manager.register("auttest", SynchTestOpMode.class);
+        manager.register("servocalib", ServoCalibOpMode.class);
     AnnotatedOpModeRegistrar.register(manager);
     /*
      * Uncomment any of the following lines if you want to register an op mode,
