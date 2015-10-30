@@ -5,9 +5,7 @@ import com.qualcomm.robotcore.hardware.ServoController;
 
 import java.util.Arrays;
 
-/**
- * Created by akh06977 on 10/30/2015.
- */
+
 public class ServoCalibOpMode  extends OpMode{
     int servoId = 0;
     double[] val = new double[6];

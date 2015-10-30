@@ -76,7 +76,7 @@ public class FtcOpModeRegister implements OpModeRegister
         manager.register("cameratest", AutonCameraTestOpMode.class);
         manager.register("auttest", SynchTestOpMode.class);
         manager.register("servocalib", ServoCalibOpMode.class);
-    AnnotatedOpModeRegistrar.register(manager);
+    //AnnotatedOpModeRegistrar.register(manager);
     /*
      * Uncomment any of the following lines if you want to register an op mode,
      * or do that registration in a static method annotated as @OpModeRegistrar.
