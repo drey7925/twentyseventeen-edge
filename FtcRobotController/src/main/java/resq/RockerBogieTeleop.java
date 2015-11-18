@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.opmodes.FtcOpModeRegister;
+import com.qualcomm.robotcore.hardware.Servo;
 import ftc.team6460.javadeck.ftc.Utils;
 import ftc.team6460.javadeck.ftc.vision.MatCallback;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
@@ -30,10 +31,15 @@ public class RockerBogieTeleop extends RockerBogieCommon {
     private static final double TIP_PREVENTION_PWR = 0.1; // per m*s^-2
     GyroHelper gh;
 
+
+    Servo rtHoldSrvo; // Right servo, labeled 1
+    Servo ltHoldSrvo; // Left servo, labeled 2
+    boolean holdServosDeployed = false;
     @Override
     public void init() {
         super.init();
-
+        ltHoldSrvo = hardwareMap.servo.get("lefthold");
+        rtHoldSrvo = hardwareMap.servo.get("righthold");
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
         this.gamepad1.setJoystickDeadzone(0.1f);
@@ -81,7 +87,14 @@ public class RockerBogieTeleop extends RockerBogieCommon {
             w.setPower(0);
             telemetry.addData("w", "0");
         }
+        if(this.gamepad1.a) holdServosDeployed = true;
+        else if(this.gamepad1.b) holdServosDeployed = false;
+
+        ltHoldSrvo.setPosition(holdServosDeployed?0.539:0.860);
+        rtHoldSrvo.setPosition(holdServosDeployed?0.943:0.619);
+
     }
 
 
 }
+
