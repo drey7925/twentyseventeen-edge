@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 import ftc.team6460.javadeck.ftc.Utils;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.*;
@@ -18,6 +19,8 @@ import java.util.Arrays;
  */
 public class ResqAuton extends SynchronousOpMode {
 
+    public static final double BTN_SRVO_RETRACTED = 0.379426;
+    public static final double BTN_SRVO_DEPLOYED = 0.0;
     private static Side startSide;
     private static Colors teamColor;
     private static double curX, curY, curYAW;
@@ -508,7 +511,16 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     private void pushButton() {
-        throw new RuntimeException("PUSH!");
+        for(double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos-=0.01){
+            btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED,pos));
+            doPeriodicTasks();
+            waitTime(50);
+        }
+        for(double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos+=0.01){
+            btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED,pos));
+            doPeriodicTasks();
+            waitTime(50);
+        }
     }
 
     public boolean isFarMountain() {
@@ -527,6 +539,8 @@ public class ResqAuton extends SynchronousOpMode {
         RIGHT, LEFT, FORWARDS, BACKWARDS
     }
 
+    Servo btnSrvo;
+
     private void startUpHardware() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -538,6 +552,10 @@ public class ResqAuton extends SynchronousOpMode {
         r2 = hardwareMap.dcMotor.get("r2");
 
         w = hardwareMap.dcMotor.get("w");
+
+        btnSrvo = hardwareMap.servo.get("btnSrvo");
+
+        btnSrvo.setPosition(BTN_SRVO_RETRACTED);
 
         l0.setDirection(DcMotor.Direction.REVERSE);
         l1.setDirection(DcMotor.Direction.REVERSE);
