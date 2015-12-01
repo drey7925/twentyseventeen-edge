@@ -54,16 +54,16 @@ public class ResqAuton extends SynchronousOpMode {
         waitTime(1000);
         if (teamColor == Colors.BLUE) {
             if (startSide == Side.MOUNTAIN) {
-                offsetPosition(29/4.0, 2/3, 90);
+                offsetPosition(29 / 4.0, 2 / 3, 90);
             } else if (startSide == Side.MIDLINE) {
-                offsetPosition(17/6, 2/3, 90);
+                offsetPosition(17 / 6, 2 / 3, 90);
             }
 
         } else if (teamColor == Colors.RED) {
             if (startSide == Side.MOUNTAIN) {
-                offsetPosition(2/3.0, 29.0/4, 0);
+                offsetPosition(2 / 3.0, 29.0 / 4, 0);
             } else if (startSide == Side.MIDLINE) {
-                offsetPosition(2/3.0, 17/6.0, 0);
+                offsetPosition(2 / 3.0, 17 / 6.0, 0);
             }
 
         }
@@ -104,7 +104,6 @@ public class ResqAuton extends SynchronousOpMode {
             }
 
         }
-
 
 
     }
@@ -184,7 +183,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(-100);
                 curYAW = getGyroYAW();
             }
-       	/* START DECLINING INCREMENT */
+           /* START DECLINING INCREMENT */
             while ((oriYAW - curYAW) < angle) {
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
@@ -247,7 +246,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0);
             }
 
-        } else if ((oriYAW < YAW) && ((YAW-oriYAW) < 180)) { // LEFT TURN (DO THIS!!)
+        } else if ((oriYAW < YAW) && ((YAW - oriYAW) < 180)) { // LEFT TURN (DO THIS!!)
             while ((curYAW - oriYAW) < incA) {
                 setLeftSpeed(-incr);
                 setRightSpeed(incr);
@@ -279,8 +278,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
-        }
-        else if ((oriYAW>YAW) && (oriYAW-YAW)>180) { //turn right past 0 line fuck the zero line btw
+        } else if ((oriYAW > YAW) && (oriYAW - YAW) > 180) { //turn right past 0 line fuck the zero line btw
             curYAW = getGyroYAW();
             if (oriYAW > incA) {
                 while ((oriYAW - curYAW) < incA) {
@@ -328,7 +326,8 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0);
             }
 
-    }}
+        }
+    }
 
     DcMotor l0;
     DcMotor l1;
@@ -435,10 +434,10 @@ public class ResqAuton extends SynchronousOpMode {
                     if (cb.getState().equals("BB")) {
                         break;
                     }
-                    if(cb.getState().equals("RR")){
+                    if (cb.getState().equals("RR")) {
                         return;
                     }
-                    if(cb.getState().contains("G")){
+                    if (cb.getState().contains("G")) {
                         return;
                     }
                 }
@@ -452,10 +451,10 @@ public class ResqAuton extends SynchronousOpMode {
                     if (cb.getState().equals("BB")) {
                         break;
                     }
-                    if(cb.getState().equals("RR")){
+                    if (cb.getState().equals("RR")) {
                         return;
                     }
-                    if(cb.getState().contains("G")){
+                    if (cb.getState().contains("G")) {
                         return;
                     }
                 }
@@ -477,10 +476,10 @@ public class ResqAuton extends SynchronousOpMode {
                     if (cb.getState().equals("RR")) {
                         break;
                     }
-                    if(cb.getState().equals("BB")){
+                    if (cb.getState().equals("BB")) {
                         return;
                     }
-                    if(cb.getState().contains("G")){
+                    if (cb.getState().contains("G")) {
                         return;
                     }
                 }
@@ -494,10 +493,10 @@ public class ResqAuton extends SynchronousOpMode {
                     if (cb.getState().equals("RR")) {
                         break;
                     }
-                    if(cb.getState().equals("BB")){
+                    if (cb.getState().equals("BB")) {
                         return;
                     }
-                    if(cb.getState().contains("G")){
+                    if (cb.getState().contains("G")) {
                         return;
                     }
                 }
@@ -511,13 +510,13 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     private void pushButton() {
-        for(double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos-=0.01){
-            btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED,pos));
+        for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
+            btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             doPeriodicTasks();
             waitTime(50);
         }
-        for(double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos+=0.01){
-            btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED,pos));
+        for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.01) {
+            btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED, pos));
             doPeriodicTasks();
             waitTime(50);
         }
@@ -568,8 +567,8 @@ public class ResqAuton extends SynchronousOpMode {
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r2.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        lastEncoderL = new int[]{l0.getCurrentPosition(), l1.getCurrentPosition(), l2.getCurrentPosition()};
-        lastEncoderR = new int[]{r0.getCurrentPosition(), r1.getCurrentPosition(), r2.getCurrentPosition()};
+        lastEncoderL = l0.getCurrentPosition();
+        lastEncoderR = r0.getCurrentPosition();
         gyroHelper.startUpGyro();
         composeDashboard();
     }
@@ -590,30 +589,23 @@ public class ResqAuton extends SynchronousOpMode {
     double initYaw = 0;
     double x = 0;
     double y = 0;
-    int[] lastEncoderL = new int[3];
-    int[] lastEncoderR = new int[3];
+    int lastEncoderL = 0;
+    int lastEncoderR = 0;
 
     public void doPeriodicTasks() {
         gyroHelper.update();
 
         int l0p = l0.getCurrentPosition();
-        int l1p = l1.getCurrentPosition();
-        int l2p = l2.getCurrentPosition();
-        int[] uEL = new int[]{l0p - lastEncoderL[0], l1p - lastEncoderL[1], l2p - lastEncoderL[2]};
         int r0p = r0.getCurrentPosition();
-        int r1p = r1.getCurrentPosition();
-        int r2p = r2.getCurrentPosition();
-        int[] uER = new int[]{r0p - lastEncoderR[0], r1p - lastEncoderR[1], r2p - lastEncoderR[2]};
 
-        Arrays.sort(uEL);
-        Arrays.sort(uER);
-        int delta = weightPositionEffects(l0p - lastEncoderL[0], r0p - lastEncoderR[0]);
+
+        int delta = weightPositionEffects(l0p - lastEncoderL, r0p - lastEncoderR);
         //int delta = weightPositionEffects(uEL[1], uER[1]);
         double dist = remapWheelDiameter(delta);
         x += (dist * Math.cos(getGyroYAW()));
         y += (dist * Math.sin(getGyroYAW()));
-        lastEncoderL = new int[]{l0p, l1p, l2p};
-        lastEncoderR = new int[]{r0p, r1p, r2p};
+        lastEncoderL = l0p;
+        lastEncoderR = r0p;
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
