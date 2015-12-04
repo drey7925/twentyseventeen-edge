@@ -3,6 +3,7 @@ package resq;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
 import org.swerverobotics.library.interfaces.Acceleration;
 
@@ -20,11 +21,13 @@ public class RockerBogieTeleop extends RockerBogieCommon {
     GyroHelper gh;
 
 
-    Servo btnPushSrvo; // Left servo, labeled 2
+    Servo btnPushSrvo;
+    Servo aimServo; // Lift servo
     boolean pushServoDeployed = false;
     @Override
     public void init() {
         super.init();
+        aimServo = hardwareMap.servo.get("aimServo");
         btnPushSrvo = hardwareMap.servo.get("btnPush");
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
@@ -32,6 +35,8 @@ public class RockerBogieTeleop extends RockerBogieCommon {
         gh = new GyroHelper(this);
         gh.startUpGyro();
     }
+
+    double aimPos = 0.32;
 
     @Override
     public void loop() {
@@ -81,7 +86,9 @@ public class RockerBogieTeleop extends RockerBogieCommon {
         pushServoDeployed = (this.gamepad1.left_trigger>0.2);
 
         btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
-
+        aimPos-=this.gamepad2.left_stick_y/512;
+        aimPos = Range.clip(aimPos, 0.32, 0.92);
+        aimServo.setPosition(aimPos);
     }
 
 

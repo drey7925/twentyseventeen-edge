@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.opmodes.FtcOpModeRegister;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.Util;
 import ftc.team6460.javadeck.ftc.Utils;
 import ftc.team6460.javadeck.ftc.vision.MatCallback;
@@ -29,12 +30,20 @@ public class RockerBogieFallbackTeleop extends RockerBogieCommon {
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
     boolean pushServoDeployed = false;
+    double aimPos = 0.32;
+    Servo aimServo; // Lift servo
 
     @Override
     public void init() {
         super.init();
         try {
             btnPushSrvo = hardwareMap.servo.get("btnPush");
+        } catch (Exception e) {
+            telemetry.addData("INITFAULT", "BTNSERVO");
+        }
+        try {
+
+            aimServo = hardwareMap.servo.get("aimServo");
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
@@ -51,7 +60,7 @@ public class RockerBogieFallbackTeleop extends RockerBogieCommon {
         double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
         boolean fullOverrideNeg = (this.gamepad1.right_trigger > 0.2);
         boolean fullOverridePos = (this.gamepad1.left_trigger > 0.2);
-                double tipPreventionPower = 0;
+        double tipPreventionPower = 0;
         double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
 
         double rCalculated = this.gamepad1.right_stick_y * scaleActual + tipPreventionPower;
@@ -80,7 +89,10 @@ public class RockerBogieFallbackTeleop extends RockerBogieCommon {
         telemetry.addData("w", "1");
 
         pushServoDeployed = (this.gamepad1.left_trigger > 0.2);
-
+        aimPos -= this.gamepad2.left_stick_y / 512;
+        aimPos = Range.clip(aimPos, 0.32, 0.92);
+        telemetry.addData("aimPos", aimPos);
+        aimServo.setPosition(aimPos);
         btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
     }
 
