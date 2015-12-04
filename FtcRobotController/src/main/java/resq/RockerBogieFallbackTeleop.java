@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.opmodes.FtcOpModeRegister;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Util;
 import ftc.team6460.javadeck.ftc.Utils;
 import ftc.team6460.javadeck.ftc.vision.MatCallback;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
@@ -48,29 +49,37 @@ public class RockerBogieFallbackTeleop extends RockerBogieCommon {
     public void loop() {
 
         double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
+        boolean fullOverrideNeg = (this.gamepad1.right_trigger > 0.2);
+        boolean fullOverridePos = (this.gamepad1.left_trigger > 0.2);
+                double tipPreventionPower = 0;
+        double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
 
-        double tipPreventionPower = 0;
-        l0.setPower(this.gamepad1.left_stick_y * scaleActual + tipPreventionPower);
-        r0.setPower(this.gamepad1.right_stick_y * scaleActual + tipPreventionPower);
+        double rCalculated = this.gamepad1.right_stick_y * scaleActual + tipPreventionPower;
 
-        l1.setPower(this.gamepad1.left_stick_y * scaleActual + tipPreventionPower);
-        r1.setPower(this.gamepad1.right_stick_y * scaleActual + tipPreventionPower);
 
-        l2.setPower(this.gamepad1.left_stick_y * scaleActual + tipPreventionPower);
-        r2.setPower(this.gamepad1.right_stick_y * scaleActual + tipPreventionPower);
+        if (fullOverrideNeg) {
+            lCalculated = -1;
+            rCalculated = -1;
+        } else if (fullOverridePos) {
+            lCalculated = 1;
+            rCalculated = 1;
+        }
+
+        l0.setPower(lCalculated);
+        r0.setPower(rCalculated);
+
+        l1.setPower(lCalculated);
+        r1.setPower(rCalculated);
+
+        l2.setPower(lCalculated);
+        r2.setPower(rCalculated);
 
         //self explanatory winch
-        if (this.gamepad1.left_bumper) {
-            w.setPower(1.0);
-            telemetry.addData("w", "1");
-        } else if (this.gamepad1.right_bumper) {
-            w.setPower(-1.0);
-            telemetry.addData("w", "-1");
-        } else {
-            w.setPower(0);
-            telemetry.addData("w", "0");
-        }
-        pushServoDeployed = (this.gamepad1.left_trigger>0.2);
+
+        w.setPower(this.gamepad2.right_stick_y);
+        telemetry.addData("w", "1");
+
+        pushServoDeployed = (this.gamepad1.left_trigger > 0.2);
 
         btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
     }

@@ -619,8 +619,8 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     private double remapWheelDiameter(int delta) {
-        // 3.205 inches
-        return 3.205 * 2 * Math.PI * delta / 1440 / 12;
+        // 4.000 inches
+        return 4.000 * Math.PI * delta / 1440;
     }
 
     private int weightPositionEffects(int l, int r) {
