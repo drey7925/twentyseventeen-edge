@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.SynchronousQueue;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 
@@ -28,6 +30,7 @@ import static org.bytedeco.javacpp.opencv_core.*;
  * Created by hexafraction on 9/14/15.
  */
 public class OpenCvActivityHelper {
+    private static final Object NOTIFIER_SINGLETON = new Object();
     private FrameLayout layout;
     protected FaceView faceView;
     private Preview mPreview;
@@ -107,6 +110,10 @@ public class OpenCvActivityHelper {
             e.printStackTrace();
             new AlertDialog.Builder(cx).setMessage(e.getMessage()).create().show();
         }
+    }
+    SynchronousQueue<Object> startNotifier = new SynchronousQueue<Object>();
+    public void awaitStart() throws InterruptedException {
+        startNotifier.take();
     }
 
 
@@ -216,6 +223,7 @@ public class OpenCvActivityHelper {
             }
             cvClearMemStorage(storage);
             postInvalidate();
+            startNotifier.offer(NOTIFIER_SINGLETON);
         }
 
         public String status = "";
@@ -238,6 +246,7 @@ public class OpenCvActivityHelper {
 
         Preview(Context context, final Camera.PreviewCallback previewCallback) {
             super(context);
+
             this.previewCallback = previewCallback;
 
             // Install a SurfaceHolder.Callback so we get notified when the

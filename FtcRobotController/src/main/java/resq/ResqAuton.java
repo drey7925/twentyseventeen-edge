@@ -5,10 +5,12 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import ftc.team6460.javadeck.ftc.Utils;
+import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.*;
 
@@ -28,18 +30,23 @@ public class ResqAuton extends SynchronousOpMode {
     private double delay;
     int i = Integer.MAX_VALUE;
     MatColorSpreadCallback cb;
+    Servo aimServo;
 
     public void main() throws InterruptedException {
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         fillInSettings();
-        waitTime(1000);
         startUpHardware();
         startCamera();
+
+        Thread.sleep(1000);
         // TEST AUTON TO SEE IF BACKEND WORKS
         offsetPosition(0, 0, 0);
+        detectAndHitBeacon();
         while (2 + 2 <= i) {
             updateGamepads();
             setLeftSpeed(gamepad1.left_stick_y);
             setRightSpeed(gamepad1.right_stick_y);
+            doPeriodicTasks();
         }
 
 
@@ -108,8 +115,21 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 
-    private void startCamera() {
+    private void startCamera() throws InterruptedException {
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
+        final OpenCvActivityHelper ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
+        ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                ocvh.addCallback(cb);
+                ocvh.attach();
+            }
+        });
+        ocvh.awaitStart();
+
+
     }
 
     private double err() {
@@ -133,7 +153,6 @@ public class ResqAuton extends SynchronousOpMode {
         startSide = getStartSide();
         teamColor = getTeam();
         delay = getAllyDelay();//such code
-        throw new RuntimeException("You didn't finish the code, skrub!");
 
     }
 
@@ -380,11 +399,11 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     public Side getStartSide() {
-        return Side.valueOf(sharedPref.getString("auton_start_position", "INVALID"));
+        return Side.valueOf(sharedPref.getString("auton_start_position", "MOUNTAIN"));
     } //get starting side from settings dialog (
 
     public Colors getTeam() {
-        return Colors.valueOf(sharedPref.getString("auton_team_color", "INVALID"));
+        return Colors.valueOf(sharedPref.getString("auton_team_color", "BLUE"));
 
     } //get team from settings dialog
 
@@ -402,7 +421,7 @@ public class ResqAuton extends SynchronousOpMode {
         waitTime(getAllyDelay());
     }
 
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
+    SharedPreferences sharedPref;
 
     public int getAllyDelay() {
         return (int) Utils.getSafeDoublePref("auton_beacon_area_clear_time", sharedPref, 5);
@@ -542,6 +561,7 @@ public class ResqAuton extends SynchronousOpMode {
     private void pushButton() {
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
+            Log.i("POS", "POS"+pos);
             doPeriodicTasks();
             waitTime(50);
         }
@@ -550,6 +570,7 @@ public class ResqAuton extends SynchronousOpMode {
             doPeriodicTasks();
             waitTime(50);
         }
+        throw new OutOfMemoryError("FOO");
     }
 
     public boolean isFarMountain() {
@@ -579,7 +600,8 @@ public class ResqAuton extends SynchronousOpMode {
 
         l2 = hardwareMap.dcMotor.get("l2");
         r2 = hardwareMap.dcMotor.get("r2");
-
+        aimServo = hardwareMap.servo.get("aimServo");
+        aimServo.setPosition(0.32);
         w = hardwareMap.dcMotor.get("w");
 
         btnSrvo = hardwareMap.servo.get("btnSrvo");
@@ -643,6 +665,7 @@ public class ResqAuton extends SynchronousOpMode {
         y += (dist * Math.sin(getGyroYAW()));
         lastEncoderL = l0p;
         lastEncoderR = r0p;
+        Log.i("MOVE", "DIST: "+dist);
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();

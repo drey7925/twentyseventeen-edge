@@ -21,7 +21,7 @@ public class MatColorSpreadCallback implements MatCallback {
         return state;
     }
 
-    private String state;
+    private volatile String state;
 
     public MatColorSpreadCallback(final Activity cx, final TextView tv) {
         this.cx = cx;

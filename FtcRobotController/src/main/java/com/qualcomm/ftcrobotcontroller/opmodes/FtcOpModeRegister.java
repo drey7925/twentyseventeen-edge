@@ -31,14 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
-import org.swerverobotics.library.internal.AnnotatedOpModeRegistrar;
 import resq.*;
-
-import java.util.HashSet;
 
 /**
  * Register Op Modes
@@ -72,10 +68,10 @@ public class FtcOpModeRegister implements OpModeRegister
 
    
     manager.register("gyrotest",GyroTestOpMode.class);
-        manager.register("telop", RockerBogieTeleop.class);
-        manager.register("fallback", RockerBogieFallbackTeleop.class);
+        manager.register("telop", RectResqTeleop.class);
+        manager.register("fallback", RectResqFallbackTeleop.class);
         manager.register("cameratest", AutonCameraTestOpMode.class);
-        manager.register("auttest", SynchTestOpMode.class);
+        manager.register("auton", ResqAuton.class);
         manager.register("servocalib", ServoCalibOpMode.class);
     //AnnotatedOpModeRegistrar.register(manager);
     /*

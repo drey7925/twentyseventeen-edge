@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
  * Created by hexafraction on 9/26/15.
  */
 @Deprecated
-public class AutonomousResqOpmode extends RockerBogieCommon {
+public class AutonomousResqOpmode extends RectResqCommon {
     // sentinel
     long nanoTimeStart = -1;
     enum Color {

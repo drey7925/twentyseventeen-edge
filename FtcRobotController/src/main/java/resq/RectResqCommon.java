@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 /**
  * Created by hexafraction on 9/26/15.
  */
-public abstract class RockerBogieCommon extends OpMode {
+public abstract class RectResqCommon extends OpMode {
     DcMotor l0;
     DcMotor l1;
     DcMotor l2;
