@@ -65,7 +65,13 @@ public class RockerBogieTeleop extends RockerBogieCommon {
         double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
 
         double rCalculated = this.gamepad1.right_stick_y * scaleActual + tipPreventionPower;
-
+        if (fullOverrideNeg) {
+            lCalculated = -1;
+            rCalculated = -1;
+        } else if (fullOverridePos) {
+            lCalculated = 1;
+            rCalculated = 1;
+        }
         l0.setPower(lCalculated);
         r0.setPower(rCalculated);
 

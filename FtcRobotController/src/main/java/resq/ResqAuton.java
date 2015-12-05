@@ -198,7 +198,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
-        } else if ((oriYAW < YAW) && (YAW - oriYAW) > 180) { //turn right past 0 line fuck the zero line btw
+        } else if ((oriYAW < YAW) && (YAW - oriYAW) > 180) { //turn right past 0 line fuck the zero line btw//dup
             curYAW = getGyroYAW();
             if (oriYAW > incA) {
                 while ((oriYAW - curYAW) < incA) {
@@ -208,6 +208,8 @@ public class ResqAuton extends SynchronousOpMode {
                     if (oriYAW - curYAW == incA) {
                         break;
                     }
+
+                    doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
             } else {
@@ -219,6 +221,8 @@ public class ResqAuton extends SynchronousOpMode {
                     if (oriYAW + (360 - curYAW) == incA) {
                         break;
                     }
+
+                    doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
             }
@@ -226,12 +230,16 @@ public class ResqAuton extends SynchronousOpMode {
             while (curYAW < oriYAW) { //these two while loops are the same thing
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
+
+                doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
             while ((360 - curYAW) < (angle - incA)) {//they're just accounting for before the 0 line and after it
                 setLeftSpeed(incr);
                 setRightSpeed(-incr);
                 curYAW = getGyroYAW();
+
+                doPeriodicTasks();
             } //fuck the zero line so much @zeroline I hate u
        	/*START DECLINING INCREMENT SPEED */
             while ((oriYAW + (360 - curYAW)) < angle) {
@@ -239,11 +247,17 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(-incr);
                 incr = 100 * (-(YAW - curYAW) / 15);
                 curYAW = getGyroYAW();
+
+                doPeriodicTasks();
             }
+
+            doPeriodicTasks();
             curYAW = getGyroYAW();
             if ((oriYAW + (360 - curYAW)) >= angle) { //stops motors
                 setLeftSpeed(0);
                 setRightSpeed(0);
+
+                doPeriodicTasks();
             }
 
         } else if ((oriYAW < YAW) && ((YAW - oriYAW) < 180)) { // LEFT TURN (DO THIS!!)
@@ -254,6 +268,8 @@ public class ResqAuton extends SynchronousOpMode {
                 if (curYAW - oriYAW >= incA) {
                     break;
                 }
+
+                doPeriodicTasks();
                 curYAW = getGyroYAW();
 
             }
@@ -261,6 +277,8 @@ public class ResqAuton extends SynchronousOpMode {
             while ((curYAW - oriYAW) < (angle - incA)) {
                 setLeftSpeed(-100);
                 setRightSpeed(100);
+
+                doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
        	/* START DECLINING INCREMENT */
@@ -271,14 +289,20 @@ public class ResqAuton extends SynchronousOpMode {
                 if (curYAW - oriYAW == incA) {
                     break;
                 }
+
+                doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
+
+            doPeriodicTasks();
             curYAW = getGyroYAW();
             if (curYAW >= YAW) {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
-        } else if ((oriYAW > YAW) && (oriYAW - YAW) > 180) { //turn right past 0 line fuck the zero line btw
+        } else if ((oriYAW > YAW) && (oriYAW - YAW) > 180) { //turn right past 0 line fuck the zero line btw//dup
+
+            doPeriodicTasks();
             curYAW = getGyroYAW();
             if (oriYAW > incA) {
                 while ((oriYAW - curYAW) < incA) {
@@ -288,9 +312,13 @@ public class ResqAuton extends SynchronousOpMode {
                     if (oriYAW - curYAW == incA) {
                         break;
                     }
+
+                    doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
             } else {
+
+                doPeriodicTasks();
                 curYAW = getGyroYAW();
                 while (oriYAW + (360 - curYAW) < incA) {
                     setLeftSpeed(incr);
@@ -299,6 +327,8 @@ public class ResqAuton extends SynchronousOpMode {
                     if (oriYAW + (360 - curYAW) == incA) {
                         break;
                     }
+
+                    doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
             }
@@ -575,14 +605,21 @@ public class ResqAuton extends SynchronousOpMode {
 
 
     public double getGyroX() {
+
+
+        doPeriodicTasks();
         return x;
     }
 
     public double getGyroY() {
+
+        doPeriodicTasks();
         return y;
     }
 
     public double getGyroYAW() {
+
+        doPeriodicTasks();
         return normalizeDegrees(gyroHelper.getAngles().heading - initYaw);
     }
 
