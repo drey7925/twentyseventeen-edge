@@ -74,7 +74,7 @@ public class RectResqFallbackTeleop extends RectResqCommon {
         w.setPower(this.gamepad2.right_stick_y);
         telemetry.addData("w", "1");
 
-        pushServoDeployed = (this.gamepad1.left_trigger > 0.2);
+
         aimPos -= this.gamepad2.left_stick_y / 512;
         aimPos = Range.clip(aimPos, 0.32, 0.92);
         telemetry.addData("aimPos", aimPos);

@@ -489,9 +489,11 @@ public class ResqAuton extends SynchronousOpMode {
                     if (cb.getState().contains("G")) {
                         return;
                     }
+
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
+                Log.e("MADEIT", "MADEIT");
                 pushButton();
             } else {
                 setLeftSpeed(-0.33);
@@ -509,6 +511,8 @@ public class ResqAuton extends SynchronousOpMode {
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
+
+                Log.e("MADEIT", "MADEIT");
                 pushButton();
             }
         } else {
@@ -562,15 +566,23 @@ public class ResqAuton extends SynchronousOpMode {
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);
-            doPeriodicTasks();
-            waitTime(50);
+            try {
+                idle();
+                waitTime(4);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
         for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.01) {
             btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED, pos));
-            doPeriodicTasks();
-            waitTime(50);
+            try {
+                idle();
+
+                waitTime(4);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-        throw new OutOfMemoryError("FOO");
     }
 
     public boolean isFarMountain() {
@@ -641,7 +653,6 @@ public class ResqAuton extends SynchronousOpMode {
 
     public double getGyroYAW() {
 
-        doPeriodicTasks();
         return normalizeDegrees(gyroHelper.getAngles().heading - initYaw);
     }
 
@@ -652,6 +663,7 @@ public class ResqAuton extends SynchronousOpMode {
     int lastEncoderR = 0;
 
     public void doPeriodicTasks() {
+        Log.w("TRACK", "ENTER DO-PERIODIC");
         gyroHelper.update();
 
         int l0p = l0.getCurrentPosition();
@@ -676,6 +688,7 @@ public class ResqAuton extends SynchronousOpMode {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        Log.w("TRACK", "EXIT DO-PERIODIC");
     }
 
     private double remapWheelDiameter(int delta) {
