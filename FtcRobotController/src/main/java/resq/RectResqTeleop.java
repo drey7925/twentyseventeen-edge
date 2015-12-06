@@ -36,6 +36,7 @@ public class RectResqTeleop extends RectResqCommon {
         gh.startUpGyro();
     }
 
+
     double aimPos = 0.32;
 
     @Override

@@ -180,6 +180,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:key="auton_beacon_area_clear_time"
                 android:summary="How long to wait for other robot to clear beacon area, IN SECONDS."
                 android:title="Time to beacon area clear"/>
+
+        <EditTextPreference
+                android:dialogTitle="Gyro tuning"
+                android:key="gyrocalib"
+                android:summary="The gyro calibration data, for manual input."
+                android:title="Gyro calibration"/>
+        <CheckBoxPreference
+                android:key="doVoltageAdj"
+                android:summary="Adjust for voltage variations in recorded-movement auton"
+                android:title="Adjust for voltage variations in recorded-movement auton"
+                android:defaultValue="false"
+        />
       </PreferenceCategory>
     </PreferenceScreen>
 

@@ -9,12 +9,13 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.*;
-
-import java.util.Arrays;
 
 /**
  * Created by hon07726 on 10/2/2015.
@@ -23,12 +24,12 @@ public class ResqAuton extends SynchronousOpMode {
 
     public static final double BTN_SRVO_RETRACTED = 0.379426;
     public static final double BTN_SRVO_DEPLOYED = 0.0;
-    private static Side startSide;
-    private static Colors teamColor;
+    protected static Side startSide;
+    protected static Colors teamColor;
     private static double curX, curY, curYAW;
     final GyroHelper gyroHelper = new GyroHelper(this);
     private double delay;
-    int i = Integer.MAX_VALUE;
+    int DUMMY = Integer.MAX_VALUE;
     MatColorSpreadCallback cb;
     Servo aimServo;
 
@@ -37,12 +38,11 @@ public class ResqAuton extends SynchronousOpMode {
         fillInSettings();
         startUpHardware();
         startCamera();
-
+        this.waitForStart();
         Thread.sleep(1000);
         // TEST AUTON TO SEE IF BACKEND WORKS
         offsetPosition(0, 0, 0);
-        detectAndHitBeacon();
-        while (2 + 2 <= i) {
+        while (2 + 2 <= DUMMY) {
             updateGamepads();
             setLeftSpeed(gamepad1.left_stick_y);
             setRightSpeed(gamepad1.right_stick_y);
@@ -115,7 +115,7 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 
-    private void startCamera() throws InterruptedException {
+    protected void startCamera() throws InterruptedException {
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
         final OpenCvActivityHelper ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
         ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
@@ -141,7 +141,7 @@ public class ResqAuton extends SynchronousOpMode {
         throw e;
     }
 
-    private void waitTime(int i) {
+    protected void waitTime(int i) {
         long t = System.currentTimeMillis();
         while (System.currentTimeMillis() < t + (i)) {
             doPeriodicTasks();
@@ -387,12 +387,15 @@ public class ResqAuton extends SynchronousOpMode {
     DcMotor w;
 
     public void setLeftSpeed(double spd) {
+
+        spd = Range.clip(spd, -1, 1);
         l0.setPower(spd);
         l1.setPower(spd);
         l2.setPower(spd);
     }
 
     public void setRightSpeed(double spd) {
+        spd = Range.clip(spd, -1, 1);
         r0.setPower(spd);
         r1.setPower(spd);
         r2.setPower(spd);
@@ -603,7 +606,7 @@ public class ResqAuton extends SynchronousOpMode {
 
     Servo btnSrvo;
 
-    private void startUpHardware() {
+    protected void startUpHardware() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
 
@@ -634,6 +637,14 @@ public class ResqAuton extends SynchronousOpMode {
         lastEncoderL = l0.getCurrentPosition();
         lastEncoderR = r0.getCurrentPosition();
         gyroHelper.startUpGyro();
+        String gc = sharedPref.getString("gyrocalib", "!!");
+        if(gc.matches("([0-9a-f]{2})*")) {
+            try {
+                gyroHelper.getImu().writeCalibrationData(Hex.decodeHex(gc.toCharArray()));
+            } catch (DecoderException e) {
+                throw new RuntimeException("EMERG-STOP: CANNOT CALIBRATE GYRO");
+            }
+        }
         composeDashboard();
     }
 
