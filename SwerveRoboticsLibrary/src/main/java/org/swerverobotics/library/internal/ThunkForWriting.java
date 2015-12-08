@@ -15,10 +15,10 @@ public abstract class ThunkForWriting extends Thunk
 
     public ThunkForWriting() 
         {
-        SwerveThreadContext.assertSynchronousThread();
+        SynchronousThreadContext.assertSynchronousThread();
         this.addActionKey
             (
-            SwerveThreadContext.getThreadContext().actionKeyWritesFromThisThread
+            SynchronousThreadContext.getThreadContext().actionKeyWritesFromThisThread
             );
         }
     

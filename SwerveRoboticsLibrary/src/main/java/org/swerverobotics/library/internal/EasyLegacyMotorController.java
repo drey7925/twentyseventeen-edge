@@ -9,7 +9,7 @@ import org.swerverobotics.library.*;
 import org.swerverobotics.library.exceptions.*;
 import org.swerverobotics.library.interfaces.*;
 import java.nio.*;
-
+import java.util.*;
 import static junit.framework.Assert.*;
 import static org.swerverobotics.library.internal.ThunkingHardwareFactory.*;
 
@@ -24,8 +24,6 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
-
-    public final String LOGGING_TAG = SynchronousOpMode.LOGGING_TAG;
     
     /* The NXT HiTechnic motor controller register layout is as follows:
 
@@ -44,14 +42,14 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
     4C – 4FH    s/int    Motor 1 current encoder value, high byte first  == 76-79
     50 – 53H    s/int    Motor 2 current encoder value, high byte first  == 80-83
     54, 55H     word     Battery voltage 54H high byte, 55H low byte     == 84-85
-    56H         S/byte   Motor 1 gear ratio         == 86
-    57H         byte     Motor 1 P coefficient*     == 87
-    58H         byte     Motor 1 I coefficient*     == 88
-    59H         byte     Motor 1 D coefficient*     == 89
-    5AH         s/byte   Motor 2 gear ratio         == 90
-    5BH         byte     Motor 2 P coefficient*     == 91
-    5CH         byte     Motor 2 I coefficient*     == 92
-    5DH         byte     Motor 2 D coefficient*     == 93
+    56H         S/byte   Motor 1 gear ratio
+    57H         byte     Motor 1 P coefficient*
+    58H         byte     Motor 1 I coefficient*
+    59H         byte     Motor 1 D coefficient*
+    5AH         s/byte   Motor 2 gear ratio
+    5BH         byte     Motor 2 P coefficient*
+    5CH         byte     Motor 2 I coefficient*
+    5DH         byte     Motor 2 D coefficient*
      */
     private static final int iRegWindowFirst = 0x40;
     private static final int iRegWindowMax   = 0x56;  // first register not included
@@ -74,11 +72,15 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
     private static final double powerMin = -1.0;
     private static final double powerMax = 1.0;
 
+    private static final String             swerveVoltageSensorName = " |Swerve|VoltageSensor| ";
     private final OpMode                    context;
     private final II2cDeviceClient          i2cDeviceClient;
     private final DcMotorController         target;
-    I2cDeviceReplacementHelper<DcMotorController> helper;
-
+    private       String                    targetName;
+    private final LegacyModule              legacyModule;
+    private final int                       targetPort;
+    I2cController.I2cPortReadyCallback      targetCallback;
+    private       boolean                   isArmed;
     private       DcMotor                   motor1;
     private       DcMotor                   motor2;
 
@@ -88,17 +90,21 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     private EasyLegacyMotorController(OpMode context, II2cDeviceClient ii2cDeviceClient, DcMotorController target)
         {
-        LegacyModule legacyModule = MemberUtil.legacyModuleOfLegacyMotorController(target);
-        int          targetPort   = MemberUtil.portOfLegacyMotorController(target);
-        this.helper          = new I2cDeviceReplacementHelper<DcMotorController>(context, this, target, legacyModule, targetPort);
-
+        assertTrue(!BuildConfig.DEBUG || !ii2cDeviceClient.isArmed());
         this.context         = context;
         this.i2cDeviceClient = ii2cDeviceClient;
         this.target          = target;
+        this.targetName      = findTargetName();
+        this.legacyModule    = MemberUtil.legacyModuleOfLegacyMotorController(target);
+        this.targetPort      = MemberUtil.portOfLegacyMotorController(target);
+        this.targetCallback  = null;
+        this.isArmed         = false;
         this.motor1          = null;
         this.motor2          = null;
 
         RobotStateTransitionNotifier.register(context, this);
+
+        this.initPID();
 
         // The NXT HiTechnic motor controller will time out if it doesn't receive any I2C communication for
         // 2.5 seconds. So we set up a heartbeat request to try to prevent that. We try to use
@@ -113,13 +119,13 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
         this.i2cDeviceClient.setHeartbeatAction(heartbeatAction);
         this.i2cDeviceClient.setHeartbeatInterval(2000);
 
-        // Also: set up a read-window. We make it BALANCED to avoid unnecessary ping-ponging
+        // Also: set up a read-window. We make it 'ONLY_ONCE' to avoid unnecessary ping-ponging
         // between read mode and write mode, since motors are read about as much as they are
         // written, but we make it relatively large so that least that when we DO go
         // into read mode and possibly do more than one read we will use this window
         // and won't have to fiddle with the 'switch to read mode' each and every time.
         // We include everything from the 'Motor 1 target encoder value' through the battery voltage.
-        this.i2cDeviceClient.setReadWindow(new II2cDeviceClient.ReadWindow(iRegWindowFirst, iRegWindowMax-iRegWindowFirst, II2cDeviceClient.READ_MODE.BALANCED));
+        this.i2cDeviceClient.setReadWindow(new II2cDeviceClient.ReadWindow(iRegWindowFirst, iRegWindowMax-iRegWindowFirst, II2cDeviceClient.READ_MODE.ONLY_ONCE));
         }
 
     public static DcMotorController create(OpMode context, DcMotorController target, DcMotor motor1, DcMotor motor2)
@@ -128,7 +134,7 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
             {
             LegacyModule legacyModule = MemberUtil.legacyModuleOfLegacyMotorController(target);
             int          port         = MemberUtil.portOfLegacyMotorController(target);
-            int          i2cAddr8Bit  = MemberUtil.i2cAddrOfLegacyMotorController(target);
+            int          i2cAddr8Bit  = i2cAddrOfLegacyMotorController(target);
 
             // Make a new legacy motor controller
             II2cDevice i2cDevice                 = new I2cDeviceOnI2cDeviceController(legacyModule, port);
@@ -155,7 +161,7 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     private void setMotors(DcMotor motor1, DcMotor motor2)
         {
-        assertTrue(!BuildConfig.DEBUG || !this.isArmed());
+        assertTrue(!BuildConfig.DEBUG || !this.isArmed);
 
         if ((motor1 != null && motor1.getController() != this.target)
          || (motor2 != null && motor2.getController() != this.target))
@@ -167,19 +173,18 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
         this.motor2 = motor2;
         }
 
-    private void usurpDevices()
+    private void usurpMotors()
         {
-        if (this.motor1 != null) MemberUtil.setControllerOfMotor(this.motor1, this);
-        if (this.motor2 != null) MemberUtil.setControllerOfMotor(this.motor2, this);
+        if (this.motor1 != null)    setController(this.motor1, this);
+        if (this.motor2 != null)    setController(this.motor2, this);
         }
 
-    private void deusurpDevices()
+    private void deusurpMotors()
         {
-        if (this.motor1 != null) MemberUtil.setControllerOfMotor(this.motor1, this.target);
-        if (this.motor2 != null) MemberUtil.setControllerOfMotor(this.motor2, this.target);
+        if (this.motor1 != null) setController(this.motor1, this.target);
+        if (this.motor2 != null) setController(this.motor2, this.target);
         }
 
-    private static final String swerveVoltageSensorName = " |Swerve|Legacy|VoltageSensor| ";
 
     private void registerVoltageSensor()
         {
@@ -198,47 +203,57 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
         {
         if (this.context != null)
             {
-            if (Util.contains(this.context.hardwareMap.voltageSensor, swerveVoltageSensorName))
+            if (ThunkingHardwareFactory.contains(this.context.hardwareMap.voltageSensor, swerveVoltageSensorName))
                 {
                 VoltageSensor voltageSensor = this.context.hardwareMap.voltageSensor.get(swerveVoltageSensorName);
                 if (voltageSensor == (VoltageSensor)this)
                     {
-                    Util.removeName(this.context.hardwareMap.voltageSensor, swerveVoltageSensorName);
+                    ThunkingHardwareFactory.removeName(this.context.hardwareMap.voltageSensor, swerveVoltageSensorName);
                     }
                 }
             }
         }
 
+    private String findTargetName()
+        {
+        if (this.context != null)
+            {
+            for (Map.Entry<String,DcMotorController> pair : this.context.hardwareMap.dcMotorController.entrySet())
+                {
+                if (pair.getValue() == this.target)
+                    return pair.getKey();
+                }
+            }
+        return null;
+        }
+
     private void arm()
     // Disarm the existing controller and arm us
         {
-        if (!this.isArmed())
+        if (!this.isArmed)
             {
-            this.usurpDevices();
-
-            this.helper.arm();
-
+            this.usurpMotors();
+            this.targetCallback = MemberUtil.callbacksOfLegacyModule(this.legacyModule)[this.targetPort];
+            this.legacyModule.deregisterForPortReadyCallback(this.targetPort);
+            if (this.targetName != null) this.context.hardwareMap.dcMotorController.put(this.targetName, this);
             this.i2cDeviceClient.arm();
             this.registerVoltageSensor();
-            this.initPID();
+            this.isArmed = true;
+
             this.floatMotors();
             }
         }
-    private boolean isArmed()
-        {
-        return this.helper.isArmed();
-        }
-    private void disarm()
+    private synchronized void disarm()
     // Disarm us and re-arm the target
         {
-        if (this.isArmed())
+        if (this.isArmed)
             {
+            this.isArmed = false;
             this.unregisterVoltageSensor();
             this.i2cDeviceClient.disarm();
-
-            this.helper.disarm();
-
-            this.deusurpDevices();
+            if (this.targetName != null) this.context.hardwareMap.dcMotorController.put(this.targetName, this.target);
+            this.legacyModule.registerForI2cPortReadyCallback(this.targetCallback, this.targetPort);
+            this.deusurpMotors();
             }
         }
 
@@ -268,7 +283,7 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
             bytes[1]          = (byte)(bytes[1] << 6);
             ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
             int tenBits       = (buffer.getShort()>>6) & 0x3FF;
-            double result     = ((double)tenBits) * 0.020;
+            double result     = ((double)tenBits) / 4 * 0.080;
             return result;
             }
         catch (RuntimeInterruptedException e)
@@ -303,7 +318,7 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     @Override public synchronized void close()
         {
-        if (this.isArmed())
+        if (this.isArmed)
             {
             this.floatMotors(); // mirrors robot controller runtime behavior
             this.disarm();
@@ -316,128 +331,68 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     @Override synchronized public boolean onUserOpModeStop()
         {
-        Log.d(LOGGING_TAG, "Easy: auto-stopping...");
-        if (this.isArmed())
+        Log.d(SynchronousOpMode.LOGGING_TAG, "Easy: auto-stopping...");
+        if (this.isArmed)
             {
             this.stopMotors();  // mirror StopRobotOpMode
             this.disarm();
             }
-        Log.d(LOGGING_TAG, "Easy: ... done");
+        Log.d(SynchronousOpMode.LOGGING_TAG, "Easy: ... done");
         return true;    // unregister us
         }
 
     @Override synchronized public boolean onRobotShutdown()
         {
-        Log.d(LOGGING_TAG, "Easy: auto-closing...");
+        Log.d(SynchronousOpMode.LOGGING_TAG, "Easy: auto-closing...");
 
         // We actually shouldn't be here by now, having received a onUserOpModeStop()
         // after which we should have been unregistered. But we close down anyway.
         this.close();
 
-        Log.d(LOGGING_TAG, "Easy: ... done");
+        Log.d(SynchronousOpMode.LOGGING_TAG, "Easy: ... done");
         return true;    // unregister us
         }
+
 
     //----------------------------------------------------------------------------------------------
     // DcMotorController
     //----------------------------------------------------------------------------------------------
 
-    @Override public synchronized void setMotorControllerDeviceMode(DcMotorController.DeviceMode port)
+    @Override public void setMotorControllerDeviceMode(DcMotorController.DeviceMode port)
         {
         // ignored
         }
 
-    @Override public synchronized DcMotorController.DeviceMode getMotorControllerDeviceMode()
+    @Override public DcMotorController.DeviceMode getMotorControllerDeviceMode()
         {
         return DeviceMode.READ_WRITE;
         }
     
-    @Override public synchronized void setMotorChannelMode(int motor, DcMotorController.RunMode mode)
+    @Override public void setMotorChannelMode(int motor, DcMotorController.RunMode mode)
         {
         this.validateMotor(motor);
-        byte bNewMode = modeToByte(mode);
-
+        byte b = modeToByte(mode);
+        
         // We write the whole byte, but only the lower five bits are actually writable
         // and we only ever use the lowest two as non zero.
-        this.write8(mpMotorRegMotorMode[motor], bNewMode);
-
-        // The mode switch doesn't happen instantaneously. Wait for it,
-        // so that the programmer's model is that he just needs to set the
-        // mode and be done.
-        for (;;)
-            {
-            byte bCurrentMode = this.i2cDeviceClient.read8(mpMotorRegMotorMode[motor]);
-            if (bCurrentMode == bNewMode)
-                break;
-            Thread.yield();;
-            }
-
-        // If the mode is 'reset encoders', we don't want to return until the encoders have actually reset
-        //      http://ftcforum.usfirst.org/showthread.php?4924-Use-of-RUN_TO_POSITION-in-LineraOpMode&highlight=reset+encoders
-        //      http://ftcforum.usfirst.org/showthread.php?4567-Using-and-resetting-encoders-in-MIT-AI&p=19303&viewfull=1#post19303
-        // For us, here, we believe we'll always *immediately* have that be true, as our writes
-        // to the I2C device actually happen when we issue them.
-        //
-        // Or, at least, insofar as anything is actually *observable*: the write will be issued
-        // ahead of any subsequent reads or writes. Thus, the assertTrue here would never fire,
-        // since the getMotorCurrentPosition() would follow the write and see its effect. However,
-        // having the assert does unnecessarily slow things down. We'll keep it for a while, then
-        // probably comment it out.
-        //
-        if (mode == RunMode.RESET_ENCODERS)
-            {
-            // Unclear if this is needed
-            while (this.getMotorTargetPosition(motor) != 0)
-                {
-                Thread.yield();
-                }
-            }
-        else if (mode == RunMode.RUN_TO_POSITION)
-            {
-            // Enforce that in RUN_TO_POSITION, we always need *positive* power. DCMotor will
-            // take care of that if we set power *after* we set the mode, but not the other way
-            // around. So we handle that here.
-            //
-            // Unclear that this is needed. The motor controller might take the absolute value automatically
-            double power = getMotorPower(motor);
-            if (power < 0)
-                setMotorPower(motor, Math.abs(power));
-            }
+        this.write8(mpMotorRegMotorMode[motor], b);
         }
 
-    @Override public synchronized DcMotorController.RunMode getMotorChannelMode(int motor)
+    @Override public DcMotorController.RunMode getMotorChannelMode(int motor)
         {
         this.validateMotor(motor);
         byte b = this.i2cDeviceClient.read8(mpMotorRegMotorMode[motor]);
         return modeFromByte(b);
         }
-
-    // From the HiTechnic Motor Controller specification
-    //
-    //      The Run to position command will cause the firmware to run the motor to make the current encoder
-    //      value to become equal to the target encoder value. It will do this using a maximum rotation rate
-    //      as defined by the motor power byte. It will hold this position in a servo like mode until the Run
-    //      to position command is changed or the target encoder value is changed. While the Run to position
-    //      command is executing, the Busy bit will be set. Once the target position is achieved, the Busy bit
-    //      will be cleared. There may be a delay of up to 50mS after a Run to position command is initiated
-    //      before the Busy bit will be set.
-    //
-    // Our task here is to work around that 50ms issue
-
-    static final int busyThreshold = 5;
-
-    @Override public synchronized boolean isBusy(int motor)
+    
+    @Override public boolean isBusy(int motor)
         {
         this.validateMotor(motor);
-
-        int cur = getMotorCurrentPosition(motor);
-        int tar = getMotorTargetPosition(motor);
-        RunMode mode = getMotorChannelMode(motor);
-
-        return mode==RunMode.RUN_TO_POSITION && (Math.abs(cur - tar) > busyThreshold);
+        byte b = this.i2cDeviceClient.read8(mpMotorRegMotorMode[motor]);
+        return (b & 0x80) != 0;
         }
 
-    @Override public synchronized void setMotorPower(int motor, double power)
+    @Override public void setMotorPower(int motor, double power)
         {
         this.validateMotor(motor);
         
@@ -452,7 +407,7 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
         this.write8(mpMotorRegMotorPower[motor], bPower);
         }
 
-    @Override public synchronized double getMotorPower(int motor)
+    @Override public double getMotorPower(int motor)
         {
         this.validateMotor(motor);
         byte bPower = this.i2cDeviceClient.read8(mpMotorRegMotorMode[motor]);
@@ -467,39 +422,39 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
         return Range.clip(power, powerMin, powerMax);
         }
 
-    @Override public synchronized void setMotorPowerFloat(int motor)
+    @Override public void setMotorPowerFloat(int motor)
         {
         this.validateMotor(motor);
         byte bPower = bPowerFloat;
         this.write8(mpMotorRegMotorPower[motor], bPower);
         }
 
-    @Override public synchronized boolean getMotorPowerFloat(int motor)
+    @Override public boolean getMotorPowerFloat(int motor)
         {
         this.validateMotor(motor);
         byte bPower = this.i2cDeviceClient.read8(mpMotorRegMotorMode[motor]);
         return bPower == bPowerFloat;
         }
 
-    @Override public synchronized void setMotorTargetPosition(int motor, int position)
+    @Override public void setMotorTargetPosition(int motor, int position)
         {
         this.validateMotor(motor);
-        byte[] bytes = TypeConversion.intToByteArray(position, ByteOrder.BIG_ENDIAN);
+        byte[] bytes = TypeConversion.intToByteArray(position);
         this.write(mpMotorRegTargetEncoderValue[motor], bytes);
         }
 
-    @Override public synchronized int getMotorTargetPosition(int motor)
+    @Override public int getMotorTargetPosition(int motor)
         {
         this.validateMotor(motor);
         byte[] bytes = this.i2cDeviceClient.read(mpMotorRegTargetEncoderValue[motor], cbEncoder);
-        return TypeConversion.byteArrayToInt(bytes, ByteOrder.BIG_ENDIAN);
+        return TypeConversion.byteArrayToInt(bytes);
         }
 
-    @Override public synchronized int getMotorCurrentPosition(int motor)
+    @Override public int getMotorCurrentPosition(int motor)
         {
         this.validateMotor(motor);
         byte[] bytes = this.i2cDeviceClient.read(mpMotorRegCurrentEncoderValue[motor], cbEncoder);
-        return TypeConversion.byteArrayToInt(bytes, ByteOrder.BIG_ENDIAN);
+        return TypeConversion.byteArrayToInt(bytes);
         }
     
     //----------------------------------------------------------------------------------------------
@@ -508,13 +463,13 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     private void write8(int ireg, byte data)
         {
-        if (this.isArmed())
+        if (this.isArmed)
             this.i2cDeviceClient.write8(ireg, data, false);
         }
 
     private void write(int ireg, byte[] data)
         {
-        if (this.isArmed())
+        if (this.isArmed)
             this.i2cDeviceClient.write(ireg, data, false);
         }
 
@@ -525,18 +480,14 @@ public final class EasyLegacyMotorController implements DcMotorController, IThun
 
     private void floatMotors()
         {
-        Log.d(LOGGING_TAG, "floating motors");
         this.setMotorPowerFloat(1);
         this.setMotorPowerFloat(2);
-        i2cDeviceClient.waitForWriteCompletions();  // paranoia about safety
         }
 
     private void stopMotors()
         {
-        Log.d(LOGGING_TAG, "stopping motors");
         this.setMotorPower(1, 0);
         this.setMotorPower(2, 0);
-        i2cDeviceClient.waitForWriteCompletions();  // paranoia about safety
         }
 
     private void validateMotor(int motor)

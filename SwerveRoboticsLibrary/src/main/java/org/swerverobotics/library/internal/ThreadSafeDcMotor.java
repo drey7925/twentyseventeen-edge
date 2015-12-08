@@ -38,27 +38,14 @@ public class ThreadSafeDcMotor extends DcMotor
         return super.getPower();
         }
 
-    @Deprecated
     public synchronized void setChannelMode(DcMotorController.RunMode mode)
         {
         // super writes mode
         super.setChannelMode(mode);
         }
 
-    public synchronized void setMode(DcMotorController.RunMode mode)
-        {
-        // super writes mode
-        super.setMode(mode);
-        }
-
-    @Deprecated
     public DcMotorController.RunMode getChannelMode()
         {
-        return super.getChannelMode();
-        }
-
-    public DcMotorController.RunMode getMode()
-        {
-        return super.getMode();
+        return this.controller.getMotorChannelMode(this.portNumber);
         }
     }

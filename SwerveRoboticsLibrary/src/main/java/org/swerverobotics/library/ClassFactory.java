@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.interfaces.*;
 import org.swerverobotics.library.internal.*;
-import java.util.*;
 
 /**
  * ClassFactory provides static methods for instantiating objects within the Swerve Robotics
@@ -21,36 +20,30 @@ public final class ClassFactory
     //----------------------------------------------------------------------------------------------
 
     /**
-     * If the provided motors are using a legacy motor controller, createEasyMotorController swaps
-     * that controller out and installs an alternate 'EasyLegacyMotorController' DCMotorController
-     * implementation for the duration of the OpMode. If the motors are using a modern motor controller,
-     * an analogous swap to an 'EasyModernMotorController' is made. If a matrix motor controller is in
-     * use, this function has no effect. The APIs to easy legacy and modern motor controllers
-     * are <em>identical</em>, which helps simplify programming.
+     * If the provided motors are using a legacy motor controller, swaps that controller out
+     * and installs an alternate 'EasyLegacyMotorController' DCMotorController implementation
+     * for the duration of the OpMode; if the motors are using a modern motor controller, the
+     * function has no effect.
      *
      * <p>EasyLegacyMotorController is implemented on top of an {@link II2cDeviceClient} instance
      * which completely handles all the complexities of read vs write mode switching and the
      * like, allowing the logic inside the controller itself to be extraordinarily simple.
      * In particular, the manual mode switching and loop() counting necessary with the stock
      * controller implementation is not needed. Just call the motor getPosition() or setPower()
-     * methods or what have you, and the necessary bookkeeping details will be taken care of.</p>
+     * methods or what have you, and the necessary bookkeeping details
+     * will be taken care of.</p>
      *
-     * <p>The improvements in EasyModernMotorController are less dramatic, but still significant.
-     * Of particular note is that write operations, including motor mode and power changes, happen
-     * immediately rather than being deferred to the end of a loop() cycle. This significantly
-     * simplifies the steps that are necessary to create code that uses a modern motor controller
-     * reliably.</p>
+     * <p>EasyLegacyMotorController is not tied to SynchronousOpMode or any other particular
+     * OpMode. It can be used, for example, from LinearOpMode, or, indeed, any thread that can
+     * tolerate operations that can take tens of milliseconds to run. In SynchronousOpMode,
+     * EasyLegacyMotorController is used automatically; in other OpModes, you'll have to manually
+     * call {@link #createEasyLegacyMotorController} yourself.</p>
      *
-     * <p>Easy motor controllers are not tied to SynchronousOpMode or any other particular
-     * OpMode. They can be used, for example, from LinearOpModes. In SynchronousOpMode,
-     * easy motor controllers are used automatically; in other OpModes, you'll have to manually
-     * call {@link #createEasyMotorController} yourself.</p>
-     *
-     * This method takes as parameters one or both motors that reside on a given  motor
+     * This method takes as parameters one or both motors that reside on a given legacy motor
      * controller. If two motors are provided, they must share the same controller, and conversely
      * if two motors reside on a controller then both must be provided. The method creates a new
-     * easy motor controller of the appropriate type and installs it as the controller for the provided
-     * motors; the existing controller is disabled. When the current OpMode is complete, the processed
+     * EasyLegacyMotorController and installs it as the controller for the provided motors;
+     * the existing controller is disabled. When the current OpMode is complete, the processed
      * is reversed.
      *
      * @param context   the OpMode within which this creation is occurring
@@ -59,71 +52,20 @@ public final class ClassFactory
      *
      * @see org.swerverobotics.library.examples.SynchMotorLoopPerf
      */
-    public static void createEasyMotorController(OpMode context, DcMotor motor1, DcMotor motor2)
+    public static void createEasyLegacyMotorController(OpMode context, DcMotor motor1, DcMotor motor2)
         {
         DcMotorController target = motor1==null ? null : motor1.getController();
 
         if (motor2 != null && target != null && motor2.getController()!=target)
             throw new IllegalArgumentException("motors do not share the same controller");
 
-        if (MemberUtil.isLegacyMotorController(target))
-            EasyLegacyMotorController.create(context, target, motor1, motor2);
-
-        else if (MemberUtil.isModernMotorController(target))
-            EasyModernMotorController.create(context, target, motor1, motor2);
+        EasyLegacyMotorController.create(context, target, motor1, motor2);
         }
 
-    @Deprecated
-    public static void createEasyLegacyMotorController(OpMode context, DcMotor motor1, DcMotor motor2)
-        {
-        createEasyMotorController(context, motor1, motor2);
-        }
-
-    /**
-     * Creates an alternate 'easy' implementation of the controller for the indicated collection
-     * of servos, which must all share the same controller, and must be <em>all</em> the servos
-     * which are found on that controller.
-     *
-     * A notable feature of the easy servo controller implementation is that position change
-     * requests and other servo writes are issued immediately instead of being deferred to the
-     * end of the next loop() cycle, which simplifies programming. This is similar to the
-     * enhancements found in the easy motor controller. Some small bugs are also fixed.
-     *
-     * @param context   the OpMode within which the creation is occurring
-     * @param servos    the list of servos whose controller implementation we are to change.
-     *                  May not be null or empty.
-     *
-     * @see #createEasyMotorController(OpMode, DcMotor, DcMotor)
-     */
-    public static void createEasyServoController(OpMode context, Collection<Servo> servos)
-        {
-        if (servos != null && !servos.isEmpty())
-            {
-            ServoController controller = null;
-            for (Servo servo : servos)
-                {
-                if (controller==null)
-                    controller = servo.getController();
-                else if (controller != servo.getController())
-                    throw new IllegalArgumentException("not all servos share the same controller");
-                }
-
-            if (MemberUtil.isModernServoController(controller))
-                EasyModernServoController.create(context, controller, servos);
-
-            else if (MemberUtil.isLegacyServoController(controller))
-                EasyLegacyServoController.create(context, controller, servos);
-            }
-        else
-            throw new IllegalArgumentException("no servos provided");
-        }
 
     //----------------------------------------------------------------------------------------------
     // Sensors
     //----------------------------------------------------------------------------------------------
-
-    /** An enumeration of the various sensor manufacturers we are involved with */
-    public enum SENSOR_FLAVOR { HITECHNIC, MODERNROBOTICS, ADAFRUIT };
 
     /**
      * Instantiates a driver object for a  AdaFruit BNO055 sensor which resides at the indicated I2cDevice using
@@ -141,7 +83,7 @@ public final class ClassFactory
 
     /**
      * Instantiates a driver object for an AdaFruit BNO055 sensor which resides at the indicated I2cDevice using
-     * the provided configuration parameters. This creation method only functions in a SynchronousOpMode.
+     * the provided configuration parameters. This creation method only functions in a SynchronousOpMode
      *
      * @param i2cDevice     the robot controller runtime object representing the sensor
      * @param parameters    the parameters with which the sensor should be initialized
@@ -150,8 +92,8 @@ public final class ClassFactory
      */
     public static IBNO055IMU createAdaFruitBNO055IMU(I2cDevice i2cDevice, IBNO055IMU.Parameters parameters)
         {
-        SwerveThreadContext.assertSynchronousThread();
-        return createAdaFruitBNO055IMU(SwerveThreadContext.getOpMode(), i2cDevice, parameters);
+        SynchronousThreadContext.assertSynchronousThread();
+        return createAdaFruitBNO055IMU(SynchronousThreadContext.getContextualOpMode(), i2cDevice, parameters);
         }
 
     /**
@@ -191,44 +133,48 @@ public final class ClassFactory
         return AdaFruitBNO055IMU.create(context, i2cDevice, parameters);
         }
 
-
     /**
-     * Creates an alternate implementation of the target color sensor. The target sensor is
-     * disabled in the process. The alternate implementation robustly implements the ColorSensor
-     * functionality.
+     * Creates a driver ColorSensor object for an I2cDevice that represents a
+     * <a href="http://www.hitechnic.com/cgi-bin/commerce.cgi?preadd=action&key=NCO1038">HiTechnic
+     * color sensor</a>.
      *
-     * @param context       the OpMode within which this sensor is to be used
-     * @param target        the sensor whose implementation we are to replace
-     * @return an alternate color sensor implementation
-     *
-     * @see #createSwerveColorSensor(OpMode, I2cController, int, int, SENSOR_FLAVOR)
-     * @see org.swerverobotics.library.examples.LinearColorDemo
-     * @see org.swerverobotics.library.examples.SyncColorDemo
+     * @param context       the OpMode within which the creation is taking place
+     * @param i2cDevice     the color sensor device
+     * @return              a ColorSensor object connected to the device
      */
-    public static ColorSensor createSwerveColorSensor(OpMode context, ColorSensor target)
+    public static ColorSensor createHiTechnicColorSensor(OpMode context, I2cDevice i2cDevice)
         {
-        return LegacyOrModernColorSensor.create(context, target);
+        return new NxtColorSensorOnI2cDevice(context, i2cDevice);
         }
 
     /**
-     * Creates a implementation of a color sensor from the provided information.
+     * Creates a driver ColorSensor object for an I2cDevice that represents a
+     * <a href="http://www.hitechnic.com/cgi-bin/commerce.cgi?preadd=action&key=NCO1038">HiTechnic
+     * color sensor</a>.
      *
-     * @param context       the OpMode within which this sensor is to be used
-     * @param controller    the controller on which the sensor resides
-     * @param port          the port on the controller at which it so resides
-     * @param i2cAddr8Bit   the I2C address of the sensor
-     * @param flavor        the flavor of color sensor that resides there
-     * @return an alternate color sensor implementation
-     *
-     * @see #createSwerveColorSensor(OpMode, ColorSensor)
-     * @see org.swerverobotics.library.examples.LinearColorDemo
-     * @see org.swerverobotics.library.examples.SyncColorDemo
+     * @param context       the OpMode within which the creation is taking place
+     * @param ii2cDevice    the color sensor device
+     * @return              a ColorSensor object connected to the device
      */
-    public static ColorSensor createSwerveColorSensor(OpMode context, I2cController controller, int port, int i2cAddr8Bit, ClassFactory.SENSOR_FLAVOR flavor)
+    public static ColorSensor createHiTechnicColorSensor(OpMode context, II2cDevice ii2cDevice)
         {
-        return LegacyOrModernColorSensor.create(context, controller, port, i2cAddr8Bit, flavor, null);
+        return new NxtColorSensorOnI2cDevice(context, ii2cDevice);
         }
 
+    /**
+     * Creates a driver ColorSensor object from an controller and port specification that represents a
+     * <a href="http://www.hitechnic.com/cgi-bin/commerce.cgi?preadd=action&key=NCO1038">HiTechnic
+     * color sensor</a>.
+     *
+     * @param context       the OpMode within which the creation is taking place
+     * @param controller    the Core Device Legacy Module controller to which the device is attached
+     * @param port          the port on the controller that the device attaches to
+     * @return              a ColorSensor object connected to the device
+     */
+    public static ColorSensor createHiTechnicColorSensor(OpMode context, I2cController controller, int port)
+        {
+        return new NxtColorSensorOnI2cDevice(context, controller, port);
+        }
 
     //----------------------------------------------------------------------------------------------
     // Low level I2cDevice creation
@@ -291,22 +237,6 @@ public final class ClassFactory
     public static II2cDeviceClient createI2cDeviceClient(OpMode context, II2cDevice i2cDevice, int i2cAddr8Bit, boolean closeOnOpModeStop)
         {
         return new I2cDeviceClient(context, i2cDevice, i2cAddr8Bit, closeOnOpModeStop);
-        }
-
-    //----------------------------------------------------------------------------------------------
-    // Miscellaneous
-    //----------------------------------------------------------------------------------------------
-
-    /**
-     * Creates an object that can report the number of times loop() has been called in both
-     * Synchronous and Linear OpModes. In the former, this is not necessary, as getLoopCount()
-     * may simply be called directly, but this utility object is handy in the latter.
-     * @param opMode    the OpMode in which this loop counter is to report
-     * @return          the new utility object. Be sure to close() this object before exiting your OpMode
-     */
-    public static IOpModeLoopCounter createLoopCounter(OpMode opMode)
-        {
-        return new OpModeLoopCounter(opMode);
         }
 
     //----------------------------------------------------------------------------------------------

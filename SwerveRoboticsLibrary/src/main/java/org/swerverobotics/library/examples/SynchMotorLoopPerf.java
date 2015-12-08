@@ -8,10 +8,9 @@ import org.swerverobotics.library.interfaces.*;
 /**
  * An op mode that investigates how many loop() cycles it takes to do full
  * mode switching on a motor controller. Each main loop cycle does both
- * a read and a write to motors.
+ * a read and a write to the motor.
  *
- * This OpMode expects two motors, named 'motorLeft' and 'motorRight'. A configuration
- * flag, set in the constructor, controls whether just one or both of the motors are used.
+ * This OpMode expects two motors, named 'motorLeft' and 'motorRight'.
  */
 @TeleOp(name="Motor Perf (sync)", group="Swerve Examples")
 @Disabled
@@ -27,7 +26,7 @@ public class SynchMotorLoopPerf extends SynchronousOpMode
 
     public SynchMotorLoopPerf()
         {
-        useBothMotors = true;
+        useBothMotors = false;
         }
     
     public @Override void main() throws InterruptedException

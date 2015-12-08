@@ -1,9 +1,12 @@
 package org.swerverobotics.library.internal;
 
 import android.util.Log;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.swerverobotics.library.SynchronousOpMode;
+import org.swerverobotics.library.interfaces.*;
 
 /**
  * ThunkBase contains most of the code for thunking a call from a synchronous thread to the loop() thread
@@ -16,7 +19,7 @@ public abstract class Thunk implements Runnable, IActionKeyed
     // State
     //----------------------------------------------------------------------------------------------
 
-    private   final SwerveThreadContext      context;
+    private   final SynchronousThreadContext context;
     protected final Object                   theLock;
     protected       RuntimeException         exception;
     public    final List<Integer>            actionKeys;
@@ -27,7 +30,7 @@ public abstract class Thunk implements Runnable, IActionKeyed
 
     public Thunk()
         {
-        this.context    = SwerveThreadContext.getThreadContext();
+        this.context    = SynchronousThreadContext.getThreadContext();
         this.theLock    = new Object();
         this.exception  = null;
         this.actionKeys = new LinkedList<Integer>();
@@ -111,7 +114,7 @@ public abstract class Thunk implements Runnable, IActionKeyed
      */
     protected void dispatch() throws InterruptedException
         {
-        SwerveThreadContext.assertSynchronousThread();
-        this.context.thisGetThunker().executeOnLoopThread(this);
+        SynchronousThreadContext.assertSynchronousThread();
+        this.context.getThunker().executeOnLoopThread(this);
         }
     }
