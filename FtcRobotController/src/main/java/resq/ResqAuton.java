@@ -688,6 +688,7 @@ public class ResqAuton extends SynchronousOpMode {
         y += (dist * Math.sin(getGyroYAW()));
         lastEncoderL = l0p;
         lastEncoderR = r0p;
+
         Log.i("MOVE", "DIST: "+dist);
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
@@ -724,10 +725,6 @@ public class ResqAuton extends SynchronousOpMode {
         telemetry.addAction(new Runnable() {
             @Override
             public void run() {
-                // Acquiring the angles is relatively expensive; we don't want
-                // to do that in each of the three items that need that info, as that's
-                // three times the necessary expense.
-                gyroHelper.update();
                 // The rest of this is pretty cheap to acquire, but we may as well do it
                 // all while we're gathering the above.
                 loopCycles = getLoopCount();

@@ -138,6 +138,10 @@ public class ResqRecordAuton extends RectResqCommon {
                 throw new RuntimeException(e);
             }
             loops++;
+
+            if(gamepad1.a){
+                runDrive = false;
+            }
         } else if (!hasWritten) {
             try {
                 hasWritten = true;
