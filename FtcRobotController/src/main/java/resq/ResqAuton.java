@@ -497,7 +497,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
                 Log.e("MADEIT", "MADEIT");
-                pushButton();
+                pushButtonAndDumpClimbers();
             } else {
                 setLeftSpeed(-0.33);
                 setRightSpeed(-0.33);
@@ -516,7 +516,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0.0);
 
                 Log.e("MADEIT", "MADEIT");
-                pushButton();
+                pushButtonAndDumpClimbers();
             }
         } else {
             while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
@@ -541,7 +541,7 @@ public class ResqAuton extends SynchronousOpMode {
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
-                pushButton();
+                pushButtonAndDumpClimbers();
             } else {
                 setLeftSpeed(0.33);
                 setRightSpeed(0.33);
@@ -558,17 +558,16 @@ public class ResqAuton extends SynchronousOpMode {
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
-                pushButton();
+                pushButtonAndDumpClimbers();
             }
         }
 
 
     }
 
-    private void pushButton() {
+    private void pushButtonAndDumpClimbers() {
 
-        //TODO calibrate
-        boxSrvo.setPosition(0.0);
+        boxSrvo.setPosition(1.0);
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);
@@ -589,8 +588,7 @@ public class ResqAuton extends SynchronousOpMode {
                 throw new RuntimeException(e);
             }
         }
-            // TODO calibrate
-        boxSrvo.setPosition(0.0);
+        boxSrvo.setPosition(0.107);
     }
 
     public boolean isFarMountain() {
@@ -620,14 +618,15 @@ public class ResqAuton extends SynchronousOpMode {
 
         l2 = hardwareMap.dcMotor.get("l2");
         r2 = hardwareMap.dcMotor.get("r2");
-        aimServo = hardwareMap.servo.get("aimServo");
+        aimServo = hardwareMap.servo.get(DeviceNaming.AIM_SERVO);
         aimServo.setPosition(0.32);
         w = hardwareMap.dcMotor.get("w");
-        boxSrvo = hardwareMap.servo.get("boxServo");
-        btnSrvo = hardwareMap.servo.get("btnSrvo");
+        boxSrvo = hardwareMap.servo.get(DeviceNaming.BOX_SERVO);
+        btnSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
 
         btnSrvo.setPosition(BTN_SRVO_RETRACTED);
 
+        boxSrvo.setPosition(1.0);
         l0.setDirection(DcMotor.Direction.REVERSE);
         l1.setDirection(DcMotor.Direction.REVERSE);
         l2.setDirection(DcMotor.Direction.REVERSE);

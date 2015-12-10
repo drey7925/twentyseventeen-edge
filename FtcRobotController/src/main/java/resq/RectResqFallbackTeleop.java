@@ -23,20 +23,20 @@ public class RectResqFallbackTeleop extends RectResqCommon {
     public void init() {
         super.init();
         try {
-            btnPushSrvo = hardwareMap.servo.get("btnSrvo");
+            btnPushSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
         try {
 
-            aimServo = hardwareMap.servo.get("aimServo");
+            aimServo = hardwareMap.servo.get(DeviceNaming.AIM_SERVO);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
         try {
 
-            lLvr = hardwareMap.servo.get("lLever");
-            rLvr = hardwareMap.servo.get("rLever");
+            lLvr = hardwareMap.servo.get(DeviceNaming.L_LEVER_SERVO);
+            rLvr = hardwareMap.servo.get(DeviceNaming.R_LEVER_SERVO);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "LEVER");
         }
@@ -101,8 +101,8 @@ public class RectResqFallbackTeleop extends RectResqCommon {
 
         if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
         telemetry.addData("WARN", "LEVERS NOT CALIBRATED!");
-        if (lLvr != null) lLvr.setPosition(lLevOut ? 0:0); // TODO calibrate
-        if (rLvr != null) rLvr.setPosition(rLevOut ? 0:0); // TODO calibrate
+        if (lLvr != null) lLvr.setPosition(lLevOut ? 0.576:0.036); // TODO calibrate
+        if (rLvr != null) rLvr.setPosition(rLevOut ? 0.438:0.931); // TODO calibrate
     }
 
 
