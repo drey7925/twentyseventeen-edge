@@ -18,12 +18,12 @@ public class RectResqFallbackTeleop extends RectResqCommon {
     boolean pushServoDeployed = false;
     double aimPos = 0.32;
     Servo aimServo; // Lift servo
-
+    Servo lLvr, rLvr;
     @Override
     public void init() {
         super.init();
         try {
-            btnPushSrvo = hardwareMap.servo.get("btnPush");
+            btnPushSrvo = hardwareMap.servo.get("btnSrvo");
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
@@ -33,13 +33,21 @@ public class RectResqFallbackTeleop extends RectResqCommon {
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
+        try {
+
+            lLvr = hardwareMap.servo.get("lLever");
+            rLvr = hardwareMap.servo.get("rLever");
+        } catch (Exception e) {
+            telemetry.addData("INITFAULT", "LEVER");
+        }
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
         this.gamepad1.setJoystickDeadzone(0.1f);
 
     }
-
+    boolean lLevOut = false;
+    boolean rLevOut = false;
     @Override
     public void loop() {
 
@@ -50,6 +58,16 @@ public class RectResqFallbackTeleop extends RectResqCommon {
         double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
 
         double rCalculated = this.gamepad1.right_stick_y * scaleActual + tipPreventionPower;
+        if(this.gamepad2.dpad_left) {
+            lLevOut = true;
+            rLevOut = false;
+        } else if(this.gamepad2.dpad_right) {
+            lLevOut = false;
+            rLevOut = true;
+        } else if(this.gamepad2.dpad_up) {
+            lLevOut = false;
+            rLevOut = false;
+        }
 
 
         if (fullOverrideNeg) {
@@ -78,8 +96,13 @@ public class RectResqFallbackTeleop extends RectResqCommon {
         aimPos -= this.gamepad2.left_stick_y / 512;
         aimPos = Range.clip(aimPos, 0.32, 0.92);
         telemetry.addData("aimPos", aimPos);
-        aimServo.setPosition(aimPos);
-        btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
+        if (aimServo != null)
+            aimServo.setPosition(aimPos);
+
+        if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
+        telemetry.addData("WARN", "LEVERS NOT CALIBRATED!");
+        if (lLvr != null) lLvr.setPosition(lLevOut ? 0:0); // TODO calibrate
+        if (rLvr != null) rLvr.setPosition(rLevOut ? 0:0); // TODO calibrate
     }
 
 

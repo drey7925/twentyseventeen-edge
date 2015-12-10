@@ -566,6 +566,9 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     private void pushButton() {
+
+        //TODO calibrate
+        boxSrvo.setPosition(0.0);
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);
@@ -586,6 +589,8 @@ public class ResqAuton extends SynchronousOpMode {
                 throw new RuntimeException(e);
             }
         }
+            // TODO calibrate
+        boxSrvo.setPosition(0.0);
     }
 
     public boolean isFarMountain() {
@@ -605,7 +610,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     Servo btnSrvo;
-
+    Servo boxSrvo;
     protected void startUpHardware() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -618,7 +623,7 @@ public class ResqAuton extends SynchronousOpMode {
         aimServo = hardwareMap.servo.get("aimServo");
         aimServo.setPosition(0.32);
         w = hardwareMap.dcMotor.get("w");
-
+        boxSrvo = hardwareMap.servo.get("boxServo");
         btnSrvo = hardwareMap.servo.get("btnSrvo");
 
         btnSrvo.setPosition(BTN_SRVO_RETRACTED);
