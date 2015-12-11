@@ -1,5 +1,6 @@
 package resq;
 
+import android.content.Context;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.util.Range;
 
@@ -20,18 +21,22 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             startCamera();
 
             FileInputStream inStream;
-            if (teamColor == Colors.BLUE) {
-                if (startSide == Side.MOUNTAIN) {
+            if (teamColor == ResqAuton.Colors.BLUE) {
+                if (startSide == ResqAuton.Side.MOUNTAIN) {
                     inStream = hardwareMap.appContext.openFileInput("bluemtn.RUN");
+                    telemetry.addData("FILENAME", "bluemtn.RUN");
                 } else {
                     inStream = hardwareMap.appContext.openFileInput("bluemid.RUN");
+                    telemetry.addData("FILENAME", "bluemid.RUN");
                 }
 
             } else {
-                if (startSide == Side.MOUNTAIN) {
+                if (startSide == ResqAuton.Side.MOUNTAIN) {
                     inStream = hardwareMap.appContext.openFileInput("redmtn.RUN");
+                    telemetry.addData("FILENAME", "redmtn.RUN");
                 } else {
                     inStream = hardwareMap.appContext.openFileInput("redmid.RUN");
+                    telemetry.addData("FILENAME", "redmid.RUN");
                 }
 
             }
@@ -64,6 +69,8 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             long stNow;
             while((stNow=System.nanoTime() - ns) < maxStamp){
                 int i = Arrays.binarySearch(nanoStamps, stNow);
+
+                telemetry.addData("IDX", i);
                 int indexBefore = i;
                 int indexAfter = i;
                 double lStampWeight = 1;
@@ -71,13 +78,20 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 if(i < 0){
                     indexBefore = -i-2;
                     indexAfter = -i-1;
-                    rStampWeight = (stNow-nanoStamps[indexBefore])/(nanoStamps[indexAfter]-nanoStamps[indexBefore]);
-                    lStampWeight = (nanoStamps[indexAfter]-stNow)/(nanoStamps[indexAfter]-nanoStamps[indexBefore]);
+                    if(indexBefore<0 ||indexAfter<0){ indexBefore = 0;
+                    indexAfter = 0;
+                    telemetry.addData("WARN", "WARN");}
+                    else {
+                        rStampWeight = (stNow - nanoStamps[indexBefore]) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
+                        lStampWeight = (nanoStamps[indexAfter] - stNow) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
+                        telemetry.addData("WARN", "NO");
+                    }
                 }
 
                 double lMtr = lStampWeight * leftDriveVals[indexBefore] + rStampWeight * leftDriveVals[indexAfter];
                 double rMtr = lStampWeight * rightDriveVals[indexBefore] + rStampWeight * rightDriveVals[indexAfter];
-
+                telemetry.addData("LM", lMtr);
+                telemetry.addData("RM", rMtr);
                 if(adjVoltage){
                     lMtr *= recordedVoltage/ourVoltage;
                     rMtr *= recordedVoltage/ourVoltage;

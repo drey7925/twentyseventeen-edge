@@ -41,9 +41,11 @@ public class RectResqFallbackTeleop extends RectResqCommon {
 
             lLvr = hardwareMap.servo.get(DeviceNaming.L_LEVER_SERVO);
             rLvr = hardwareMap.servo.get(DeviceNaming.R_LEVER_SERVO);
+            hardwareMap.servo.get(DeviceNaming.BOX_SERVO).setPosition(1.0);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "LEVER");
         }
+
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);

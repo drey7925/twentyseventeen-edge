@@ -14,6 +14,7 @@ import java.io.*;
 
 public class ResqRecordAuton extends RectResqCommon {
     public void fillInSettings() {
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         startSide = getStartSide();
         teamColor = getTeam();
 
@@ -47,6 +48,7 @@ public class ResqRecordAuton extends RectResqCommon {
     public void init() {
         try {
             super.init();
+            fillInSettings();
             try {
                 btnPushSrvo = hardwareMap.servo.get("btnPush");
             } catch (Exception e) {
@@ -65,19 +67,19 @@ public class ResqRecordAuton extends RectResqCommon {
 
             if (teamColor == ResqAuton.Colors.BLUE) {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemtn.RUN", Context.MODE_PRIVATE);
+                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemtn.RUN", Context.MODE_MULTI_PROCESS);
                     telemetry.addData("FILENAME", "bluemtn.RUN");
                 } else {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemid.RUN", Context.MODE_PRIVATE);
+                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemid.RUN", Context.MODE_MULTI_PROCESS);
                     telemetry.addData("FILENAME", "bluemid.RUN");
                 }
 
             } else {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmtn.RUN", Context.MODE_PRIVATE);
+                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmtn.RUN", Context.MODE_MULTI_PROCESS);
                     telemetry.addData("FILENAME", "redmtn.RUN");
                 } else {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmid.RUN", Context.MODE_PRIVATE);
+                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmid.RUN", Context.MODE_MULTI_PROCESS);
                     telemetry.addData("FILENAME", "redmid.RUN");
                 }
 
@@ -135,6 +137,7 @@ public class ResqRecordAuton extends RectResqCommon {
                 throw new RuntimeException(e);
             }
             loops++;
+            telemetry.addData("LPS", loops);
 
             if(gamepad1.a){
                 runDrive = false;
@@ -150,6 +153,7 @@ public class ResqRecordAuton extends RectResqCommon {
                 dos.write(baos.toByteArray());
                 dos.close();
                 fileOutputStream.close();
+                telemetry.addData("SUCCESS", "WROTE DATA");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
