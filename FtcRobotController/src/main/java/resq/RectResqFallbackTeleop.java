@@ -2,6 +2,7 @@ package resq;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
@@ -12,7 +13,7 @@ import ftc.team6460.javadeck.ftc.Utils;
 
 public class RectResqFallbackTeleop extends RectResqCommon {
 
-
+    DcMotor ledCtrl;
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
     boolean pushServoDeployed = false;
@@ -21,6 +22,9 @@ public class RectResqFallbackTeleop extends RectResqCommon {
     Servo lLvr, rLvr;
     @Override
     public void init() {
+
+        ledCtrl = hardwareMap.dcMotor.get(DeviceNaming.LED_DEV_NAME);
+        ledCtrl.setPower(1.0);
         super.init();
         try {
             btnPushSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
@@ -84,8 +88,6 @@ public class RectResqFallbackTeleop extends RectResqCommon {
         l1.setPower(lCalculated);
         r1.setPower(rCalculated);
 
-        l2.setPower(lCalculated);
-        r2.setPower(rCalculated);
 
         //self explanatory winch
 
@@ -100,9 +102,14 @@ public class RectResqFallbackTeleop extends RectResqCommon {
             aimServo.setPosition(aimPos);
 
         if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
-        telemetry.addData("WARN", "LEVERS NOT CALIBRATED!");
         if (lLvr != null) lLvr.setPosition(lLevOut ? 0.576:0.036); // TODO calibrate
         if (rLvr != null) rLvr.setPosition(rLevOut ? 0.438:0.931); // TODO calibrate
+        if(gamepad2.right_trigger > 0.2){
+            ledCtrl.setPower(0.0);
+        }
+        if(gamepad2.right_bumper){
+            ledCtrl.setPower(1.0);
+        }
     }
 
 

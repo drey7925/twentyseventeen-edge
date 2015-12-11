@@ -127,9 +127,6 @@ public class ResqRecordAuton extends RectResqCommon {
 
             l1.setPower(lCalculated);
             r1.setPower(rCalculated);
-
-            l2.setPower(lCalculated);
-            r2.setPower(rCalculated);
             try {
                 dbaos.writeLong(System.nanoTime() - ns);
                 dbaos.writeDouble(lCalculated);

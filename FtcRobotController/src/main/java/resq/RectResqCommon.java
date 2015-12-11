@@ -10,10 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 public abstract class RectResqCommon extends OpMode {
     DcMotor l0;
     DcMotor l1;
-    DcMotor l2;
     DcMotor r0;
     DcMotor r1;
-    DcMotor r2;
     DcMotor w;
     @Override
     public void init() {
@@ -23,21 +21,15 @@ public abstract class RectResqCommon extends OpMode {
         l1 = hardwareMap.dcMotor.get("l1");
         r1 = hardwareMap.dcMotor.get("r1");
 
-        l2 = hardwareMap.dcMotor.get("l2");
-        r2 = hardwareMap.dcMotor.get("r2");
 
         w = hardwareMap.dcMotor.get("w");
 
         r0.setDirection(DcMotor.Direction.REVERSE);
         r1.setDirection(DcMotor.Direction.REVERSE);
-        r2.setDirection(DcMotor.Direction.REVERSE);
-
         l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        l2.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        r2.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
     }

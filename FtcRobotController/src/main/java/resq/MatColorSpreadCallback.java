@@ -16,6 +16,11 @@ import org.bytedeco.javacpp.opencv_core;
 public class MatColorSpreadCallback implements MatCallback {
     private Activity cx;
     private TextView tv;
+    private volatile String overText = "";
+
+    public void setOverText(String overText) {
+        this.overText = overText;
+    }
 
     public String getState() {
         return state;
@@ -133,5 +138,9 @@ public class MatColorSpreadCallback implements MatCallback {
                 p.setColor(Color.YELLOW);
         }
         canvas.drawRect(canvas.getWidth()/2, 0, canvas.getWidth(), canvas.getHeight() / 16, p);
+        p.setColor(Color.RED);
+
+        canvas.drawLine(0, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight()/2, p);
+        canvas.drawText(overText, 0, canvas.getHeight()/3, p);
     }
 }
