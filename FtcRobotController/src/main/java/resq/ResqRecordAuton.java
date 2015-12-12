@@ -2,6 +2,7 @@ package resq;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.hardware.Servo;
 import ftc.team6460.javadeck.ftc.Utils;
@@ -67,19 +68,19 @@ public class ResqRecordAuton extends RectResqCommon {
 
             if (teamColor == ResqAuton.Colors.BLUE) {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemtn.RUN", Context.MODE_MULTI_PROCESS);
+                    fileOutputStream = openFileOutput("bluemtn.RUN");
                     telemetry.addData("FILENAME", "bluemtn.RUN");
                 } else {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("bluemid.RUN", Context.MODE_MULTI_PROCESS);
+                    fileOutputStream = openFileOutput("bluemid.RUN");
                     telemetry.addData("FILENAME", "bluemid.RUN");
                 }
 
             } else {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmtn.RUN", Context.MODE_MULTI_PROCESS);
+                    fileOutputStream = openFileOutput("redmtn.RUN");
                     telemetry.addData("FILENAME", "redmtn.RUN");
                 } else {
-                    fileOutputStream = hardwareMap.appContext.openFileOutput("redmid.RUN", Context.MODE_MULTI_PROCESS);
+                    fileOutputStream = openFileOutput("redmid.RUN");
                     telemetry.addData("FILENAME", "redmid.RUN");
                 }
 
@@ -102,7 +103,10 @@ public class ResqRecordAuton extends RectResqCommon {
     boolean hasWritten = false;
     int loops = 0;
     long ns = 0;
-
+    private FileOutputStream openFileOutput(String s) throws FileNotFoundException {
+        File file = new File(Environment.getExternalStorageDirectory(), s);
+        return new FileOutputStream(file);
+    }
     @Override
     public void loop() {
         if (ns == 0) ns = System.nanoTime();

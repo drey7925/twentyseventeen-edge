@@ -1,6 +1,7 @@
 package resq;
 
 import android.content.Context;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.util.Range;
 
@@ -23,19 +24,19 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             FileInputStream inStream;
             if (teamColor == ResqAuton.Colors.BLUE) {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    inStream = hardwareMap.appContext.openFileInput("bluemtn.RUN");
+                    inStream = openFileInput("bluemtn.RUN");
                     telemetry.addData("FILENAME", "bluemtn.RUN");
                 } else {
-                    inStream = hardwareMap.appContext.openFileInput("bluemid.RUN");
+                    inStream = openFileInput("bluemid.RUN");
                     telemetry.addData("FILENAME", "bluemid.RUN");
                 }
 
             } else {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    inStream = hardwareMap.appContext.openFileInput("redmtn.RUN");
+                    inStream = openFileInput("redmtn.RUN");
                     telemetry.addData("FILENAME", "redmtn.RUN");
                 } else {
-                    inStream = hardwareMap.appContext.openFileInput("redmid.RUN");
+                    inStream = openFileInput("redmid.RUN");
                     telemetry.addData("FILENAME", "redmid.RUN");
                 }
 
@@ -69,9 +70,12 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             long stNow;
             while((stNow=System.nanoTime() - ns) < maxStamp){
                 int i = Arrays.binarySearch(nanoStamps, stNow);
-
+                // binary search
+                if(i < 0) i = -i-2;
+                //edge case
+                if(i < 0) i = 0;
                 telemetry.addData("IDX", i);
-                int indexBefore = i;
+                /*int indexBefore = i;
                 int indexAfter = i;
                 double lStampWeight = 1;
                 double rStampWeight = 0;
@@ -99,6 +103,10 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 setLeftSpeed(lMtr);
                 setRightSpeed(rMtr);
                 idle();
+                */
+                setLeftSpeed(leftDriveVals[i]);
+                setRightSpeed(rightDriveVals[i]);
+                idle();
             }
 
             detectAndHitBeacon();
@@ -119,4 +127,10 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             throw new RuntimeException(e);
         }
     }
+
+    private FileInputStream openFileInput(String s) throws FileNotFoundException {
+        File file = new File(Environment.getExternalStorageDirectory(), s);
+        return new FileInputStream(file);
+    }
+
 }
