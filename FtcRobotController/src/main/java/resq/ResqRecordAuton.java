@@ -128,6 +128,9 @@ public class ResqRecordAuton extends RectResqCommon {
                 rCalculated = 1;
             }
 
+            lCalculated /= 2;
+            rCalculated /= 2;
+
             l0.setPower(lCalculated);
             r0.setPower(rCalculated);
 

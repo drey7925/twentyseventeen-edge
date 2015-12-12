@@ -72,7 +72,7 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 int i = Arrays.binarySearch(nanoStamps, stNow);
                 // binary search
                 if(i < 0) i = -i-2;
-                //edge case
+                //edge case for binary search before first element. Jump to first element. No issue with that, since most recordings don't have critical movement there.
                 if(i < 0) i = 0;
                 telemetry.addData("IDX", i);
                 /*int indexBefore = i;
