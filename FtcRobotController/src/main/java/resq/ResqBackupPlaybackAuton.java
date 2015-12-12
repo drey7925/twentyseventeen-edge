@@ -3,6 +3,7 @@ package resq;
 import android.content.Context;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import java.io.*;
@@ -21,6 +22,10 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             startUpHardware();
             startCamera();
 
+            l0.setDirection(DcMotor.Direction.REVERSE);
+            l1.setDirection(DcMotor.Direction.REVERSE);
+            r0.setDirection(DcMotor.Direction.FORWARD);
+            r1.setDirection(DcMotor.Direction.FORWARD);
             FileInputStream inStream;
             if (teamColor == ResqAuton.Colors.BLUE) {
                 if (startSide == ResqAuton.Side.MOUNTAIN) {
@@ -104,8 +109,8 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 setRightSpeed(rMtr);
                 idle();
                 */
-                setLeftSpeed(leftDriveVals[i]);
-                setRightSpeed(rightDriveVals[i]);
+                setLeftSpeed(-leftDriveVals[i]);
+                setRightSpeed(-rightDriveVals[i]);
                 idle();
             }
 

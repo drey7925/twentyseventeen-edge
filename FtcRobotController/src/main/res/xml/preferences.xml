@@ -180,7 +180,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:key="auton_beacon_area_clear_time"
                 android:summary="How long to wait for other robot to clear beacon area, IN SECONDS."
                 android:title="Time to beacon area clear"/>
-
+          <EditTextPreference
+                  android:defaultValue="0"
+                  android:dialogTitle="Time to dead-reckon after lock to press"
+                  android:inputType="number"
+                  android:key="camera_to_btn_offset"
+                  android:summary="How long to drive for to move the button pusher in alignment to the button."
+                  android:title="Time to align button pusher"/>
         <EditTextPreference
                 android:dialogTitle="Gyro tuning"
                 android:key="gyrocalib"

@@ -104,8 +104,8 @@ public class RectResqFallbackTeleop extends RectResqCommon {
             aimServo.setPosition(aimPos);
 
         if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
-        if (lLvr != null) lLvr.setPosition(lLevOut ? 0.576:0.036); // TODO calibrate
-        if (rLvr != null) rLvr.setPosition(rLevOut ? 0.438:0.931); // TODO calibrate
+        if (lLvr != null) lLvr.setPosition(lLevOut ? 0.576:0.036);
+        if (rLvr != null) rLvr.setPosition(rLevOut ? 0.438:0.931);
         if(gamepad2.right_trigger > 0.2){
             ledCtrl.setPower(0.0);
         }

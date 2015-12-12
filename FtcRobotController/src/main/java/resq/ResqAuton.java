@@ -284,10 +284,11 @@ public class ResqAuton extends SynchronousOpMode {
     public void turnTo(double YAW) {
         doPeriodicTasks();
         curYAW = getGyroYAW();
-        double angle = curYAW - YAW;
-        if ((curYAW - YAW) > 180) {
-            angle = Math.abs(360 - angle);
+        double angle = Math.abs(curYAW - YAW);
+        if (angle > 180) {
+            angle = 360 - angle;
         }
+
         double incA = Math.min(15, angle); //the increment angle
         double oriYAW = getGyroYAW();
         double incr = 0;
@@ -312,7 +313,7 @@ public class ResqAuton extends SynchronousOpMode {
             }
            /* START DECLINING INCREMENT */
             while ((oriYAW - curYAW) < angle) {
-                setLeftSpeed(incr*.25);
+                setLeftSpeed(incr * .25);
                 setRightSpeed(-incr*.25);
                 incr = (1 * (-(YAW - curYAW) / 15));
 
@@ -321,10 +322,7 @@ public class ResqAuton extends SynchronousOpMode {
             }
             doPeriodicTasks();
             curYAW = getGyroYAW();
-            if (curYAW <= YAW) {
-                setLeftSpeed(0);
-                setRightSpeed(0);
-            }
+
         } else if ((oriYAW < YAW) && (YAW - oriYAW) > 180) { //turn right past 0 line
             doPeriodicTasks();
             curYAW = getGyroYAW();
@@ -354,7 +352,7 @@ public class ResqAuton extends SynchronousOpMode {
                     curYAW = getGyroYAW();
                 }
 
-            }
+        }
        	/* START INTERMEDIATE MAX SPEED TURN*/
             while (curYAW < oriYAW) { //these two while loops are the same thing
                 setLeftSpeed(incr*.25);
@@ -426,7 +424,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setLeftSpeed(0);
                 setRightSpeed(0);
             }
-        } else if ((oriYAW > YAW) && (oriYAW - YAW) > 180) { //turn right past 0 line
+        } else if ((oriYAW > YAW) && (oriYAW - YAW) > 180) { //turn left past 0 line
 
             doPeriodicTasks();
             curYAW = getGyroYAW();
@@ -546,14 +544,14 @@ public class ResqAuton extends SynchronousOpMode {
 //what does YAW give you -->
 
     /**
-     * @param X   destination X coordinate
-     * @param Y   destination Y coordinate
-     * @param YAW destination YAW, set -1 for no destination YAW
+     * @param finalX   destination X coordinate
+     * @param finalY   destination Y coordinate
+     * @param finalYAW destination YAW, set -1 for no destination YAW
      */
 
     public void navigateTo(double finalX, double finalY, double finalYAW) {
         turnTo(Math.atan((finalY - getGyroY()) / (finalX - getGyroX())));
-        goForward(Math.abs((finalX-getGyroX())*(finalX-getGyroX())+(finalY-getGyroY())*(finalY-getGyroY())));
+        goForward(Math.abs((finalX - getGyroX()) * (finalX - getGyroX()) + (finalY - getGyroY()) * (finalY - getGyroY())));
         turnTo(finalYAW);
 
     }
@@ -594,20 +592,21 @@ public class ResqAuton extends SynchronousOpMode {
         }
     }*/
 
-    public void detectAndHitBeacon() {
+    public void detectAndHitBeacon() throws InterruptedException {
         ledCtrl.setPower(0);
         waitTime(1000);
         if (getTeam() == Colors.BLUE) {
             while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
-                setLeftSpeed(-0.1);
-                setRightSpeed(-0.1);
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
                 doPeriodicTasks();
             }
             setLeftSpeed(0);
             setRightSpeed(0);
+            dumpClimbers();
             if (cb.getState().equals("RB")) {
-                setLeftSpeed(-0.1);
-                setRightSpeed(-0.1);
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
                 while (true) {
                     if (cb.getState().equals("BB")) {
                         break;
@@ -623,10 +622,10 @@ public class ResqAuton extends SynchronousOpMode {
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
                 Log.e("MADEIT", "MADEIT");
-                pushButtonAndDumpClimbers();
+                pushButton();
             } else {
-                setLeftSpeed(0.1);
-                setRightSpeed(0.1);
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
                 while (true) {
                     if (cb.getState().equals("BB")) {
                         break;
@@ -642,18 +641,20 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0.0);
 
                 Log.e("MADEIT", "MADEIT");
-                pushButtonAndDumpClimbers();
+                pushButton();
             }
         } else {
             while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
-                setLeftSpeed(0.1);
-                setRightSpeed(0.1);
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
             }
             setLeftSpeed(0);
             setRightSpeed(0);
+
+            dumpClimbers();
             if (cb.getState().equals("RB")) {
-                setLeftSpeed(0.1);
-                setRightSpeed(0.1);
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
                 while (true) {
                     if (cb.getState().equals("RR")) {
                         break;
@@ -667,10 +668,10 @@ public class ResqAuton extends SynchronousOpMode {
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
-                pushButtonAndDumpClimbers();
+                pushButton();
             } else {
-                setLeftSpeed(-0.1);
-                setRightSpeed(-0.1);
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
                 while (true) {
                     if (cb.getState().equals("RR")) {
                         break;
@@ -684,7 +685,7 @@ public class ResqAuton extends SynchronousOpMode {
                 }
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
-                pushButtonAndDumpClimbers();
+                pushButton();
                 ledCtrl.setPower(1.0);
             }
         }
@@ -694,10 +695,28 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 
-    private void pushButtonAndDumpClimbers() {
+    private void dumpClimbers() throws InterruptedException {
+        boxSrvo.setPosition(0.107);
+        idle();
+        waitTime(500);
+        idle();
+        boxSrvo.setPosition(1);
+        idle();
+        waitTime(100);
+    }
 
-        boxSrvo.setPosition(1.0);
-        for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.01) {
+    private void pushButton() {
+        ledCtrl.setPower(1.0);
+        waitTime(200);
+        ledCtrl.setPower(0.0);
+        waitTime(200);
+        ledCtrl.setPower(1.0);
+        setLeftSpeed(0.1);
+        setRightSpeed(0.1);
+        waitTime(Utils.safeInt(sharedPref.getString("camera_to_btn_offset", "0"), 0));
+        setLeftSpeed(0.0);
+        setRightSpeed(0.0);
+        for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.03) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);
             try {
@@ -707,7 +726,7 @@ public class ResqAuton extends SynchronousOpMode {
                 throw new RuntimeException(e);
             }
         }
-        for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.01) {
+        for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.03) {
             btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED, pos));
             try {
                 idle();
@@ -717,7 +736,6 @@ public class ResqAuton extends SynchronousOpMode {
                 throw new RuntimeException(e);
             }
         }
-        boxSrvo.setPosition(0.107);
     }
 
     public boolean isFarMountain() {
@@ -755,16 +773,17 @@ public class ResqAuton extends SynchronousOpMode {
         hardwareMap.servo.get(DeviceNaming.L_LEVER_SERVO).setPosition(0.036);
         hardwareMap.servo.get(DeviceNaming.R_LEVER_SERVO).setPosition(0.931);
         boxSrvo.setPosition(1.0);
-        l0.setDirection(DcMotor.Direction.REVERSE);
-        l1.setDirection(DcMotor.Direction.REVERSE);
-        ledCtrl = hardwareMap.dcMotor.get(DeviceNaming.LED_DEV_NAME);
-        ledCtrl.setPower(1.0);
 
         l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        l0.setDirection(DcMotor.Direction.REVERSE);
+        l1.setDirection(DcMotor.Direction.REVERSE);
+        ledCtrl = hardwareMap.dcMotor.get(DeviceNaming.LED_DEV_NAME);
+        ledCtrl.setPower(1.0);
+
         lastEncoderL = l0.getCurrentPosition();
         lastEncoderR = r0.getCurrentPosition();
         gyroHelper.startUpGyro();

@@ -70,7 +70,7 @@ public class FtcOpModeRegister implements OpModeRegister
     manager.register("gyrotest",GyroTestOpMode.class);
         manager.register("telop", RectResqTeleop.class);
         manager.register("fallback", RectResqFallbackTeleop.class);
-        manager.register("cameratest", AutonCameraTestOpMode.class);
+        manager.register("cameratest", CameraCodeTest.class);
         manager.register("auton", ResqAuton.class);
         manager.register("servocalib", ServoCalibOpMode.class);
         manager.register("record", ResqRecordAuton.class);
