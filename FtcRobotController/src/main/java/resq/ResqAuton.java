@@ -33,6 +33,8 @@ public class ResqAuton extends SynchronousOpMode {
     MatColorSpreadCallback cb;
     Servo aimServo;
     DcMotor ledCtrl;
+    private OpenCvActivityHelper ocvh;
+
     public void main() throws InterruptedException {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         fillInSettings();
@@ -118,7 +120,7 @@ public class ResqAuton extends SynchronousOpMode {
 
     protected void startCamera() throws InterruptedException {
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
-        final OpenCvActivityHelper ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
+        ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
         ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
 
             @Override
@@ -489,7 +491,13 @@ public class ResqAuton extends SynchronousOpMode {
     DcMotor r1;
     DcMotor w;
     double lSpd, rSpd;
-    
+
+    @Override
+    protected void postStopHook() {
+        if(ocvh!=null) ocvh.stop();
+        ocvh = null;
+    }
+
     public void setLeftSpeed(double spd) {
 
         spd = Range.clip(spd, -1, 1);
