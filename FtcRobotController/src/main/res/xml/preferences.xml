@@ -185,8 +185,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   android:dialogTitle="Time to dead-reckon after lock to press"
                   android:inputType="number"
                   android:key="camera_to_btn_offset"
-                  android:summary="How long to drive for to move the button pusher in alignment to the button."
+                  android:summary="How long to drive for to move the button pusher in alignment to the button. Negative to reverse movement."
                   android:title="Time to align button pusher"/>
+        <EditTextPreference
+                android:defaultValue="0"
+                android:dialogTitle="Time to drive for camera undershoot correction"
+                android:inputType="number"
+                android:key="camera_undershoot_correction"
+                android:summary="How long to drive in the same direction after camera lock."
+                android:title="Time to drive past camera successful target detection"/>
         <EditTextPreference
                 android:dialogTitle="Gyro tuning"
                 android:key="gyrocalib"

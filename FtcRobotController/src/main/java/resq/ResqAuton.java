@@ -489,6 +489,7 @@ public class ResqAuton extends SynchronousOpMode {
     DcMotor r1;
     DcMotor w;
     double lSpd, rSpd;
+    
     public void setLeftSpeed(double spd) {
 
         spd = Range.clip(spd, -1, 1);
@@ -609,6 +610,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(-0.07);
                 while (true) {
                     if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
                         break;
                     }
                     if (cb.getState().equals("RR")) {
@@ -619,6 +621,7 @@ public class ResqAuton extends SynchronousOpMode {
                     }
 
                 }
+
                 setLeftSpeed(0.0);
                 setRightSpeed(0.0);
                 Log.e("MADEIT", "MADEIT");
@@ -628,6 +631,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0.07);
                 while (true) {
                     if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
                         break;
                     }
                     if (cb.getState().equals("RR")) {
@@ -657,6 +661,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(0.07);
                 while (true) {
                     if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
                         break;
                     }
                     if (cb.getState().equals("BB")) {
@@ -674,6 +679,7 @@ public class ResqAuton extends SynchronousOpMode {
                 setRightSpeed(-0.07);
                 while (true) {
                     if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
                         break;
                     }
                     if (cb.getState().equals("BB")) {
@@ -711,9 +717,10 @@ public class ResqAuton extends SynchronousOpMode {
         ledCtrl.setPower(0.0);
         waitTime(200);
         ledCtrl.setPower(1.0);
-        setLeftSpeed(0.1);
-        setRightSpeed(0.1);
-        waitTime(Utils.safeInt(sharedPref.getString("camera_to_btn_offset", "0"), 0));
+        int compensationRunTime = Utils.safeInt(sharedPref.getString("camera_to_btn_offset", "0"), 0);
+        setLeftSpeed(0.1 * Math.signum(compensationRunTime));
+        setRightSpeed(0.1 * Math.signum(compensationRunTime));
+        waitTime(Math.abs(compensationRunTime));
         setLeftSpeed(0.0);
         setRightSpeed(0.0);
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.03) {
