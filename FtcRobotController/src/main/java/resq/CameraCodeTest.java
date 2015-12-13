@@ -11,6 +11,8 @@ public class CameraCodeTest extends ResqAuton {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         fillInSettings();
         startUpHardware();
+
+        aimServo.setPosition(0.32);
         l0.setDirection(DcMotor.Direction.REVERSE);
         l1.setDirection(DcMotor.Direction.REVERSE);
         r0.setDirection(DcMotor.Direction.FORWARD);

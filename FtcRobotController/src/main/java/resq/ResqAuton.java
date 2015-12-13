@@ -710,11 +710,17 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     private void dumpClimbers() throws InterruptedException {
-        boxSrvo.setPosition(0.107);
+        for(double d = 0.95; d >= 0.107; d-=.1) {
+            boxSrvo.setPosition(d);
+            idle();
+        }
         idle();
         waitTime(500);
         idle();
-        boxSrvo.setPosition(1);
+        for(double d = 0.107; d <= 0.95; d+=.1) {
+            boxSrvo.setPosition(d);
+            idle();
+        }
         idle();
         waitTime(100);
     }
@@ -731,7 +737,7 @@ public class ResqAuton extends SynchronousOpMode {
         waitTime(Math.abs(compensationRunTime));
         setLeftSpeed(0.0);
         setRightSpeed(0.0);
-        for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.03) {
+        for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.06) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);
             try {
@@ -741,7 +747,7 @@ public class ResqAuton extends SynchronousOpMode {
                 throw new RuntimeException(e);
             }
         }
-        for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.03) {
+        for (double pos = BTN_SRVO_DEPLOYED; pos <= BTN_SRVO_RETRACTED; pos += 0.06) {
             btnSrvo.setPosition(Math.min(BTN_SRVO_RETRACTED, pos));
             try {
                 idle();
