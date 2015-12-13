@@ -78,7 +78,7 @@ public class MatColorSpreadCallback implements MatCallback {
         xT = 0;
         yT = 0;
         mTotal = 0;
-        for (int i = cols / 2; i < cols; i += 8) { // for each pixel in left: Find if more red, green, or blue
+        for (int i = cols / 2; i < cols; i += 8) { // for each pixel in right: Add unitized vector to vecsum
             int mul = Math.min((i - cols / 2) * 3, cols - i);
             Color.RGBToHSV(bi.get(row, i, 0), bi.get(row, i, 1), bi.get(row, i, 2), hsv);
             if (hsv[2] > 0.1 && hsv[1] > 0.1) {
