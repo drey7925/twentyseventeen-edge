@@ -30,7 +30,7 @@ public class ResqAuton extends SynchronousOpMode {
     final GyroHelper gyroHelper = new GyroHelper(this);
     private double delay;
     int DUMMY = Integer.MAX_VALUE;
-    MatColorSpreadCallback cb;
+    static MatColorSpreadCallback cb;
     Servo aimServo;
     DcMotor ledCtrl;
     private OpenCvActivityHelper ocvh;
@@ -119,6 +119,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     protected void startCamera() throws InterruptedException {
+        if(cb!=null) return;
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
         ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
         ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
@@ -492,11 +493,7 @@ public class ResqAuton extends SynchronousOpMode {
     DcMotor w;
     double lSpd, rSpd;
 
-    @Override
-    protected void postStopHook() {
-        if(ocvh!=null) ocvh.stop();
-        ocvh = null;
-    }
+
 
     public void setLeftSpeed(double spd) {
 
@@ -1025,6 +1022,8 @@ public class ResqAuton extends SynchronousOpMode {
     String formatAngle(double angle) {
         return gyroHelper.getParameters().angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
+
+
 
     String formatRadians(double radians) {
         return formatDegrees(degreesFromRadians(radians));

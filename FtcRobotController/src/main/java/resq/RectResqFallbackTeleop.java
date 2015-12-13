@@ -3,16 +3,42 @@ package resq;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
+import org.swerverobotics.library.SynchronousOpMode;
 
 /**
  * Created by akh06977 on 9/18/2015.
  */
 
-public class RectResqFallbackTeleop extends RectResqCommon {
+public class RectResqFallbackTeleop extends SynchronousOpMode {
+    DcMotor l0;
+    DcMotor l1;
+    DcMotor r0;
+    DcMotor r1;
+    DcMotor w;
 
+    public void initm() {
+        l0 = hardwareMap.dcMotor.get("l0");
+        r0 = hardwareMap.dcMotor.get("r0");
+
+        l1 = hardwareMap.dcMotor.get("l1");
+        r1 = hardwareMap.dcMotor.get("r1");
+
+
+        w = hardwareMap.dcMotor.get("w");
+
+        r0.setDirection(DcMotor.Direction.REVERSE);
+        r1.setDirection(DcMotor.Direction.REVERSE);
+        l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
+    }
     DcMotor ledCtrl;
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
@@ -20,12 +46,12 @@ public class RectResqFallbackTeleop extends RectResqCommon {
     double aimPos = 0.32;
     Servo aimServo; // Lift servo
     Servo lLvr, rLvr;
-    @Override
-    public void init() {
 
+    public void init_() {
+        initm();
         ledCtrl = hardwareMap.dcMotor.get(DeviceNaming.LED_DEV_NAME);
         ledCtrl.setPower(1.0);
-        super.init();
+
         try {
             btnPushSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
         } catch (Exception e) {
@@ -54,9 +80,9 @@ public class RectResqFallbackTeleop extends RectResqCommon {
     }
     boolean lLevOut = false;
     boolean rLevOut = false;
-    @Override
-    public void loop() {
 
+    public void loop_() {
+        updateGamepads();
         double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
         boolean fullOverrideNeg = (this.gamepad1.right_trigger > 0.2);
         boolean fullOverridePos = (this.gamepad1.left_trigger > 0.2);
@@ -98,7 +124,7 @@ public class RectResqFallbackTeleop extends RectResqCommon {
 
 
         aimPos -= this.gamepad2.left_stick_y / 512;
-        aimPos = Range.clip(aimPos, 0.32, 0.92);
+        aimPos = Range.clip(aimPos, 0.19, 0.92);
         telemetry.addData("aimPos", aimPos);
         if (aimServo != null)
             aimServo.setPosition(aimPos);
@@ -113,6 +139,12 @@ public class RectResqFallbackTeleop extends RectResqCommon {
             ledCtrl.setPower(1.0);
         }
     }
-
+    public @Override void main() throws InterruptedException {
+        init_();
+        waitForStart();
+        while(!isStopRequested()){
+            loop_();
+        }
+    }
 
 }
