@@ -75,6 +75,7 @@ public class FtcOpModeRegister implements OpModeRegister
         manager.register("servocalib", ServoCalibOpMode.class);
         manager.register("record", ResqRecordAuton.class);
         manager.register("play", ResqBackupPlaybackAuton.class);
+        manager.register("enctest", EncoderTest.class);
     //AnnotatedOpModeRegistrar.register(manager);
     /*
      * Uncomment any of the following lines if you want to register an op mode,

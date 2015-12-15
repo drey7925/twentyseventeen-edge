@@ -160,7 +160,7 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 
-    public void goForward(double dist, double ffactor) {
+    public void goForward(double dist, double factor) {
         long oriTime = System.currentTimeMillis();
         double oriX = getGyroX();
         double oriY = getGyroY();
@@ -173,9 +173,8 @@ public class ResqAuton extends SynchronousOpMode {
         double distTraveled = 0;
         int accelTime = 1000; //CHANGEABLE
         double speed = 0;
-        double factor=ffactor;
         while (System.currentTimeMillis()<oriTime+accelTime && distTraveled < dist/2) { //ACCELERATION
-            speed = Math.min(1.0,((System.currentTimeMillis()-oriTime)/accelTime*1.0)*factor);
+            speed = Math.min(0.25,((System.currentTimeMillis()-oriTime)/accelTime*1.0)*factor);
             setLeftSpeed(speed);
             setRightSpeed(speed);
 
@@ -278,8 +277,8 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 */
-    public void goForward(double secs) {
-        goForward(secs, 100);
+    public void goForward(double feet) {
+        goForward(feet, 0.25);
 
     }
 
@@ -849,6 +848,12 @@ public class ResqAuton extends SynchronousOpMode {
         int l0p = l0.getCurrentPosition();
         int r0p = r0.getCurrentPosition();
 
+        if(lastRunWasLite) {
+            lastEncoderL = l0p;
+            lastEncoderR = r0p;
+            lastRunWasLite = false;
+        }
+
 
         int delta = weightPositionEffects(l0p - lastEncoderL, r0p - lastEncoderR);
         //int delta = weightPositionEffects(uEL[1], uER[1]);
@@ -857,6 +862,34 @@ public class ResqAuton extends SynchronousOpMode {
         y += (dist * Math.sin(getGyroYAW()));
         lastEncoderL = l0p;
         lastEncoderR = r0p;
+
+        Log.i("MOVE", "DIST: "+dist);
+        // The rest of this is pretty cheap to acquire, but we may as well do it
+        // all while we're gathering the above.
+        loopCycles = getLoopCount();
+        i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+        ms = gyroHelper.getElapsed().time() * 1000.0;
+        try {
+            idle();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.w("TRACK", "EXIT DO-PERIODIC");
+    }
+
+    boolean lastRunWasLite = false;
+
+
+    public void doTurnOnlyTasks() {
+        lastRunWasLite = true;
+        Log.w("TRACK", "ENTER DO-PERIODIC");
+        gyroHelper.update();
+
+        int delta = 0;
+        //int delta = weightPositionEffects(uEL[1], uER[1]);
+        double dist = remapWheelDiameter(delta);
+        x += (dist * Math.cos(getGyroYAW()));
+        y += (dist * Math.sin(getGyroYAW()));
 
         Log.i("MOVE", "DIST: "+dist);
         // The rest of this is pretty cheap to acquire, but we may as well do it
