@@ -24,6 +24,8 @@ public class ResqRecordAuton extends SynchronousOpMode {
 
     }
 
+    GyroHelper gh;
+
     protected static ResqAuton.Side startSide;
     protected static ResqAuton.Colors teamColor;
 
@@ -78,7 +80,7 @@ public class ResqRecordAuton extends SynchronousOpMode {
         r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-
+        gh = new GyroHelper(this);
     }
     public void init_() {
         initm();
@@ -142,21 +144,13 @@ public class ResqRecordAuton extends SynchronousOpMode {
         if (ns == 0) ns = System.nanoTime();
         if (runDrive) {
             double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
-            boolean fullOverrideNeg = (this.gamepad1.right_trigger > 0.2);
-            boolean fullOverridePos = (this.gamepad1.left_trigger > 0.2);
             double tipPreventionPower = 0;
             double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
 
             double rCalculated = this.gamepad1.right_stick_y * scaleActual + tipPreventionPower;
 
 
-            if (fullOverrideNeg) {
-                lCalculated = -1;
-                rCalculated = -1;
-            } else if (fullOverridePos) {
-                lCalculated = 1;
-                rCalculated = 1;
-            }
+
 
             lCalculated /= 2;
             rCalculated /= 2;
@@ -216,6 +210,7 @@ public class ResqRecordAuton extends SynchronousOpMode {
         init_();
         waitForStart();
         while(!isStopRequested()){
+            updateGamepads();
             loop_();
         }
     }

@@ -70,6 +70,11 @@ public class GyroHelper {
         this.rawAccel = getImu().getOverallAcceleration();
     }
 
+    public boolean isGyroCalibrated(){
+        int status = imu.read8(IBNO055IMU.REGISTER.CALIB_STAT);
+        return ((((status >> 4) & 0x03) == 0x03) );
+
+    }
     public void startUpGyro() {
         parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
         parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
