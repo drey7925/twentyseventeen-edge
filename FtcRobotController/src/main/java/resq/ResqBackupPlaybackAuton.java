@@ -3,8 +3,10 @@ package resq;
 import android.content.Context;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+import ftc.team6460.javadeck.ftc.Utils;
 
 import java.io.*;
 import java.util.Arrays;
@@ -13,6 +15,10 @@ import java.util.Arrays;
  * Created by Andrey Akhmetov on 12/6/2015.
  */
 public class ResqBackupPlaybackAuton extends ResqAuton {
+    public String getGoal() {
+        return (sharedPref.getString("auton_goal_position", "INVALID"));
+
+    }
     @Override
     public void main() throws InterruptedException {
         try {
@@ -27,25 +33,20 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             r0.setDirection(DcMotor.Direction.FORWARD);
             r1.setDirection(DcMotor.Direction.FORWARD);
             FileInputStream inStream;
+            String name = "FTCREC-";
             if (teamColor == ResqAuton.Colors.BLUE) {
-                if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    inStream = openFileInput("bluemtn.RUN");
-                    telemetry.addData("FILENAME", "bluemtn.RUN");
-                } else {
-                    inStream = openFileInput("bluemid.RUN");
-                    telemetry.addData("FILENAME", "bluemid.RUN");
-                }
-
+                name = name + "BLUE-";
             } else {
-                if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    inStream = openFileInput("redmtn.RUN");
-                    telemetry.addData("FILENAME", "redmtn.RUN");
-                } else {
-                    inStream = openFileInput("redmid.RUN");
-                    telemetry.addData("FILENAME", "redmid.RUN");
-                }
-
+                name = name + "RED-";
             }
+
+            if (startSide == ResqAuton.Side.MIDLINE) {
+                name = name + "MID-";
+            } else {
+                name = name + "MTN-";
+            }
+            name  = name + getGoal() + ".run";
+            inStream = openFileInput(name);
             DataInputStream dis = new DataInputStream(inStream);
             int length = dis.readInt();
             double recordedVoltage = dis.readDouble(); // battery voltage at recording
@@ -109,13 +110,29 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 setRightSpeed(rMtr);
                 idle();
                 */
-                setLeftSpeed(-leftDriveVals[i]);
-                setRightSpeed(-rightDriveVals[i]);
+                double lS = -leftDriveVals[i];
+                double rS = -rightDriveVals[i];
+                if(adjVoltage){
+                    lS *= recordedVoltage/ourVoltage;
+                    rS *= recordedVoltage/ourVoltage;
+                }
+
+                setLeftSpeed(lS);
+                setRightSpeed(rS);
                 idle();
             }
-
-            //detectAndHitBeacon();
-
+            try {
+                switch (GoalPos.valueOf(getGoal())) {
+                    case BEACON_BEHIND:
+                        detectAndHitBeaconFwdForce();
+                        break;
+                    case BEACON_INFRONT:
+                        detectAndHitBeaconBackForce();
+                        break;
+                }
+            } catch(Exception e){
+                // pass
+            }
 
             /*double[] v = new double[]{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6};
             int i = Arrays.binarySearch(v, 0.31);
@@ -130,6 +147,214 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void detectAndHitBeaconFwdForce() throws InterruptedException {
+        ledCtrl.setPower(0);
+        waitTime(1000);
+        if (getTeam() == Colors.BLUE) {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+                doPeriodicTasks();
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+            dumpClimbers();
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("RR")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+
+                }
+
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                Log.e("MADEIT", "MADEIT");
+                pushButton();
+            } else {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("RR")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+
+                Log.e("MADEIT", "MADEIT");
+                pushButton();
+            }
+        } else {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+
+            dumpClimbers();
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("BB")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            } else {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("BB")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+                ledCtrl.setPower(1.0);
+            }
+        }
+    }
+
+    private void detectAndHitBeaconBackForce() throws InterruptedException {
+        ledCtrl.setPower(0);
+        waitTime(1000);
+        if (getTeam() == Colors.BLUE) {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+                doPeriodicTasks();
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+            dumpClimbers();
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("RR")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+
+                }
+
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                Log.e("MADEIT", "MADEIT");
+                pushButton();
+            } else {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+                while (true) {
+                    if (cb.getState().equals("BB")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("RR")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+
+                Log.e("MADEIT", "MADEIT");
+                pushButton();
+            }
+        } else {
+            while ((!cb.getState().equals("RB")) && (!cb.getState().equals("BR"))) {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+            }
+            setLeftSpeed(0);
+            setRightSpeed(0);
+
+            dumpClimbers();
+            if (cb.getState().equals("RB")) {
+                setLeftSpeed(0.07);
+                setRightSpeed(0.07);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("BB")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+            } else {
+                setLeftSpeed(-0.07);
+                setRightSpeed(-0.07);
+                while (true) {
+                    if (cb.getState().equals("RR")) {
+                        waitTime(Utils.safeInt(sharedPref.getString("camera_undershoot_correction", "0"), 0));
+                        break;
+                    }
+                    if (cb.getState().equals("BB")) {
+                        return;
+                    }
+                    if (cb.getState().contains("G")) {
+                        return;
+                    }
+                }
+                setLeftSpeed(0.0);
+                setRightSpeed(0.0);
+                pushButton();
+                ledCtrl.setPower(1.0);
+            }
         }
     }
 

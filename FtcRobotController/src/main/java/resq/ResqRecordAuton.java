@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import ftc.team6460.javadeck.ftc.Utils;
+import org.swerverobotics.library.SynchronousOpMode;
 
 import java.io.*;
 
@@ -13,7 +16,7 @@ import java.io.*;
  * Created by akh06977 on 9/18/2015.
  */
 
-public class ResqRecordAuton extends RectResqCommon {
+public class ResqRecordAuton extends SynchronousOpMode {
     public void fillInSettings() {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         startSide = getStartSide();
@@ -32,6 +35,10 @@ public class ResqRecordAuton extends RectResqCommon {
         return ResqAuton.Colors.valueOf(sharedPref.getString("auton_team_color", "BLUE"));
 
     }
+    public String getGoal() {
+        return (sharedPref.getString("auton_goal_position", "INVALID"));
+
+    }
 
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
@@ -41,14 +48,41 @@ public class ResqRecordAuton extends RectResqCommon {
     SharedPreferences sharedPref;
     FileOutputStream fileOutputStream;
     DataOutputStream dos;
+    int actionCode = 0;
     ByteArrayOutputStream baos;
     DataOutputStream dbaos;
     double ourVoltage;
+    DcMotor l0;
+    DcMotor l1;
+    DcMotor r0;
+    DcMotor r1;
+    DcMotor w;
 
-    @Override
-    public void init() {
+    DcMotor w2;
+
+    public void initm() {
+        l0 = hardwareMap.dcMotor.get("l0");
+        r0 = hardwareMap.dcMotor.get("r0");
+
+        l1 = hardwareMap.dcMotor.get("l1");
+        r1 = hardwareMap.dcMotor.get("r1");
+
+
+        w = hardwareMap.dcMotor.get("w");
+        w2 = hardwareMap.dcMotor.get("w2");
+
+        r0.setDirection(DcMotor.Direction.REVERSE);
+        r1.setDirection(DcMotor.Direction.REVERSE);
+        l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
+    }
+    public void init_() {
+        initm();
         try {
-            super.init();
             fillInSettings();
             try {
                 btnPushSrvo = hardwareMap.servo.get("btnPush");
@@ -65,26 +99,23 @@ public class ResqRecordAuton extends RectResqCommon {
             sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
             scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
             this.gamepad1.setJoystickDeadzone(0.1f);
-
+            String name = "FTCREC-";
             if (teamColor == ResqAuton.Colors.BLUE) {
-                if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = openFileOutput("bluemtn.RUN");
-                    telemetry.addData("FILENAME", "bluemtn.RUN");
-                } else {
-                    fileOutputStream = openFileOutput("bluemid.RUN");
-                    telemetry.addData("FILENAME", "bluemid.RUN");
-                }
-
+                name = name + "BLUE-";
             } else {
-                if (startSide == ResqAuton.Side.MOUNTAIN) {
-                    fileOutputStream = openFileOutput("redmtn.RUN");
-                    telemetry.addData("FILENAME", "redmtn.RUN");
-                } else {
-                    fileOutputStream = openFileOutput("redmid.RUN");
-                    telemetry.addData("FILENAME", "redmid.RUN");
-                }
-
+                name = name + "RED-";
             }
+
+            if (startSide == ResqAuton.Side.MIDLINE) {
+                name = name + "MID-";
+            } else {
+                name = name + "MTN-";
+            }
+
+            name  = name + getGoal() + ".run";
+            fileOutputStream = openFileOutput(name);
+            telemetry.addData("FILENAME", name);
+
 
             try {
                 ourVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
@@ -107,8 +138,7 @@ public class ResqRecordAuton extends RectResqCommon {
         File file = new File(Environment.getExternalStorageDirectory(), s);
         return new FileOutputStream(file);
     }
-    @Override
-    public void loop() {
+    public void loop_() {
         if (ns == 0) ns = System.nanoTime();
         if (runDrive) {
             double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
@@ -147,6 +177,16 @@ public class ResqRecordAuton extends RectResqCommon {
             telemetry.addData("LPS", loops);
 
             if(gamepad1.a){
+                actionCode = 1;
+                runDrive = false;
+
+            }
+            else if (gamepad1.b){
+                actionCode = 0;
+                runDrive = false;
+            }
+            else if (gamepad1.y){
+                actionCode = 2;
                 runDrive = false;
             }
         } else if (!hasWritten) {
@@ -171,5 +211,13 @@ public class ResqRecordAuton extends RectResqCommon {
     }
 
 
+    @Override
+    protected void main() throws InterruptedException {
+        init_();
+        waitForStart();
+        while(!isStopRequested()){
+            loop_();
+        }
+    }
 }
 

@@ -20,6 +20,8 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     DcMotor r1;
     DcMotor w;
 
+    DcMotor w2;
+
     public void initm() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -29,6 +31,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
 
         w = hardwareMap.dcMotor.get("w");
+        w2 = hardwareMap.dcMotor.get("w2");
 
         r0.setDirection(DcMotor.Direction.REVERSE);
         r1.setDirection(DcMotor.Direction.REVERSE);
@@ -120,6 +123,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         //self explanatory winch
 
         w.setPower(this.gamepad2.right_stick_y);
+        w2.setPower(this.gamepad2.right_stick_y);
         telemetry.addData("w", "1");
 
 

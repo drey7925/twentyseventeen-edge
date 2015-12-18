@@ -596,7 +596,15 @@ public class ResqAuton extends SynchronousOpMode {
             }
         }
     }*/
-
+    enum GoalPos {
+        /*
+                <item>"MTN"</item>
+        <item>"PARK"</item>
+        <item>"BEACON_BEHIND"</item>
+        <item>"BEACON_INFRONT"</item>
+         */
+        MTN, PARK, BEACON_BEHIND, BEACON_INFRONT, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8;
+    }
     public void detectAndHitBeacon() throws InterruptedException {
         ledCtrl.setPower(0);
         waitTime(1000);
@@ -705,8 +713,8 @@ public class ResqAuton extends SynchronousOpMode {
 
     }
 
-    private void dumpClimbers() throws InterruptedException {
-        for(double d = 0.95; d >= 0.107; d-=.1) {
+    protected void dumpClimbers() throws InterruptedException {
+        for(double d = 0.95; d >= 0.107; d-=.03) {
             boxSrvo.setPosition(d);
             idle();
         }
@@ -721,7 +729,7 @@ public class ResqAuton extends SynchronousOpMode {
         waitTime(100);
     }
 
-    private void pushButton() {
+    protected void pushButton() {
         ledCtrl.setPower(1.0);
         waitTime(200);
         ledCtrl.setPower(0.0);

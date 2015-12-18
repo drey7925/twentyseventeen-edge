@@ -173,6 +173,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:title="Start position"
                 android:entries="@array/startPos"
                 android:entryValues="@array/startPosAlias"/>
+          <ListPreference
+                  android:key="auton_goal_position"
+                  android:title="Goal position"
+                  android:entries="@array/goalPos"
+                  android:entryValues="@array/goalPosAlias"/>
         <EditTextPreference
                 android:defaultValue="5"
                 android:dialogTitle="Time to beacon area clear"

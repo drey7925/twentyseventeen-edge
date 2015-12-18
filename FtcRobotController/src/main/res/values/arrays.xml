@@ -27,4 +27,34 @@
         <item>"MOUNTAIN"</item>
         <item>"MIDLINE"</item>
     </string-array>
+
+    <string-array name="goalPos">
+        <item>Park on mountain</item>
+        <item>Park in parking zone</item>
+        <item>Park behind beacon and hit</item>
+        <item>Park in front of beacon and hit</item>
+        <item>Auxiliary 1</item>
+        <item>Auxiliary 2</item>
+        <item>Auxiliary 3</item>
+        <item>Auxiliary 4</item>
+        <item>Auxiliary 5</item>
+        <item>Auxiliary 6</item>
+        <item>Auxiliary 7</item>
+        <item>Auxiliary 8</item>
+    </string-array>
+
+    <string-array name="goalPosAlias">
+        <item>"MTN"</item>
+        <item>"PARK"</item>
+        <item>"BEACON_BEHIND"</item>
+        <item>"BEACON_INFRONT"</item>
+        <item>"AUX1"</item>
+        <item>"AUX2"</item>
+        <item>"AUX3"</item>
+        <item>"AUX4"</item>
+        <item>"AUX5"</item>
+        <item>"AUX6"</item>
+        <item>"AUX7"</item>
+        <item>"AUX8"</item>
+    </string-array>
 </resources>
