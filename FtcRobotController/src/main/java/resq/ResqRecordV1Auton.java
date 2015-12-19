@@ -16,7 +16,7 @@ import java.io.*;
  * Created by akh06977 on 9/18/2015.
  */
 
-public class ResqRecordAuton extends SynchronousOpMode {
+public class ResqRecordV1Auton extends SynchronousOpMode {
     public void fillInSettings() {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         startSide = getStartSide();
@@ -186,6 +186,7 @@ public class ResqRecordAuton extends SynchronousOpMode {
         } else if (!hasWritten) {
             try {
                 hasWritten = true;
+                dos.writeByte(0x01); // version 1
                 dos.writeInt(loops);
                 dos.writeDouble(ourVoltage);
                 dbaos.flush();

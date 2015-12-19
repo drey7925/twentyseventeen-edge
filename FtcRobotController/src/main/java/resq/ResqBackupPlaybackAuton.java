@@ -7,6 +7,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
+import org.swerverobotics.library.exceptions.RuntimeInterruptedException;
 
 import java.io.*;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
         return (sharedPref.getString("auton_goal_position", "INVALID"));
 
     }
+
     @Override
     public void main() throws InterruptedException {
         try {
@@ -45,93 +47,19 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             } else {
                 name = name + "MTN-";
             }
-            name  = name + getGoal() + ".run";
+            name = name + getGoal() + ".run";
             inStream = openFileInput(name);
             DataInputStream dis = new DataInputStream(inStream);
-            int length = dis.readInt();
-            double recordedVoltage = dis.readDouble(); // battery voltage at recording
-            double ourVoltage;
-            try {
-                ourVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
-            } catch (Exception e) {
-                ourVoltage = 12.0;
-            }
-            if(recordedVoltage <= 0 || ourVoltage <= 0){
-                adjVoltage = false;
-            }
-            long[] nanoStamps = new long[length];
-            double[] leftDriveVals = new double[length];
-            double[] rightDriveVals = new double[length];
-            for (int i = 0; i < length; i++) {
-                nanoStamps[i] = dis.readLong();
-                leftDriveVals[i] = dis.readDouble();
-                rightDriveVals[i] = dis.readDouble();
-            }
-            long maxStamp = nanoStamps[length-1];
-
-            dis.close();
-
-            this.waitForStart();
-            long ns = System.nanoTime();
-            long stNow;
-            while((stNow=System.nanoTime() - ns) < maxStamp){
-                int i = Arrays.binarySearch(nanoStamps, stNow);
-                // binary search
-                if(i < 0) i = -i-2;
-                //edge case for binary search before first element. Jump to first element. No issue with that, since most recordings don't have critical movement there.
-                if(i < 0) i = 0;
-                telemetry.addData("IDX", i);
-                /*int indexBefore = i;
-                int indexAfter = i;
-                double lStampWeight = 1;
-                double rStampWeight = 0;
-                if(i < 0){
-                    indexBefore = -i-2;
-                    indexAfter = -i-1;
-                    if(indexBefore<0 ||indexAfter<0){ indexBefore = 0;
-                    indexAfter = 0;
-                    telemetry.addData("WARN", "WARN");}
-                    else {
-                        rStampWeight = (stNow - nanoStamps[indexBefore]) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
-                        lStampWeight = (nanoStamps[indexAfter] - stNow) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
-                        telemetry.addData("WARN", "NO");
-                    }
-                }
-
-                double lMtr = lStampWeight * leftDriveVals[indexBefore] + rStampWeight * leftDriveVals[indexAfter];
-                double rMtr = lStampWeight * rightDriveVals[indexBefore] + rStampWeight * rightDriveVals[indexAfter];
-                telemetry.addData("LM", lMtr);
-                telemetry.addData("RM", rMtr);
-                if(adjVoltage){
-                    lMtr *= recordedVoltage/ourVoltage;
-                    rMtr *= recordedVoltage/ourVoltage;
-                }
-                setLeftSpeed(lMtr);
-                setRightSpeed(rMtr);
-                idle();
-                */
-                double lS = -leftDriveVals[i];
-                double rS = -rightDriveVals[i];
-                if(adjVoltage){
-                    lS *= recordedVoltage/ourVoltage;
-                    rS *= recordedVoltage/ourVoltage;
-                }
-
-                setLeftSpeed(lS);
-                setRightSpeed(rS);
-                idle();
-            }
-            try {
-                switch (GoalPos.valueOf(getGoal())) {
-                    case BEACON_BEHIND:
-                        detectAndHitBeaconFwdForce();
-                        break;
-                    case BEACON_INFRONT:
-                        detectAndHitBeaconBackForce();
-                        break;
-                }
-            } catch(Exception e){
-                // pass
+            int version = dis.readByte();
+            switch (version) {
+                case 1:
+                    playV1(adjVoltage, dis);
+                    break;
+                case 2:
+                    playV2(adjVoltage, dis);
+                    break;
+                default:
+                    throw new RuntimeException("INVALID VERSION CODE");
             }
 
             /*double[] v = new double[]{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6};
@@ -147,6 +75,182 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void playV2(boolean adjVoltage, DataInputStream dis) throws IOException, InterruptedException {
+        int length = dis.readInt();
+        double recordedVoltage = dis.readDouble();
+        double ourVoltage;
+        try {
+            ourVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        } catch (Exception e) {
+            ourVoltage = 12.0;
+        }
+        if (recordedVoltage <= 0 || ourVoltage <= 0) {
+            adjVoltage = false;
+        }
+
+        long[] nanoStamps = new long[length];
+        int[] mode = new int[length];
+        double[] param1 = new double[length];
+        double[] param2 = new double[length];
+        for (int i = 0; i < length; i++) {
+            nanoStamps[i] = dis.readLong();
+            mode[i] = dis.readByte();
+            param1[i] = dis.readDouble();
+            param2[i] = dis.readDouble();
+        }
+        long maxStamp = nanoStamps[length - 1];
+
+        dis.close();
+
+        this.waitForStart();
+        long ns = System.nanoTime();
+        long stNow;
+        int monotonicallyIncreasingPtr = 0;
+        while ((stNow = System.nanoTime() - ns) < maxStamp) {
+            int i = Arrays.binarySearch(nanoStamps, stNow);
+            // binary search
+            if (i < 0) i = -i - 2;
+            //edge case for binary search before first element. Jump to first element. No issue with that, since most recordings don't have critical movement there.
+            if (i < 0) i = 0;
+            i = Math.max(i, monotonicallyIncreasingPtr);
+            monotonicallyIncreasingPtr = i;
+            telemetry.addData("IDX", i);
+            int actionCode = mode[i];
+            double lS = -param1[i];
+            double rS = -param2[i];
+            switch (actionCode) {
+                case 0:
+                    setLeftSpeed(lS);
+                    setRightSpeed(rS);
+                    break;
+                case 1:
+                    setLeftSpeed(0);
+                    setRightSpeed(0);
+                    turnFor(param1[i]);
+                    ns = System.nanoTime()-stNow;
+                    monotonicallyIncreasingPtr++;
+                    break;
+                case 2:
+                    setLeftSpeed(0);
+                    setRightSpeed(0);
+                    dumpClimbers();
+                    ns = System.nanoTime()-stNow;
+                    monotonicallyIncreasingPtr++;
+                    break;
+
+            }
+            idle();
+        }
+        try {
+            switch (GoalPos.valueOf(getGoal())) {
+                case BEACON_BEHIND:
+                    detectAndHitBeaconFwdForce();
+                    break;
+                case BEACON_INFRONT:
+                    detectAndHitBeaconBackForce();
+                    break;
+            }
+        } catch (Exception e) {
+            // pass
+        }
+    }
+
+    /**
+     * Right is positive.
+     * @param theta Right is positive.
+     */
+    private void turnFor(double theta) {
+        throw new RuntimeException("TODO");
+    }
+
+    private void playV1(boolean adjVoltage, DataInputStream dis) throws IOException, InterruptedException {
+        int length = dis.readInt();
+        double recordedVoltage = dis.readDouble(); // battery voltage at recording
+        double ourVoltage;
+        try {
+            ourVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        } catch (Exception e) {
+            ourVoltage = 12.0;
+        }
+        if (recordedVoltage <= 0 || ourVoltage <= 0) {
+            adjVoltage = false;
+        }
+        long[] nanoStamps = new long[length];
+        double[] leftDriveVals = new double[length];
+        double[] rightDriveVals = new double[length];
+        for (int i = 0; i < length; i++) {
+            nanoStamps[i] = dis.readLong();
+            leftDriveVals[i] = dis.readDouble();
+            rightDriveVals[i] = dis.readDouble();
+        }
+        long maxStamp = nanoStamps[length - 1];
+
+        dis.close();
+
+        this.waitForStart();
+        long ns = System.nanoTime();
+        long stNow;
+        while ((stNow = System.nanoTime() - ns) < maxStamp) {
+            int i = Arrays.binarySearch(nanoStamps, stNow);
+            // binary search
+            if (i < 0) i = -i - 2;
+            //edge case for binary search before first element. Jump to first element. No issue with that, since most recordings don't have critical movement there.
+            if (i < 0) i = 0;
+            telemetry.addData("IDX", i);
+            /*int indexBefore = i;
+            int indexAfter = i;
+            double lStampWeight = 1;
+            double rStampWeight = 0;
+            if(i < 0){
+                indexBefore = -i-2;
+                indexAfter = -i-1;
+                if(indexBefore<0 ||indexAfter<0){ indexBefore = 0;
+                indexAfter = 0;
+                telemetry.addData("WARN", "WARN");}
+                else {
+                    rStampWeight = (stNow - nanoStamps[indexBefore]) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
+                    lStampWeight = (nanoStamps[indexAfter] - stNow) / (nanoStamps[indexAfter] - nanoStamps[indexBefore]);
+                    telemetry.addData("WARN", "NO");
+                }
+            }
+
+            double lMtr = lStampWeight * leftDriveVals[indexBefore] + rStampWeight * leftDriveVals[indexAfter];
+            double rMtr = lStampWeight * rightDriveVals[indexBefore] + rStampWeight * rightDriveVals[indexAfter];
+            telemetry.addData("LM", lMtr);
+            telemetry.addData("RM", rMtr);
+            if(adjVoltage){
+                lMtr *= recordedVoltage/ourVoltage;
+                rMtr *= recordedVoltage/ourVoltage;
+            }
+            setLeftSpeed(lMtr);
+            setRightSpeed(rMtr);
+            idle();
+            */
+            double lS = -leftDriveVals[i];
+            double rS = -rightDriveVals[i];
+            if (adjVoltage) {
+                lS *= recordedVoltage / ourVoltage;
+                rS *= recordedVoltage / ourVoltage;
+            }
+
+            setLeftSpeed(lS);
+            setRightSpeed(rS);
+            idle();
+        }
+        try {
+            switch (GoalPos.valueOf(getGoal())) {
+                case BEACON_BEHIND:
+                    detectAndHitBeaconFwdForce();
+                    break;
+                case BEACON_INFRONT:
+                    detectAndHitBeaconBackForce();
+                    break;
+            }
+        } catch (Exception e) {
+            // pass
         }
     }
 
