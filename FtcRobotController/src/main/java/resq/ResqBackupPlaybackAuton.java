@@ -163,8 +163,264 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
      * @param theta Right is positive.
      */
     private void turnFor(double theta) {
-        throw new RuntimeException("TODO");
+        doPeriodicTasks();
+        double oriYaw = getGyroYAW();
+        double newYaw = getGyroYAW() - theta;
+        while(newYaw >= 360) newYaw -= 360;
+        while(newYaw < 0) newYaw += 360;
+        turnTo(newYaw, 0.33);
     }
+
+    public void turnTo(double endYAW, double factor) {
+        doTurnOnlyTasks();
+        double oriYAW = getGyroYAW();
+        double curYAW = oriYAW;
+        double angle = curYAW - endYAW;
+        double speed = 0;
+        boolean isRightTurn = true;
+        if(angle<0&&Math.abs(angle)>180) {
+            //right turn, long left
+            angle = 360 + angle;
+        }
+        else if(angle<0&&Math.abs(angle)<180){
+            //left turn, normal
+            angle = Math.abs(angle);
+            isRightTurn = false;
+
+        }
+        else if(angle>180) {
+            //left turn, long right
+            angle = 360 - angle;
+            isRightTurn = false;
+        }
+
+
+
+
+
+        if (isRightTurn && endYAW>oriYAW) {
+            //right turn, crosses 0 line
+            if (oriYAW>15 || oriYAW>angle/2) { //if doesn't cross 0 line during accel
+                while (curYAW > oriYAW-Math.min(15, angle/2)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((oriYAW-curYAW)/15*factor)*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+
+            else { //if crosses zero line during accel
+                while (curYAW < 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((oriYAW-curYAW)/15*factor)*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+                while (360-curYAW+oriYAW < Math.min(15, angle/2)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((oriYAW - curYAW + 360) / 15 * factor)*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+            if (curYAW > endYAW || curYAW > angle - 30) {
+                while (curYAW > endYAW + Math.min(angle/2, 15) || (curYAW < 180 && curYAW > endYAW + Math.min(angle/2, 15) - 360)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+
+            else {
+                while (curYAW < 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+                while (curYAW > endYAW + Math.min(angle/2, 15)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+
+            if (curYAW > 180) {
+                while (curYAW > endYAW) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (curYAW - endYAW)/15*factor*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+
+            else {
+                while (curYAW < 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (curYAW - endYAW + 360)/ 15*factor*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+                while (curYAW > endYAW) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (curYAW - endYAW)/15*factor*0.9+0.1*factor;
+                    setRightSpeed(-speed);
+                    setLeftSpeed(speed);
+                }
+            }
+        }
+
+
+        else if (isRightTurn) {
+            //right turn, doesn’t cross 0 line
+            while (curYAW > oriYAW-Math.min(15, angle/2)) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = ((oriYAW-curYAW)/15*factor)*0.9+0.1*factor;
+                setRightSpeed(-speed);
+                setLeftSpeed(speed);
+            }
+
+            while (curYAW > endYAW + Math.min(angle/2, 15)) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = factor;
+                setRightSpeed(-speed);
+                setLeftSpeed(speed);
+            }
+
+            while (curYAW > endYAW) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = (curYAW - endYAW)/15*factor*0.9+0.1*factor;
+                setRightSpeed(-speed);
+                setLeftSpeed(speed);
+            }
+        }
+
+        else if (!isRightTurn && endYAW<oriYAW) {
+            //left turn, crosses 0 line
+            if (oriYAW < 360-Math.min(15, angle/2)) { //if doesn't cross 0 line during accel
+                while (curYAW < oriYAW+Math.min(15, angle/2)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((curYAW-oriYAW)/15*factor)*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+
+            else { //if crosses zero line during accel
+                while (curYAW > 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((curYAW-oriYAW)/15*factor)*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+                while (360+curYAW-oriYAW < Math.min(15, angle/2)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = ((curYAW - oriYAW + 360) / 15 * factor)*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+
+            if (curYAW < endYAW || 360-curYAW < angle - 30) {
+                while (curYAW < endYAW - Math.min(angle/2, 15) || (curYAW > 180 && curYAW < endYAW - Math.min(angle/2, 15) + 360)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+
+            else {
+                while (curYAW > 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+                while (curYAW < endYAW - Math.min(angle/2, 15)) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+
+            if (curYAW <180) {
+                while (curYAW < endYAW) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (endYAW - curYAW)/15*factor*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+
+            else {
+                while (curYAW > 180) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (endYAW - curYAW + 360)/ 15*factor*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+                while (curYAW < endYAW) {
+                    doTurnOnlyTasks();
+                    curYAW = getGyroYAW();
+                    speed = (endYAW - curYAW)/15*factor*0.9+0.1*factor;
+                    setRightSpeed(speed);
+                    setLeftSpeed(-speed);
+                }
+            }
+        }
+
+        else if (!isRightTurn) {
+            //left turn, doesn’t cross 0 line
+            while (curYAW < oriYAW+Math.min(15, angle/2)) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = ((curYAW-oriYAW)/15*factor)*0.9+0.1*factor;
+                setRightSpeed(speed);
+                setLeftSpeed(-speed);
+            }
+
+            while (curYAW < endYAW - Math.min(angle/2, 15)) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = factor;
+                setRightSpeed(speed);
+                setLeftSpeed(-speed);
+            }
+
+            while (curYAW < endYAW) {
+                doTurnOnlyTasks();
+                curYAW = getGyroYAW();
+                speed = (endYAW - curYAW)/15*factor*0.9+0.1*factor;
+                setRightSpeed(speed);
+                setLeftSpeed(-speed);
+            }
+        }
+    }
+
 
     private void playV1(boolean adjVoltage, DataInputStream dis) throws IOException, InterruptedException {
         int length = dis.readInt();

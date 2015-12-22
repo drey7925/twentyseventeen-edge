@@ -233,6 +233,7 @@ public class ResqRecordV2Auton extends SynchronousOpMode {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            } else {
                 double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
                 double tipPreventionPower = 0;
                 double lCalculated = this.gamepad1.left_stick_y * scaleActual + tipPreventionPower;
@@ -271,27 +272,28 @@ public class ResqRecordV2Auton extends SynchronousOpMode {
                     actionCode = 2;
                     runDrive = false;
                 }
-            } else if (!hasWritten) {
-                try {
-                    hasWritten = true;
-                    dos.writeByte(0x01); // version 1
-                    dos.writeInt(loops);
-                    dos.writeDouble(ourVoltage);
-                    dbaos.flush();
-                    baos.flush();
-                    baos.close();
-                    dos.write(baos.toByteArray());
-                    dos.close();
-                    fileOutputStream.close();
-                    telemetry.addData("SUCCESS", "WROTE DATA");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
             }
-
-
+        } else if (!hasWritten) {
+            try {
+                hasWritten = true;
+                dos.writeByte(0x01); // version 1
+                dos.writeInt(loops);
+                dos.writeDouble(ourVoltage);
+                dbaos.flush();
+                baos.flush();
+                baos.close();
+                dos.write(baos.toByteArray());
+                dos.close();
+                fileOutputStream.close();
+                telemetry.addData("SUCCESS", "WROTE DATA");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // pass
         }
+
+
     }
 
 
