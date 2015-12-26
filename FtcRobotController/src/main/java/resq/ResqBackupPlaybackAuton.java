@@ -283,7 +283,7 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
 
 
         else if (isRightTurn) {
-            //right turn, doesn’t cross 0 line
+            //right turn, doesn't cross 0 line
             while (curYAW > oriYAW-Math.min(15, angle/2)) {
                 doTurnOnlyTasks();
                 curYAW = getGyroYAW();
@@ -394,7 +394,7 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
         }
 
         else if (!isRightTurn) {
-            //left turn, doesn’t cross 0 line
+            //left turn, doesn't cross 0 line
             while (curYAW < oriYAW+Math.min(15, angle/2)) {
                 doTurnOnlyTasks();
                 curYAW = getGyroYAW();

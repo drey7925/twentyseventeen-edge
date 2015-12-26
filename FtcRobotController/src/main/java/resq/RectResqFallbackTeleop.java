@@ -1,7 +1,9 @@
 package resq;
 
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.preference.PreferenceManager;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,7 +23,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     DcMotor w;
 
     DcMotor w2;
-
+    MediaPlayer r2Beep, r2Startup;
     public void initm() {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -40,6 +42,14 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        try {
+            r2Beep = MediaPlayer.create(hardwareMap.appContext, R.raw.r2beep);
+            r2Startup = MediaPlayer.create(hardwareMap.appContext, R.raw.r2startup);
+            r2Startup.setLooping(false);
+            r2Startup.start();
+        } catch(Exception e) {
+            // pass on error. Not critical functionality.
+        }
 
     }
     DcMotor ledCtrl;
@@ -49,7 +59,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     double aimPos = 0.32;
     Servo aimServo; // Lift servo
     Servo lLvr, rLvr;
-
+    int climbLoops = 0;
     public void init_() {
         initm();
         ledCtrl = hardwareMap.dcMotor.get(DeviceNaming.LED_DEV_NAME);
@@ -121,9 +131,18 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
 
         //self explanatory winch
-
-        w.setPower(this.gamepad2.right_stick_y);
-        w2.setPower(this.gamepad2.right_stick_y);
+        if(this.gamepad2.right_stick_y>0.1) climbLoops++; else climbLoops = 0;
+        if(climbLoops==100){
+            //exact match to play ONCE during each climb burst
+            try {
+                r2Beep.setLooping(false);
+                r2Beep.start();
+            } catch(Exception e) {
+                // pass on error; not critical functionality
+            }
+        }
+        w.setPower(-this.gamepad2.right_stick_y);
+        w2.setPower(-this.gamepad2.right_stick_y);
         telemetry.addData("w", "1");
 
 
