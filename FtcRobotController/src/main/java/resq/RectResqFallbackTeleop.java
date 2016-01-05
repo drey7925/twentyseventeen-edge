@@ -94,6 +94,8 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     boolean lLevOut = false;
     boolean rLevOut = false;
 
+    double smoothedWinchJoystick = 0.0;
+
     public void loop_() {
         updateGamepads();
         double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
@@ -132,7 +134,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
         //self explanatory winch
         if(this.gamepad2.right_stick_y>0.1) climbLoops++; else climbLoops = 0;
-        if(climbLoops==100){
+        if(climbLoops==20){
             //exact match to play ONCE during each climb burst
             try {
                 r2Beep.setLooping(false);
@@ -141,8 +143,10 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
                 // pass on error; not critical functionality
             }
         }
-        w.setPower(-this.gamepad2.right_stick_y);
-        w2.setPower(-this.gamepad2.right_stick_y);
+
+        else smoothedWinchJoystick = (3 * smoothedWinchJoystick + this.gamepad2.right_stick_y)/4;
+        w.setPower(-smoothedWinchJoystick);
+        w2.setPower(-smoothedWinchJoystick);
         telemetry.addData("w", "1");
 
 
