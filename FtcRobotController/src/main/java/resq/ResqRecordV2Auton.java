@@ -158,14 +158,14 @@ public class ResqRecordV2Auton extends SynchronousOpMode {
     Servo boxSrvo;
 
     protected void dumpClimbers() throws InterruptedException {
-        for (double d = 0.95; d >= 0.107; d -= .03) {
+        for (double d = 0.871; d >= 0.09; d -= .03) {
             boxSrvo.setPosition(d);
             idle();
         }
         idle();
         Thread.sleep(500);
         idle();
-        for (double d = 0.107; d <= 0.95; d += .1) {
+        for (double d = 0.09; d <= 0.871; d += .1) {
             boxSrvo.setPosition(d);
             idle();
         }
@@ -205,7 +205,7 @@ public class ResqRecordV2Auton extends SynchronousOpMode {
                 double thetaDiff = newAngle - oldAngle;
                 while (thetaDiff > 180) thetaDiff -= 360;
                 while (thetaDiff < -180) thetaDiff += 360;
-                ns = System.nanoTime() - tsLast;
+                ns = System.nanoTime() - tsLast-1;
                 try {
                     dbaos.writeByte(0x01);
                     dbaos.writeLong((tsLast = System.nanoTime() - ns));

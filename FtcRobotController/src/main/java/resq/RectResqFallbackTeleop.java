@@ -51,12 +51,16 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
             // pass on error. Not critical functionality.
         }
 
+        try{
+            hardwareMap.servoController.get("s2").pwmDisable();
+        } catch (Exception e){}
+
     }
     DcMotor ledCtrl;
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
     boolean pushServoDeployed = false;
-    double aimPos = 0.32;
+    double aimPos = 0.576;
     Servo aimServo; // Lift servo
     Servo lLvr, rLvr;
     int climbLoops = 0;
@@ -151,7 +155,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
 
         aimPos -= this.gamepad2.left_stick_y / 128;
-        aimPos = Range.clip(aimPos, 0.19, 0.92);
+        aimPos = Range.clip(aimPos, 0.499, 1.0);
         telemetry.addData("aimPos", aimPos);
         if (aimServo != null)
             aimServo.setPosition(aimPos);
@@ -165,9 +169,27 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         if(gamepad2.right_bumper){
             ledCtrl.setPower(1.0);
         }
+
+        if(gamepad2.left_bumper){
+            try{
+                hardwareMap.servoController.get("s2").pwmEnable();
+            } catch (Exception e){}
+            try {
+                hardwareMap.servo.get("miniwinch").setPosition(1.0);
+            } catch (Exception e){}
+        }
+        else {
+            try{
+                hardwareMap.servoController.get("s2").pwmDisable();
+            } catch (Exception e){}
+            try{
+                hardwareMap.servo.get("miniwinch").setPosition(0.5);
+            } catch (Exception e){}
+        }
     }
     public @Override void main() throws InterruptedException {
         init_();
+
         waitForStart();
         while(!isStopRequested()){
             loop_();

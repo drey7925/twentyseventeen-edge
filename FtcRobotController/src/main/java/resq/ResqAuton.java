@@ -22,8 +22,8 @@ import org.swerverobotics.library.interfaces.*;
  */
 public class ResqAuton extends SynchronousOpMode {
 
-    public static final double BTN_SRVO_RETRACTED = 0.379426;
-    public static final double BTN_SRVO_DEPLOYED = 0.0;
+    public static final double BTN_SRVO_RETRACTED = 0.875;
+    public static final double BTN_SRVO_DEPLOYED = 0.09;
     protected static Side startSide;
     protected static Colors teamColor;
     private static double curX, curY, curYAW;
@@ -714,14 +714,14 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     protected void dumpClimbers() throws InterruptedException {
-        for(double d = 0.95; d >= 0.107; d-=.03) {
+        for(double d = 1.0; d >= 0.09; d-=.03) {
             boxSrvo.setPosition(d);
             idle();
         }
         idle();
         waitTime(500);
         idle();
-        for(double d = 0.107; d <= 0.95; d+=.1) {
+        for(double d = 0.09; d <= 1.0; d+=.1) {
             boxSrvo.setPosition(d);
             idle();
         }

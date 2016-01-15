@@ -1,9 +1,11 @@
 package resq;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import ftc.team6460.javadeck.ftc.Utils;
@@ -20,9 +22,15 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
         return (sharedPref.getString("auton_goal_position", "INVALID"));
 
     }
-
+    MediaPlayer r2Beep;
     @Override
     public void main() throws InterruptedException {
+        try {
+            r2Beep = MediaPlayer.create(hardwareMap.appContext, R.raw.r2beep);
+        } catch(Exception e) {
+            // pass on error. Not critical functionality.
+        }
+
         try {
             sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
             boolean adjVoltage = sharedPref.getBoolean("doVoltageAdj", false);
@@ -77,7 +85,7 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
             throw new RuntimeException(e);
         }
     }
-
+boolean s = false;
     private void playV2(boolean adjVoltage, DataInputStream dis) throws IOException, InterruptedException {
         int length = dis.readInt();
         double recordedVoltage = dis.readDouble();
@@ -125,6 +133,9 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 case 0:
                     setLeftSpeed(lS);
                     setRightSpeed(rS);
+                    if(!s)
+                    r2Beep.start();
+                    s = true;
                     break;
                 case 1:
                     setLeftSpeed(0);
@@ -152,10 +163,16 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 case BEACON_INFRONT:
                     detectAndHitBeaconBackForce();
                     break;
+                default:
+                    // pass
             }
         } catch (Exception e) {
             // pass
         }
+    }
+
+    private void playV3(boolean adjVoltage, DataInputStream dis){
+
     }
 
     /**
@@ -504,6 +521,8 @@ public class ResqBackupPlaybackAuton extends ResqAuton {
                 case BEACON_INFRONT:
                     detectAndHitBeaconBackForce();
                     break;
+                default:
+                    //pass
             }
         } catch (Exception e) {
             // pass
