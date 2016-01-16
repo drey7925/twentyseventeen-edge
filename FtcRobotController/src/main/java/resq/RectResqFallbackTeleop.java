@@ -158,9 +158,11 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         }
 
         else smoothedWinchJoystick = (3 * smoothedWinchJoystick + this.gamepad2.right_stick_y)/4;
-        if(Math.abs(this.gamepad2.right_stick_y)<0.3) smoothedWinchJoystick = 0;
-        w.setPower(-smoothedWinchJoystick);
-        w2.setPower(-smoothedWinchJoystick);
+
+        double g2y = this.gamepad2.right_stick_y;
+        if(g2y<0) g2y/=2;
+        w.setPower(-g2y);
+        w2.setPower(-g2y);
         telemetry.addData("w", "1");
 
 
