@@ -154,7 +154,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         telemetry.addData("w", "1");
 
 
-        aimPos -= this.gamepad2.left_stick_y / 128;
+        aimPos -= this.gamepad2.left_stick_y / 512;
         aimPos = Range.clip(aimPos, 0.499, 1.0);
         telemetry.addData("aimPos", aimPos);
         if (aimServo != null)
