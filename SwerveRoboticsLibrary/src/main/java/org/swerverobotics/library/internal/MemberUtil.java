@@ -12,7 +12,17 @@ public class MemberUtil
     {
     public static Robot robotOfFtcRobotControllerService(FtcRobotControllerService service)
         {
-        return Util.<Robot>getPrivateObjectField(service, 2+7);
+        //
+        //return Util.<Robot>getPrivateObjectField(service, 2+7);
+            try {
+                FtcRobotControllerService.class.getDeclaredField("c").setAccessible(true);
+                return (Robot) FtcRobotControllerService.class.getDeclaredField("c").get(service);
+            } catch (NoSuchFieldException e) {
+                return null;
+            } catch (IllegalAccessException e) {
+                return null;
+            }
+
         }
 
     public static EventLoopManager eventLoopManagerOfRobot(Robot robot)

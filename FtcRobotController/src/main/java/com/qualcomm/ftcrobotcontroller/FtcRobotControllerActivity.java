@@ -43,6 +43,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -178,6 +179,9 @@ public class FtcRobotControllerActivity extends Activity {
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+
+      ( (TextView) findViewById(R.id.textTeam)).setText("Team: " + preferences.getString("auton_team_color", "!INVALID!"));
+      ( (TextView) findViewById(R.id.textGoal)).setText("Goal: " + preferences.getString("auton_goal_position", "!INVALID!"));
     hittingMenuButtonBrightensScreen();
 
     if (USE_DEVICE_EMULATION) { HardwareFactory.enableDeviceEmulation(); }
@@ -210,6 +214,12 @@ public class FtcRobotControllerActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+
+
+      if(preferences!=null) {
+          ( (TextView) findViewById(R.id.textTeam)).setText("Team: " + preferences.getString("auton_team_color", "!INVALID!"));
+          ( (TextView) findViewById(R.id.textGoal)).setText("Goal: " + preferences.getString("auton_goal_position", "!INVALID!"));
+      }
   }
 
   @Override
@@ -429,6 +439,8 @@ public class FtcRobotControllerActivity extends Activity {
             if (robot == null)
                 return false;
 
+
+            Log.e("MADEIT", "We have a robot instance!");
             EventLoopManager eventLoopManager = MemberUtil.eventLoopManagerOfRobot(robot);
             if (eventLoopManager == null)
                 return false;
