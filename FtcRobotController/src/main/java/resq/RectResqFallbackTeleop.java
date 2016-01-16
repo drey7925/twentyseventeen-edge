@@ -60,9 +60,10 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     double scaledPower;
     Servo btnPushSrvo; // Left servo, labeled 2
     boolean pushServoDeployed = false;
-    double aimPos = 0.576;
+    double aimPos = 0.800;
     Servo aimServo; // Lift servo
     Servo lLvr, rLvr;
+    Servo boxServo;
     int climbLoops = 0;
     public void init_() {
         initm();
@@ -84,7 +85,8 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
             lLvr = hardwareMap.servo.get(DeviceNaming.L_LEVER_SERVO);
             rLvr = hardwareMap.servo.get(DeviceNaming.R_LEVER_SERVO);
-            hardwareMap.servo.get(DeviceNaming.BOX_SERVO).setPosition(1.0);
+            boxServo = hardwareMap.servo.get(DeviceNaming.BOX_SERVO);
+            boxServo.setPosition(1.0);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "LEVER");
         }
@@ -102,6 +104,13 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
     public void loop_() {
         updateGamepads();
+        if(gamepad2.y){
+            try {
+                dumpClimbers();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         double scaleActual = (this.gamepad1.right_trigger > 0.2) ? scaledPower : 1.00;
         boolean fullOverrideNeg = (this.gamepad1.right_trigger > 0.2);
         boolean fullOverridePos = (this.gamepad1.left_trigger > 0.2);
@@ -149,12 +158,13 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         }
 
         else smoothedWinchJoystick = (3 * smoothedWinchJoystick + this.gamepad2.right_stick_y)/4;
+        if(Math.abs(this.gamepad2.right_stick_y)<0.3) smoothedWinchJoystick = 0;
         w.setPower(-smoothedWinchJoystick);
         w2.setPower(-smoothedWinchJoystick);
         telemetry.addData("w", "1");
 
 
-        aimPos -= this.gamepad2.left_stick_y / 512;
+        aimPos -= this.gamepad2.left_stick_y / 256;
         aimPos = Range.clip(aimPos, 0.499, 1.0);
         telemetry.addData("aimPos", aimPos);
         if (aimServo != null)
@@ -186,6 +196,26 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
                 hardwareMap.servo.get("miniwinch").setPosition(0.5);
             } catch (Exception e){}
         }
+    }
+
+    protected void dumpClimbers() throws InterruptedException {
+        l0.setPower(0.0);
+        l1.setPower(0.0);
+        r0.setPower(0.0);
+        r1.setPower(0.0);
+        w.setPower(0.0);
+        w2.setPower(0.0);
+        for(double d = 1.0; d >= 0.09; d-=.03) {
+            boxServo.setPosition(d);
+            idle();
+            Thread.sleep(20);
+        }
+        idle();
+        for(double d = 0.09; d <= 1.0; d+=.1) {
+            boxServo.setPosition(d);
+            idle();
+        }
+        idle();
     }
     public @Override void main() throws InterruptedException {
         init_();
