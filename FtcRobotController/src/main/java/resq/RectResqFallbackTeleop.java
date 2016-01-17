@@ -61,6 +61,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     Servo aimServo; // Lift servo
     Servo lLvr, rLvr;
     Servo boxServo;
+    Servo lHook, rHook;
     int climbLoops = 0;
     public void init_() {
         initm();
@@ -88,6 +89,15 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "LEVER");
         }
+        try {
+
+            lHook = hardwareMap.servo.get(DeviceNaming.L_HOOK_SERVO);
+            rHook = hardwareMap.servo.get(DeviceNaming.R_HOOK_SERVO);
+            lHook.setPosition(1.0);
+            rHook.setPosition(0.0);
+        } catch (Exception e) {
+            telemetry.addData("INITFAULT", "HOOK");
+        }
 
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
@@ -97,7 +107,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
     }
     boolean lLevOut = false;
     boolean rLevOut = false;
-
+    double hookPosition = 0.0;
     double smoothedWinchJoystick = 0.0;
 
     public void loop_() {
@@ -126,7 +136,15 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
             lLevOut = false;
             rLevOut = false;
         }
+        if(gamepad2.left_trigger>0.5){
+            hookPosition+= 0.03;
+        } else {
+            hookPosition-=0.03;
+        }
+        hookPosition = Range.clip(hookPosition, 0, 1);
 
+        lHook.setPosition(1-hookPosition);
+        rHook.setPosition(hookPosition);
 
         if (fullOverrideNeg) {
             lCalculated = -1;
