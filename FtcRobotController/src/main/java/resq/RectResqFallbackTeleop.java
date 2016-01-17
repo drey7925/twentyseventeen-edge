@@ -77,6 +77,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         try {
 
             aimServo = hardwareMap.servo.get(DeviceNaming.AIM_SERVO);
+            aimServo.setPosition(0.8);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
@@ -182,13 +183,13 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         telemetry.addData("w", "1");
 
 
-        aimPos -= this.gamepad2.left_stick_y / 256;
-        aimPos = Range.clip(aimPos, 0.499, 1.0);
+        aimPos += this.gamepad2.left_stick_y / 256;
+        aimPos = Range.clip(aimPos, 0.3, 1.0);
         telemetry.addData("aimPos", aimPos);
         if (aimServo != null)
             aimServo.setPosition(aimPos);
 
-        if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
+        //if (btnPushSrvo != null) btnPushSrvo.setPosition(pushServoDeployed ? 0.091 : 0.365);
         if (lLvr != null) lLvr.setPosition(lLevOut ? 0.576:0.036);
         if (rLvr != null) rLvr.setPosition(rLevOut ? 0.438:0.931);
         if(gamepad2.right_trigger > 0.2){
@@ -208,13 +209,14 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         r1.setPower(0.0);
         w.setPower(0.0);
         w2.setPower(0.0);
-        for(double d = 1.0; d >= 0.09; d-=.03) {
+        for(double d = 1.0; d >= 0.09; d-=.01) {
             boxServo.setPosition(d);
             idle();
             Thread.sleep(20);
         }
         idle();
-        for(double d = 0.09; d <= 1.0; d+=.1) {
+        Thread.sleep(500);
+        for(double d = 0.09; d <= 1.0; d+=.03) {
             boxServo.setPosition(d);
 
             Thread.sleep(20);

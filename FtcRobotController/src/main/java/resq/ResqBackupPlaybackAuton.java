@@ -540,7 +540,7 @@ boolean s = false;
             }
             setLeftSpeed(0);
             setRightSpeed(0);
-            dumpClimbers();
+            //dumpClimbers();
             if (cb.getState().equals("RB")) {
                 setLeftSpeed(-0.07);
                 setRightSpeed(-0.07);
@@ -591,7 +591,7 @@ boolean s = false;
             setLeftSpeed(0);
             setRightSpeed(0);
 
-            dumpClimbers();
+            //dumpClimbers();
             if (cb.getState().equals("RB")) {
                 setLeftSpeed(0.07);
                 setRightSpeed(0.07);
@@ -644,7 +644,7 @@ boolean s = false;
             }
             setLeftSpeed(0);
             setRightSpeed(0);
-            dumpClimbers();
+            //dumpClimbers();
             if (cb.getState().equals("RB")) {
                 setLeftSpeed(-0.07);
                 setRightSpeed(-0.07);
@@ -695,7 +695,7 @@ boolean s = false;
             setLeftSpeed(0);
             setRightSpeed(0);
 
-            dumpClimbers();
+            //dumpClimbers();
             if (cb.getState().equals("RB")) {
                 setLeftSpeed(0.07);
                 setRightSpeed(0.07);

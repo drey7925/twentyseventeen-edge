@@ -794,7 +794,7 @@ public class ResqAuton extends SynchronousOpMode {
         r1 = hardwareMap.dcMotor.get("r1");
 
         aimServo = hardwareMap.servo.get(DeviceNaming.AIM_SERVO);
-        aimServo.setPosition(0.32);
+        aimServo.setPosition(0.8);
         w = hardwareMap.dcMotor.get("w");
         boxSrvo = hardwareMap.servo.get(DeviceNaming.BOX_SERVO);
         btnSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
