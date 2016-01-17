@@ -59,7 +59,7 @@ public class MatColorSpreadCallback implements MatCallback {
             int mul = Math.min(i, (cols / 2 - i) * 3);
             //convert RGB to HSV
             Color.RGBToHSV(bi.get(row, i, 0), bi.get(row, i, 1), bi.get(row, i, 2), hsv);
-            if (hsv[2] > 0.1 && hsv[1] > 0.1) {
+            if (hsv[2] > 0.1 && hsv[1] > 0.3) {
                 xT += Math.cos(Math.toRadians(hsv[0])) * mul;
                 yT += Math.sin(Math.toRadians(hsv[0])) * mul;
                 mTotal += mul;
@@ -81,7 +81,7 @@ public class MatColorSpreadCallback implements MatCallback {
         for (int i = cols / 2; i < cols; i += 8) { // for each pixel in right: Add unitized vector to vecsum
             int mul = Math.min((i - cols / 2) * 3, cols - i);
             Color.RGBToHSV(bi.get(row, i, 0), bi.get(row, i, 1), bi.get(row, i, 2), hsv);
-            if (hsv[2] > 0.1 && hsv[1] > 0.1) {
+            if (hsv[2] > 0.1 && hsv[1] > 0.3) {
                 xT += Math.cos(Math.toRadians(hsv[0])) * mul;
                 yT += Math.sin(Math.toRadians(hsv[0])) * mul;
                 mTotal += mul;

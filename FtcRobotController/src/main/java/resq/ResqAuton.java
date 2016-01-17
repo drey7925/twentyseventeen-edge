@@ -738,9 +738,14 @@ public class ResqAuton extends SynchronousOpMode {
         int compensationRunTime = Utils.safeInt(sharedPref.getString("camera_to_btn_offset", "0"), 0);
         setLeftSpeed(0.1 * Math.signum(compensationRunTime));
         setRightSpeed(0.1 * Math.signum(compensationRunTime));
-        waitTime(Math.abs(compensationRunTime));
+        try {
+            Thread.sleep(Math.abs(compensationRunTime));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setLeftSpeed(0.0);
         setRightSpeed(0.0);
+        ledCtrl.setPower(0.0);
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.06) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
             Log.i("POS", "POS"+pos);

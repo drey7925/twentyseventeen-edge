@@ -51,9 +51,6 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
             // pass on error. Not critical functionality.
         }
 
-        try{
-            hardwareMap.servoController.get("s2").pwmDisable();
-        } catch (Exception e){}
 
     }
     DcMotor ledCtrl;
@@ -72,6 +69,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
 
         try {
             btnPushSrvo = hardwareMap.servo.get(DeviceNaming.BUTTON_SERVO);
+            btnPushSrvo.setPosition(0.875);
         } catch (Exception e) {
             telemetry.addData("INITFAULT", "BTNSERVO");
         }
@@ -182,22 +180,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
             ledCtrl.setPower(1.0);
         }
 
-        if(gamepad2.left_bumper){
-            try{
-                hardwareMap.servoController.get("s2").pwmEnable();
-            } catch (Exception e){}
-            try {
-                hardwareMap.servo.get("miniwinch").setPosition(1.0);
-            } catch (Exception e){}
-        }
-        else {
-            try{
-                hardwareMap.servoController.get("s2").pwmDisable();
-            } catch (Exception e){}
-            try{
-                hardwareMap.servo.get("miniwinch").setPosition(0.5);
-            } catch (Exception e){}
-        }
+
     }
 
     protected void dumpClimbers() throws InterruptedException {
@@ -215,6 +198,8 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         idle();
         for(double d = 0.09; d <= 1.0; d+=.1) {
             boxServo.setPosition(d);
+
+            Thread.sleep(20);
             idle();
         }
         idle();
