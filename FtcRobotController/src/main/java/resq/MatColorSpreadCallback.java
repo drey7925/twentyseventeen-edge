@@ -43,7 +43,6 @@ public class MatColorSpreadCallback implements MatCallback {
         float[] hsv = new float[3];
         int mTotal = 0;
 
-        // see K&R stats 3rd edition page 878
         // center oriented weight
         // statistics to find mean only, not s-err value for this data sample
         // stdev requires additional trig and a second pass
