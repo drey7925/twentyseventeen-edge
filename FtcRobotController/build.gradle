@@ -2,29 +2,20 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion = '22.0.1'
 
-    signingConfigs {
-        release {
-            storeFile file("signkey.keystore")
-            storePassword "FTC6460"
-            keyAlias "FTC6460"
-            keyPassword "FTC6460"
-        }
-    }
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 16
         targetSdkVersion 19
     }
     buildTypes {
         release {
             debuggable true
-            signingConfig signingConfigs.release
+
         }
         debug {
             debuggable true
-            signingConfig signingConfigs.release
         }
     }
 }
@@ -35,16 +26,17 @@ repositories {
 }
 
 dependencies {
-    compile files('libs/android-support-v4.jar')
-    compile(name: 'RobotCore-release', ext: 'aar')
-    compile(name: 'Hardware-release', ext: 'aar')
-    compile(name: 'FtcCommon-release', ext: 'aar')
-    compile(name: 'ModernRobotics-release', ext: 'aar')
-    compile(name: 'commons-codec-1.10', ext: 'jar')
-    compile(name: 'Analytics-release', ext: 'aar')
-    compile(name: 'WirelessP2p-release', ext: 'aar')
+
+    compile (name:'RobotCore-release', ext:'aar')
+    compile (name:'Hardware-release', ext:'aar')
+    compile (name:'FtcCommon-release', ext:'aar')
+    compile (name:'ModernRobotics-release', ext:'aar')
+    compile (name:'Analytics-release', ext:'aar')
+    compile (name:'WirelessP2p-release', ext:'aar')
     compile project(':SwerveRoboticsLibrary')
+    compile(name: 'commons-codec-1.10', ext: 'jar')
     compile 'org.bytedeco:javacpp-presets:0.11'
     compile 'org.bytedeco:javacpp:0.11'
     compile 'org.bytedeco:javacv:0.11'
+    compile files('libs/android-support-v4.jar')
 }

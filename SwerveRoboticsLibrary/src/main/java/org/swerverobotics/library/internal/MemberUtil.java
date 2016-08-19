@@ -1,7 +1,8 @@
 package org.swerverobotics.library.internal;
 
 import com.qualcomm.ftccommon.*;
-import com.qualcomm.robotcore.eventloop.*;
+import com.qualcomm.hardware.modernrobotics.*;
+import com.qualcomm.hardware.hitechnic.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.robot.*;
 
@@ -10,63 +11,69 @@ import com.qualcomm.robotcore.robot.*;
  */
 public class MemberUtil
     {
+    //----------------------------------------------------------------------------------------------
+    // FtcRobotControllerService
+    //----------------------------------------------------------------------------------------------
+
     public static Robot robotOfFtcRobotControllerService(FtcRobotControllerService service)
         {
+        return Util.<Robot>getPrivateObjectField(service, 2+7);
+        }
+
+    //----------------------------------------------------------------------------------------------
+    // Legacy Motor Controller
+    //----------------------------------------------------------------------------------------------
+
+    public static boolean isLegacyMotorController(DcMotorController controller)
+        {
+        return controller instanceof HiTechnicNxtDcMotorController;
+        }
+
+    public static boolean isLegacyServoController(ServoController controller)
+        {
+        return controller instanceof HiTechnicNxtServoController;
+        }
+
+    public static boolean isModernMotorController(DcMotorController controller)
+        {
+        return controller instanceof ModernRoboticsUsbDcMotorController;
+        }
+
+    public static boolean isModernServoController(ServoController controller)
+        {
+        return controller instanceof ModernRoboticsUsbServoController;
+        }
+
+    public static int i2cAddrOfLegacyMotorController(DcMotorController controller)
+        {
+        // From the spec from HiTechnic:
         //
-        //return Util.<Robot>getPrivateObjectField(service, 2+7);
-            try {
-                FtcRobotControllerService.class.getDeclaredField("c").setAccessible(true);
-                return (Robot) FtcRobotControllerService.class.getDeclaredField("c").get(service);
-            } catch (NoSuchFieldException e) {
-                return null;
-            } catch (IllegalAccessException e) {
-                return null;
-            }
-
+        // "The first motor controller in the daisy chain will use an I2C address of 02/03. Subsequent
+        // controllers will obtain addresses of 04/05, 06/07 and 08/09. Only four controllers may be
+        // daisy chained."
+        //
+        // The legacy module appears not to support daisy chaining; it only supports the first
+        // address. Note that these are clearly 8-bit addresses, not 7-bit.
+        //
+        return 0x02;
         }
 
-    public static EventLoopManager eventLoopManagerOfRobot(Robot robot)
+    public static int i2cAddrOfLegacyServoController(ServoController controller)
         {
-        return Util.<EventLoopManager>getPrivateObjectField(robot, 0);
+        return 0x02;
         }
 
-    public static EventLoopManager.EventLoopMonitor monitorOfEventLoopManager(EventLoopManager manager)
+    //----------------------------------------------------------------------------------------------
+    // DCMotor and Servo
+    //----------------------------------------------------------------------------------------------
+
+    public static void setControllerOfMotor(DcMotor motor, DcMotorController controller)
         {
-        return Util.<EventLoopManager.EventLoopMonitor>getPrivateObjectField(manager, 8);
+        Util.setPrivateObjectField(motor, 0, controller);
         }
 
-    public static FtcEventLoopHandler ftcEventLoopHandlerOfFtcEventLoop(FtcEventLoop ftcEventLoop)
+    public static void setControllerOfServo(Servo servo, ServoController controller)
         {
-        return Util.<FtcEventLoopHandler>getPrivateObjectField(ftcEventLoop, 0);
-        }
-
-    static boolean isLegacyMotorController(DcMotorController controller)
-        {
-        return controller instanceof com.qualcomm.hardware.HiTechnicNxtDcMotorController;
-        }
-
-    static LegacyModule legacyModuleOfLegacyMotorController(DcMotorController controller)
-        {
-        return Util.<LegacyModule>getPrivateObjectField(controller, 0);
-        }
-
-    static I2cController.I2cPortReadyCallback[] callbacksOfLegacyModule(LegacyModule module)
-        {
-        return Util.<I2cController.I2cPortReadyCallback[]>getPrivateObjectField(module, 4);
-        }
-
-    static int portOfLegacyMotorController(DcMotorController controller)
-        {
-        return Util.getPrivateIntField(controller, 5);
-        }
-
-    public static I2cController i2cControllerOfI2cDevice(I2cDevice i2cDevice)
-        {
-        return Util.<I2cController>getPrivateObjectField(i2cDevice, 0);
-        }
-
-    public static int portOfI2cDevice(I2cDevice i2cDevice)
-        {
-        return Util.getPrivateIntField(i2cDevice, 1);
+        Util.setPrivateObjectField(servo, 0, controller);
         }
     }

@@ -43,6 +43,4 @@ public interface IAccelerationIntegrator
      * @param acceleration  the acceleration as just reported by the IMU
      */
     void update(Acceleration acceleration);
-
-
     }

@@ -1,11 +1,12 @@
 package org.swerverobotics.library.internal;
 
+import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
-import org.swerverobotics.library.*;
+
 import org.swerverobotics.library.exceptions.*;
 import java.lang.reflect.*;
 import java.util.*;
-import static junit.framework.Assert.*;
+import java.util.concurrent.*;
 
 /**
  * Various internal utilities that assist us.
@@ -13,13 +14,110 @@ import static junit.framework.Assert.*;
 public class Util
     {
     //----------------------------------------------------------------------------------------------
-    // Miscellany
+    // Hardware mappings
     //----------------------------------------------------------------------------------------------
 
-    static public double milliseconds(ElapsedTime elapsed)
+    public static List<HardwareMap.DeviceMapping<?>> deviceMappings(HardwareMap map)
+        // Returns all the device mappings within the map
         {
-        return elapsed.time() * 1000.0;
+        List<HardwareMap.DeviceMapping<?>> result = new LinkedList<HardwareMap.DeviceMapping<?>>();
+        result.add(map.dcMotorController);
+        result.add(map.servoController);
+        result.add(map.legacyModule);
+        result.add(map.deviceInterfaceModule);
+        result.add(map.colorSensor);
+        result.add(map.dcMotor);
+        result.add(map.gyroSensor);
+        result.add(map.servo);
+        result.add(map.analogInput);
+        result.add(map.digitalChannel);
+        result.add(map.opticalDistanceSensor);
+        result.add(map.touchSensor);
+        result.add(map.pwmOutput);
+        result.add(map.i2cDevice);
+        result.add(map.analogOutput);
+        result.add(map.led);
+        result.add(map.accelerationSensor);
+        result.add(map.compassSensor);
+        result.add(map.irSeekerSensor);
+        result.add(map.lightSensor);
+        result.add(map.ultrasonicSensor);
+        result.add(map.voltageSensor);
+        result.add(map.touchSensorMultiplexer);
+        return result;
         }
+
+    public interface IFuncArg<T,U>
+        {
+        T value(U u);
+        }
+    public interface IAction<T>
+        {
+        void doAction(T t);
+        }
+
+    public static <T> void remove(HardwareMap.DeviceMapping<T> from, IFuncArg<Boolean, T> predicate, IAction<T> action)
+        {
+        List<String> names = new LinkedList<String>();
+        for (Map.Entry<String,T> pair : from.entrySet())
+            {
+            T t = pair.getValue();
+            if (predicate==null || predicate.value(t))
+                {
+                names.add(pair.getKey());
+                if(action != null) action.doAction(t);
+                }
+            }
+        for (String name : names)
+            {
+            removeName(from, name);
+            }
+        }
+
+    public static <T> void removeName(HardwareMap.DeviceMapping<T> entrySet, String name)
+        {
+        Util.<Map>getPrivateObjectField(entrySet,0).remove(name);
+        }
+
+    public static <T> boolean contains(HardwareMap.DeviceMapping<T> map, String name)
+        {
+        for (Map.Entry<String,T> pair : map.entrySet())
+            {
+            if (pair.getKey().equals(name))
+                return true;
+            }
+        return false;
+        }
+
+    //----------------------------------------------------------------------------------------------
+    // String
+    //----------------------------------------------------------------------------------------------
+
+    /** Is 'prefix' an initial substring of 'target'? */
+    static public boolean isPrefixOf(String prefix, String target)
+        {
+        if (prefix == null)
+            return true;
+        else if (target == null)
+            return false;
+        else
+            {
+            if (prefix.length() <= target.length())
+                {
+                for (int ich = 0; ich < prefix.length(); ich++)
+                    {
+                    if (prefix.charAt(ich) != target.charAt(ich))
+                        return false;
+                    }
+                return true;
+                }
+            return false;
+            }
+        }
+
+    //----------------------------------------------------------------------------------------------
+    // Miscellany
+    //----------------------------------------------------------------------------------------------
 
     static public String getStackTrace(Exception e)
         {
@@ -31,6 +129,14 @@ public class Util
             result.append(ele.toString());
             }
         return result.toString();
+        }
+
+    public static byte[] concatenateByteArrays(byte[] left, byte[] right)
+        {
+        byte[] result = new byte[left.length + right.length];
+        System.arraycopy(left,  0, result, 0,           left.length);
+        System.arraycopy(right, 0, result, left.length, right.length);
+        return result;
         }
 
     //----------------------------------------------------------------------------------------------
@@ -47,15 +153,11 @@ public class Util
         try {
             methods = clazz.getDeclaredMethods();
             }
-        catch (Exception e)
-        {
+        catch (Exception|LinkageError e)
+            {
             methods = new Method[0];
-        }
-        catch (Error e)
-        {
-            methods = new Method[0];
-        }
-            List<Method> result = new LinkedList<Method>();
+            }
+        List<Method> result = new LinkedList<Method>();
         result.addAll(Arrays.asList(methods));
         return result;
         }
@@ -78,23 +180,84 @@ public class Util
     // Private field access - utility
     //----------------------------------------------------------------------------------------------
 
-    // The Field of the 'fieldDexIndex' field of class Field
+    // Dalvik VM: the Field of the 'fieldDexIndex' field of class Field
     static Field fieldDexIndexField = getFieldDexIndexField();
+
+    // ART VM: The Field of the 'artField' field of class Field (Lollipop and greater)
+    static Field fieldArtField = getFieldArtField();
+    // ART VM: The dexIndex field of an ArtField
+    static Field fieldArtFieldDexIndex = getFieldArtFieldDexIndex();
 
     static Field getFieldDexIndexField()
     // Find the Field for the 'fieldDexIndex' field of class Field.
+    // This works on the Dalvik VM.
         {
-        Class   fieldClass      = Field.class;
-        Class   fieldSuperClass = fieldClass.getSuperclass();
-        assertTrue(!BuildConfig.DEBUG || fieldSuperClass.getSuperclass() == Object.class);
+        Field result = null;
+        try {
+            Class   fieldClass      = Field.class;
+            Class   fieldSuperClass = fieldClass.getSuperclass();
 
-        List<Field> superFields = getLocalDeclaredNonStaticFields(fieldSuperClass, false);
-        List<Field> fieldFields = getLocalDeclaredNonStaticFields(fieldClass, false);
+            List<Field> superFields = getLocalDeclaredNonStaticFields(fieldSuperClass, false);
+            List<Field> fieldFields = getLocalDeclaredNonStaticFields(fieldClass, false);
 
-        int iFieldTarget = 7;
+            int iFieldTarget = 7;
 
-       Field result = fieldFields.get(iFieldTarget - superFields.size());
-        if (!result.isAccessible())
+            result = fieldFields.get(iFieldTarget - superFields.size());
+            if (!result.isAccessible())
+                result.setAccessible(true);
+            }
+        catch (Exception ignored)
+            {
+            result = null;
+            }
+        return result;
+        }
+
+    static Field getFieldArtField()
+    // Find the Field for the 'artField' field of class Field
+    // This works on the ART VM.
+        {
+        return getFieldByName(Field.class, "artField");
+        }
+
+    static Field getFieldArtFieldDexIndex()
+    // Field the 'fieldDexIndex' field of the class ArtField
+    // This works on the ART VM.
+        {
+        Field result = null;
+        try {
+            Class classArtField = Class.forName("java.lang.reflect.ArtField");
+            if (classArtField != null)
+                return getFieldByName(classArtField, "fieldDexIndex");
+            }
+        catch (Exception e)
+            {
+            result = null;
+            }
+        return result;
+        }
+
+    static Field getFieldByName(Class klass, String name)
+        {
+        Field result = null;
+        try {
+            List<Field> fieldFields = getLocalDeclaredNonStaticFields(klass, false);
+
+            for (Field field : fieldFields)
+                {
+                if (field.getName().equals(name))
+                    {
+                    result = field;
+                    break;
+                    }
+                }
+            }
+        catch (Exception e)
+            {
+            result = null;
+            }
+
+        if (result != null && !result.isAccessible())
             result.setAccessible(true);
 
         return result;
@@ -112,13 +275,26 @@ public class Util
     static int getSortIndex(Field field)
     // Returns a sort key that will sort Fields in their declared order
         {
+        int result = -1;
         try {
-            return fieldDexIndexField.getInt(field);
+            if (fieldDexIndexField != null)
+                {
+                // Dalvik VM
+                result = fieldDexIndexField.getInt(field);
+                }
+
+            else if (fieldArtField != null)
+                {
+                // ART VM
+                Object artField = fieldArtField.get(field);
+                result = fieldArtFieldDexIndex.getInt(artField);
+                }
             }
         catch (IllegalAccessException e)
             {
             throw SwerveRuntimeException.wrap(e);
             }
+        return result;
         }
 
     //----------------------------------------------------------------------------------------------
@@ -157,7 +333,8 @@ public class Util
         {
         if (clazz.getSuperclass() == null)
             {
-            return getLocalDeclaredNonStaticFields(clazz, sort);
+            List<Field> result = /*getLocalDeclaredNonStaticFields(clazz, sort)*/ /*only want user-visible ones*/ new LinkedList<Field>();
+            return result;
             }
         else
             {
@@ -367,6 +544,19 @@ public class Util
             }
         }
 
+    static public void setPrivateBooleanField(Object target, int iField, boolean value)
+        {
+        Field field = getAccessibleClassNonStaticFieldIncludingSuper(target, iField);
+        try
+            {
+            field.setBoolean(target, value);
+            }
+        catch (IllegalAccessException e)
+            {
+            throw SwerveRuntimeException.wrap(e);
+            }
+        }
+
     static public void setPrivateFloatField(Object target, int iField, float value)
         {
         Field field = getAccessibleClassNonStaticFieldIncludingSuper(target, iField);
@@ -408,14 +598,6 @@ public class Util
 
     public static void handleCapturedInterrupt(InterruptedException e)
         {
-        handleCapturedException((Exception)e);
-        }
-
-    public static void handleCapturedException(Exception e)
-        {
-        if (e instanceof InterruptedException || e instanceof RuntimeInterruptedException);
-            Thread.currentThread().interrupt();
-
-        throw SwerveRuntimeException.wrap(e);
+        Thread.currentThread().interrupt();
         }
     }

@@ -134,6 +134,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:layout_below="@+id/textWifiDirectPassphrase"
       android:textAppearance="?android:attr/textAppearanceMedium"
       android:text="" />
+
     <TextView
             android:id="@+id/textTeam"
             android:layout_width="match_parent"
@@ -148,6 +149,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             android:layout_below="@+id/textTeam"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="" />
+
 
     <TextView
       android:id="@+id/textOpMode"
@@ -165,7 +167,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:textColor="#990000"
       android:textStyle="bold"
       android:minLines="2"
-      android:maxLines="4"
+      android:maxLines="6"
       android:textAppearance="?android:attr/textAppearanceMedium"
       android:text="" />
 

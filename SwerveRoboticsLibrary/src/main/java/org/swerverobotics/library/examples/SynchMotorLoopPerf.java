@@ -8,11 +8,12 @@ import org.swerverobotics.library.interfaces.*;
 /**
  * An op mode that investigates how many loop() cycles it takes to do full
  * mode switching on a motor controller. Each main loop cycle does both
- * a read and a write to the motor.
+ * a read and a write to motors.
  *
- * This OpMode expects two motors, named 'motorLeft' and 'motorRight'.
+ * This OpMode expects two motors, named 'motorLeft' and 'motorRight'. A configuration
+ * flag, set in the constructor, controls whether just one or both of the motors are used.
  */
-@TeleOp(name="Motor Perf (sync)", group="Swerve Examples")
+@TeleOp(name="Motor Perf (Synch)", group="Swerve Examples")
 @Disabled
 public class SynchMotorLoopPerf extends SynchronousOpMode
     {
@@ -26,7 +27,7 @@ public class SynchMotorLoopPerf extends SynchronousOpMode
 
     public SynchMotorLoopPerf()
         {
-        useBothMotors = false;
+        useBothMotors = true;
         }
     
     public @Override void main() throws InterruptedException
@@ -46,7 +47,7 @@ public class SynchMotorLoopPerf extends SynchronousOpMode
             rightPosition = useBothMotors ? rightMotor.getCurrentPosition() : 0;
 
             long loopCount = getLoopCount() - loopCountStart;
-            double ms = elapsed.time() * 1000;
+            double ms = elapsed.milliseconds();
 
             // Need to call this or we won't see any gamepad changes
             updateGamepads();
@@ -60,10 +61,11 @@ public class SynchMotorLoopPerf extends SynchronousOpMode
             else
                 powerMotors(0.25);
 
+            telemetry.addData("both motors",   ((Boolean)useBothMotors).toString());
             telemetry.addData("position",      String.format("left=%d right=%d", leftPosition, rightPosition));
-            telemetry.addData("#loop()",       loopCount);
-            telemetry.addData("#spin",         spinCount);
-            telemetry.addData("#loop()/#spin", String.format("%.1f", loopCount / (double)spinCount));
+            telemetry.addData("loopCount",     loopCount);
+            telemetry.addData("spinCount",     spinCount);
+            telemetry.addData("#loop/#spin",   String.format("%.1f", loopCount / (double)spinCount));
             telemetry.addData("ms/spin",       String.format("%.1f ms", ms / spinCount));
             telemetry.addData("ms/loop",       String.format("%.1f ms", ms / loopCount));
             telemetry.update();
