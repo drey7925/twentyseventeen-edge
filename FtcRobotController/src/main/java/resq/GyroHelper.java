@@ -76,8 +76,8 @@ public class GyroHelper {
 
     }
     public void startUpGyro() {
-        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = IBNO055IMU.ANGLEUNIT.DEGREES;
+        parameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = true;
         parameters.mode = IBNO055IMU.SENSOR_MODE.NDOF;
         parameters.loggingTag = "BNO055";

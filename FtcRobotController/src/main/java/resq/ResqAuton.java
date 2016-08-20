@@ -119,7 +119,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     protected void startCamera() throws InterruptedException {
-        if(cb!=null) return;
+        if (cb != null) return;
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
         ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
         ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
@@ -165,31 +165,31 @@ public class ResqAuton extends SynchronousOpMode {
         double oriX = getGyroX();
         double oriY = getGyroY();
         double oriYAW = getGyroYAW();
-        double finalX = Math.cos(Math.toRadians(oriYAW))*dist+oriX;
-        double finalY = Math.sin(Math.toRadians(oriYAW))*dist+oriY;
+        double finalX = Math.cos(Math.toRadians(oriYAW)) * dist + oriX;
+        double finalY = Math.sin(Math.toRadians(oriYAW)) * dist + oriY;
         double curX = oriX;
         double curY = oriY;
         double curYAW = oriYAW;
         double distTraveled = 0;
         int accelTime = 1000; //CHANGEABLE
         double speed = 0;
-        while (System.currentTimeMillis()<oriTime+accelTime && distTraveled < dist/2) { //ACCELERATION
-            speed = Math.min(0.25,((System.currentTimeMillis()-oriTime)/accelTime*1.0)*factor);
+        while (System.currentTimeMillis() < oriTime + accelTime && distTraveled < dist / 2) { //ACCELERATION
+            speed = Math.min(0.25, ((System.currentTimeMillis() - oriTime) / accelTime * 1.0) * factor);
             setLeftSpeed(speed);
             setRightSpeed(speed);
 
-            if (curYAW > oriYAW+5 ) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)){
-                    blendRightSpeed(speed*0.8);
+            if (curYAW > oriYAW + 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
+                    blendRightSpeed(speed * 0.8);
                     setLeftSpeed(speed);
-                    speed = ((System.currentTimeMillis()-oriTime)/accelTime*1.00)*factor;
+                    speed = ((System.currentTimeMillis() - oriTime) / accelTime * 1.00) * factor;
                     doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
 
             }
-            if (curYAW < oriYAW-5) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)) {
+            if (curYAW < oriYAW - 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
                     blendLeftSpeed(speed * 0.8);
                     setRightSpeed(speed);
                     speed = ((System.currentTimeMillis() - oriTime) / accelTime * 1.00) * factor;
@@ -202,22 +202,22 @@ public class ResqAuton extends SynchronousOpMode {
             curYAW = getGyroYAW();
         }
 
-        distTraveled = Math.sqrt((curX-oriX)*(curX-oriX)+(curY-oriY)*(curY-oriY));
+        distTraveled = Math.sqrt((curX - oriX) * (curX - oriX) + (curY - oriY) * (curY - oriY));
         double distAccel = distTraveled;
 
-        while (dist-distTraveled>distAccel) { //CONSTANT SPEED
-            setLeftSpeed(1.00*factor);
-            setRightSpeed(1.00*factor);
-            if (curYAW > oriYAW+5) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)) {
+        while (dist - distTraveled > distAccel) { //CONSTANT SPEED
+            setLeftSpeed(1.00 * factor);
+            setRightSpeed(1.00 * factor);
+            if (curYAW > oriYAW + 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
                     setRightSpeed(1.0);
                     blendLeftSpeed(0.8);
                     doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
             }
-            if (curYAW < oriYAW-5) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)) {
+            if (curYAW < oriYAW - 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
                     blendRightSpeed(0.8);
                     setLeftSpeed(1.0);
                     doPeriodicTasks();
@@ -227,17 +227,17 @@ public class ResqAuton extends SynchronousOpMode {
             curX = getGyroX();
             curY = getGyroY();
             curYAW = getGyroYAW();
-            distTraveled = Math.sqrt((curX-oriX)*(curX-oriX)+(curY-oriY)*(curY-oriY));
+            distTraveled = Math.sqrt((curX - oriX) * (curX - oriX) + (curY - oriY) * (curY - oriY));
         }
 
         long startDecelTime = System.currentTimeMillis();
 
-        while (Math.abs(curX-finalX)>0.05 || Math.abs(curY-finalY)>0.05) { //DECELERATION
-            speed = Math.sqrt(Math.hypot(finalX - curX, finalY - curY)/(dist-distTraveled))*factor;
+        while (Math.abs(curX - finalX) > 0.05 || Math.abs(curY - finalY) > 0.05) { //DECELERATION
+            speed = Math.sqrt(Math.hypot(finalX - curX, finalY - curY) / (dist - distTraveled)) * factor;
             setLeftSpeed(speed);
             setRightSpeed(speed);
-            if (curYAW > oriYAW+5) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)) {
+            if (curYAW > oriYAW + 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
                     blendRightSpeed(0.8 * speed);
                     setLeftSpeed(speed);
                     speed = Math.sqrt(Math.hypot(finalX - curX, finalY - curY) / (dist - distTraveled)) * factor;
@@ -247,8 +247,8 @@ public class ResqAuton extends SynchronousOpMode {
                     curX = getGyroX();
                 }
             }
-            if (curYAW < oriYAW-5) { //CORRECTIONS
-                while(curYAW>Math.atan2(finalX - curX, finalY - curY)) {
+            if (curYAW < oriYAW - 5) { //CORRECTIONS
+                while (curYAW > Math.atan2(finalX - curX, finalY - curY)) {
                     blendRightSpeed(0.8 * speed);
                     setRightSpeed(speed);
                     speed = Math.sqrt(Math.hypot(finalX - curX, finalY - curY) / (dist - distTraveled)) * factor;
@@ -298,8 +298,8 @@ public class ResqAuton extends SynchronousOpMode {
         if (((oriYAW > YAW) && (oriYAW - YAW) < 180)) { //TURN RIGHT
 
             while ((oriYAW - curYAW) < incA) {
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 incr = 1 * ((oriYAW - curYAW) / 15);
 
                 doPeriodicTasks();
@@ -308,15 +308,15 @@ public class ResqAuton extends SynchronousOpMode {
             }
            /* START INTERMEDIATE MAX SPEED TURN*/
             while ((oriYAW - curYAW) < (angle - incA)) {
-                setLeftSpeed(1*.25);
-                setRightSpeed(-1*.25);
+                setLeftSpeed(1 * .25);
+                setRightSpeed(-1 * .25);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
            /* START DECLINING INCREMENT */
             while ((oriYAW - curYAW) < angle) {
                 setLeftSpeed(incr * .25);
-                setRightSpeed(-incr*.25);
+                setRightSpeed(-incr * .25);
                 incr = (1 * (-(YAW - curYAW) / 15));
 
                 doPeriodicTasks();
@@ -330,8 +330,8 @@ public class ResqAuton extends SynchronousOpMode {
             curYAW = getGyroYAW();
             if (oriYAW > incA) {
                 while ((oriYAW - curYAW) < incA) {
-                    setLeftSpeed(incr*.25);
-                    setRightSpeed(-incr*.25);
+                    setLeftSpeed(incr * .25);
+                    setRightSpeed(-incr * .25);
                     incr = 1 * ((oriYAW - curYAW) / 15);
                     doPeriodicTasks();
                     curYAW = getGyroYAW();
@@ -339,41 +339,41 @@ public class ResqAuton extends SynchronousOpMode {
             } else {
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
-                while(curYAW<180){
-                    setLeftSpeed(incr*.25);
-                    setRightSpeed(-incr*.25);
+                while (curYAW < 180) {
+                    setLeftSpeed(incr * .25);
+                    setRightSpeed(-incr * .25);
                     incr = 1 * ((oriYAW - curYAW) / 15);
                     doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
                 while (oriYAW + (360 - curYAW) < incA) {
-                    setLeftSpeed(incr*.25);
-                    setRightSpeed(-incr*.25);
+                    setLeftSpeed(incr * .25);
+                    setRightSpeed(-incr * .25);
                     incr = 1 * ((oriYAW - curYAW) / 15);
                     doPeriodicTasks();
                     curYAW = getGyroYAW();
                 }
 
-        }
-       	/* START INTERMEDIATE MAX SPEED TURN*/
+            }
+           /* START INTERMEDIATE MAX SPEED TURN*/
             while (curYAW < oriYAW) { //these two while loops are the same thing
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
             while ((360 - curYAW) < (angle - incA)) {//they're just accounting for before the 0 line and after it
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
 
                 doPeriodicTasks();
             }
-       	/*START DECLINING INCREMENT SPEED */
+           /*START DECLINING INCREMENT SPEED */
             while ((oriYAW + (360 - curYAW)) < angle) {
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 incr = 1 * (-(YAW - curYAW) / 15);
 
                 doPeriodicTasks();
@@ -392,8 +392,8 @@ public class ResqAuton extends SynchronousOpMode {
 
         } else if ((oriYAW < YAW) && ((YAW - oriYAW) < 180)) { // LEFT TURN (DO THIS!!)
             while ((curYAW - oriYAW) < incA) {
-                setLeftSpeed(-incr*.25);
-                setRightSpeed(incr*.25);
+                setLeftSpeed(-incr * .25);
+                setRightSpeed(incr * .25);
                 incr = 1 * ((curYAW - oriYAW) / 15);
 
 
@@ -411,8 +411,8 @@ public class ResqAuton extends SynchronousOpMode {
             }
        	/* START DECLINING INCREMENT */
             while ((curYAW - oriYAW) < angle) {
-                setLeftSpeed(-incr*.25);
-                setRightSpeed(incr*.25);
+                setLeftSpeed(-incr * .25);
+                setRightSpeed(incr * .25);
                 incr = (1 * (-(YAW - curYAW) / 15));
 
 
@@ -432,8 +432,8 @@ public class ResqAuton extends SynchronousOpMode {
             curYAW = getGyroYAW();
             if (oriYAW > incA) {
                 while ((oriYAW - curYAW) < incA) {
-                    setLeftSpeed(incr*.25);
-                    setRightSpeed(-incr*.25);
+                    setLeftSpeed(incr * .25);
+                    setRightSpeed(-incr * .25);
                     incr = 1 * ((oriYAW - curYAW) / 15);
 
                     doPeriodicTasks();
@@ -444,8 +444,8 @@ public class ResqAuton extends SynchronousOpMode {
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
                 while (oriYAW + (360 - curYAW) < incA) {
-                    setLeftSpeed(incr*.25);
-                    setRightSpeed(-incr*.25);
+                    setLeftSpeed(incr * .25);
+                    setRightSpeed(-incr * .25);
                     incr = 1 * ((oriYAW - curYAW) / 15);
 
 
@@ -455,22 +455,22 @@ public class ResqAuton extends SynchronousOpMode {
             }
        	/* START INTERMEDIATE MAX SPEED TURN*/
             while (curYAW < oriYAW) { //these two while loops are the same thing
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
             while ((360 - curYAW) < (angle - incA)) {//they're just accounting for before the 0 line and after it
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
        	/*START DECLINING INCREMENT SPEED */
             while ((oriYAW + (360 - curYAW)) < angle) {
-                setLeftSpeed(incr*.25);
-                setRightSpeed(-incr*.25);
-                incr =  (-(YAW - curYAW) / 15);
+                setLeftSpeed(incr * .25);
+                setRightSpeed(-incr * .25);
+                incr = (-(YAW - curYAW) / 15);
                 doPeriodicTasks();
                 curYAW = getGyroYAW();
             }
@@ -493,7 +493,6 @@ public class ResqAuton extends SynchronousOpMode {
     double lSpd, rSpd;
 
 
-
     public void setLeftSpeed(double spd) {
 
         spd = Range.clip(spd, -1, 1);
@@ -509,11 +508,11 @@ public class ResqAuton extends SynchronousOpMode {
         r1.setPower(spd);
     }
 
-    public void blendLeftSpeed(double spd){
+    public void blendLeftSpeed(double spd) {
         setLeftSpeed((lSpd + spd) / 2);
     }
 
-    public void blendRightSpeed(double spd){
+    public void blendRightSpeed(double spd) {
         setRightSpeed((rSpd + spd) / 2);
     }
 
@@ -605,6 +604,7 @@ public class ResqAuton extends SynchronousOpMode {
          */
         MTN, PARK, BEACON_BEHIND, BEACON_INFRONT, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8;
     }
+
     public void detectAndHitBeacon() throws InterruptedException {
         ledCtrl.setPower(0);
         waitTime(1000);
@@ -709,19 +709,17 @@ public class ResqAuton extends SynchronousOpMode {
         }
 
 
-
-
     }
 
     protected void dumpClimbers() throws InterruptedException {
-        for(double d = 1.0; d >= 0.09; d-=.03) {
+        for (double d = 1.0; d >= 0.09; d -= .03) {
             boxSrvo.setPosition(d);
             idle();
         }
         idle();
         waitTime(500);
         idle();
-        for(double d = 0.09; d <= 1.0; d+=.1) {
+        for (double d = 0.09; d <= 1.0; d += .1) {
             boxSrvo.setPosition(d);
             idle();
         }
@@ -748,7 +746,7 @@ public class ResqAuton extends SynchronousOpMode {
         ledCtrl.setPower(0.0);
         for (double pos = BTN_SRVO_RETRACTED; pos >= BTN_SRVO_DEPLOYED; pos -= 0.06) {
             btnSrvo.setPosition(Math.max(BTN_SRVO_DEPLOYED, pos));
-            Log.i("POS", "POS"+pos);
+            Log.i("POS", "POS" + pos);
             try {
                 idle();
                 waitTime(4);
@@ -786,6 +784,7 @@ public class ResqAuton extends SynchronousOpMode {
 
     Servo btnSrvo;
     Servo boxSrvo;
+
     protected void startUpHardware() throws InterruptedException {
         l0 = hardwareMap.dcMotor.get("l0");
         r0 = hardwareMap.dcMotor.get("r0");
@@ -817,7 +816,7 @@ public class ResqAuton extends SynchronousOpMode {
         lastEncoderR = r0.getCurrentPosition();
         gyroHelper.startUpGyro();
         String gc = sharedPref.getString("gyrocalib", "!!");
-        if(gc.matches("([0-9a-f]{2})*")) {
+        if (gc.matches("([0-9a-f]{2})*")) {
             try {
                 gyroHelper.getImu().writeCalibrationData(Hex.decodeHex(gc.toCharArray()));
             } catch (DecoderException e) {
@@ -860,7 +859,7 @@ public class ResqAuton extends SynchronousOpMode {
         int l0p = l0.getCurrentPosition();
         int r0p = r0.getCurrentPosition();
 
-        if(lastRunWasLite) {
+        if (lastRunWasLite) {
             lastEncoderL = l0p;
             lastEncoderR = r0p;
             lastRunWasLite = false;
@@ -875,11 +874,11 @@ public class ResqAuton extends SynchronousOpMode {
         lastEncoderL = l0p;
         lastEncoderR = r0p;
 
-        Log.i("MOVE", "DIST: "+dist);
+        Log.i("MOVE", "DIST: " + dist);
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
-        i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+        i2cCycles = 0;
         ms = gyroHelper.getElapsed().time() * 1000.0;
         try {
             idle();
@@ -903,11 +902,11 @@ public class ResqAuton extends SynchronousOpMode {
         x += (dist * Math.cos(getGyroYAW()));
         y += (dist * Math.sin(getGyroYAW()));
 
-        Log.i("MOVE", "DIST: "+dist);
+        Log.i("MOVE", "DIST: " + dist);
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
-        i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+        i2cCycles = 0;
         ms = gyroHelper.getElapsed().time() * 1000.0;
         try {
             idle();
@@ -942,7 +941,7 @@ public class ResqAuton extends SynchronousOpMode {
                 // The rest of this is pretty cheap to acquire, but we may as well do it
                 // all while we're gathering the above.
                 loopCycles = getLoopCount();
-                i2cCycles = ((II2cDeviceClientUser) gyroHelper.getImu()).getI2cDeviceClient().getI2cCycleCount();
+
                 ms = gyroHelper.getElapsed().time() * 1000.0;
             }
         });
@@ -952,21 +951,9 @@ public class ResqAuton extends SynchronousOpMode {
                         return loopCycles;
                     }
                 }),
-                telemetry.item("i2c cycle count: ", new IFunc<Object>() {
-                    public Object value() {
-                        return i2cCycles;
-                    }
-                }));
-
-        telemetry.addLine(
                 telemetry.item("loop rate: ", new IFunc<Object>() {
                     public Object value() {
                         return formatRate(ms / loopCycles);
-                    }
-                }),
-                telemetry.item("i2c cycle rate: ", new IFunc<Object>() {
-                    public Object value() {
-                        return formatRate(ms / i2cCycles);
                     }
                 }));
 
@@ -1065,9 +1052,8 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     String formatAngle(double angle) {
-        return gyroHelper.getParameters().angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+        return gyroHelper.getParameters().angleUnit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
-
 
 
     String formatRadians(double radians) {
@@ -1083,7 +1069,7 @@ public class ResqAuton extends SynchronousOpMode {
     }
 
     String formatPosition(double coordinate) {
-        String unit = gyroHelper.getParameters().accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+        String unit = gyroHelper.getParameters().accelUnit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
         return String.format("%.2f%s", coordinate, unit);
     }

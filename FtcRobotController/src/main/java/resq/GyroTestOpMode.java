@@ -53,7 +53,7 @@ public class GyroTestOpMode extends SynchronousOpMode {
         // The rest of this is pretty cheap to acquire, but we may as well do it
         // all while we're gathering the above.
         loopCycles = getLoopCount();
-        i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+        i2cCycles = 0;
         ms = elapsed.time() * 1000.0;
     }
 
@@ -63,8 +63,8 @@ public class GyroTestOpMode extends SynchronousOpMode {
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
         // semantically understands this particular kind of sensor.
-        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = IBNO055IMU.ANGLEUNIT.DEGREES;
+        parameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = true;
         parameters.mode = IBNO055IMU.SENSOR_MODE.NDOF;
         parameters.loggingTag = "BNO055";
@@ -140,7 +140,7 @@ boolean calSaved = false;
                 // The rest of this is pretty cheap to acquire, but we may as well do it
                 // all while we're gathering the above.
                 loopCycles = getLoopCount();
-                i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+                i2cCycles = 0;
                 ms = elapsed.time() * 1000.0;
             }
         });
@@ -150,23 +150,12 @@ boolean calSaved = false;
                         return loopCycles;
                     }
                 }),
-                telemetry.item("i2c cycle count: ", new IFunc<Object>() {
-                    public Object value() {
-                        return i2cCycles;
-                    }
-                }));
-
-        telemetry.addLine(
                 telemetry.item("loop rate: ", new IFunc<Object>() {
                     public Object value() {
                         return formatRate(ms / loopCycles);
                     }
-                }),
-                telemetry.item("i2c cycle rate: ", new IFunc<Object>() {
-                    public Object value() {
-                        return formatRate(ms / i2cCycles);
-                    }
-                }));
+                })
+                );
 
         telemetry.addLine(
                 telemetry.item("status: ", new IFunc<Object>() {
@@ -262,7 +251,7 @@ boolean calSaved = false;
     }
 
     String formatAngle(double angle) {
-        return parameters.angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+        return parameters.angleUnit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
 
     String formatRadians(double radians) {
@@ -278,7 +267,7 @@ boolean calSaved = false;
     }
 
     String formatPosition(double coordinate) {
-        String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+        String unit = parameters.accelUnit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
         return String.format("%.2f%s", coordinate, unit);
     }

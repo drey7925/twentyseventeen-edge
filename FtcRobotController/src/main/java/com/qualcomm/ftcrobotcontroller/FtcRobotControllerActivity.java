@@ -39,11 +39,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-<<<<<<< HEAD
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
-=======
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
@@ -51,7 +49,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.*;
->>>>>>> upstream/master
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;

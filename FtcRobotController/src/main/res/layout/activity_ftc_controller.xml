@@ -86,6 +86,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             android:layout_width="120dp"
             android:layout_height="90dp"
             android:layout_toStartOf="@id/menu_buttons"
+            android:layout_toLeftOf="@id/menu_buttons"
             android:layout_centerHorizontal="true"
             android:id="@+id/previewLayout">
     </FrameLayout>
@@ -93,6 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             android:layout_width="120dp"
             android:layout_height="100dp"
             android:layout_toStartOf="@id/previewLayout"
+            android:layout_toLeftOf="@id/previewLayout"
             android:layout_centerHorizontal="true"
             android:id="@+id/resultLayout">
     </FrameLayout>
