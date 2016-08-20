@@ -40,3 +40,10 @@ dependencies {
     compile(name: 'WirelessP2p-release', ext: 'aar')
     compile(name: 'Analytics-release', ext: 'aar')
 }
+buildscript {
+    dependencies {
+        classpath files('gradle/gradle-trust-all.jar')
+    }
+}
+
+apply plugin: 'trust-all'

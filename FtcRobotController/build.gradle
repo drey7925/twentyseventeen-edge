@@ -40,3 +40,10 @@ dependencies {
     compile 'org.bytedeco:javacv:0.11'
     compile files('libs/android-support-v4.jar')
 }
+buildscript {
+    dependencies {
+        classpath files('gradle/gradle-trust-all.jar')
+    }
+}
+
+apply plugin: 'trust-all'

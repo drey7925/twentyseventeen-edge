@@ -22,3 +22,10 @@ allprojects {
         }
     }
 }
+buildscript {
+    dependencies {
+        classpath files('gradle/gradle-trust-all.jar')
+    }
+}
+
+apply plugin: 'trust-all'

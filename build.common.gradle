@@ -83,3 +83,11 @@ dependencies {
     compile project(':SwerveRoboticsLibrary')
     compile project(':FtcRobotController')
 }
+
+buildscript {
+    dependencies {
+        classpath files('gradle/gradle-trust-all.jar')
+    }
+}
+
+apply plugin: 'trust-all'
