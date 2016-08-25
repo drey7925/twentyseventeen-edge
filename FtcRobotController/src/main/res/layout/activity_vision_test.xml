@@ -28,6 +28,15 @@
                     android:layout_height="wrap_content"
                     android:text="Stop"
                     android:id="@+id/btnStop" android:layout_weight="0"/>
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:ems="10"
+                    android:id="@+id/param1" android:layout_weight="1" android:text="200" android:hint="param1"/>
+            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:inputType="number" android:ems="10" android:id="@+id/param2" android:layout_weight="1"
+                      android:text="100" android:hint="param2"/>
         </LinearLayout>
         <FrameLayout
                 android:layout_width="match_parent"

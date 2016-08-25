@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.qualcomm.ftcrobotcontroller.R;
 import org.opencv.engine.OpenCVEngineInterface;
@@ -16,6 +17,8 @@ public class VisionTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vision_test);
         ocvh = new OpenCvActivityHelper(this, (FrameLayout) findViewById(R.id.testPrev));
+        ocvh.addCallback(new HoughCircleDetector(Integer.parseInt(((EditText) findViewById(R.id.param1)).getText().toString()),
+                Integer.parseInt(((EditText) findViewById(R.id.param2)).getText().toString())));
         ocvh.addCallback(new MatColorSpreadCallback(this, null));
         ((Button) findViewById(R.id.btnStart)).setOnClickListener(new View.OnClickListener() {
             @Override
