@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.FrameLayout;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -121,7 +123,8 @@ public class ResqAuton extends SynchronousOpMode {
     protected void startCamera() throws InterruptedException {
         if (cb != null) return;
         cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
-        ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
+        FtcRobotControllerActivity activity = (FtcRobotControllerActivity) hardwareMap.appContext;
+        ocvh = new OpenCvActivityHelper(activity, (FrameLayout) activity.findViewById(R.id.previewLayout));
         ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
 
             @Override

@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import ftc.team6460.javadeck.ftc.Utils;
 
@@ -30,8 +31,9 @@ public class AutonCameraTestOpMode extends OpMode {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext); // obtain pref softref
         scaledPower = Utils.getSafeDoublePref("lowspeed_power_scale", sharedPref, 0.50);
         this.gamepad1.setJoystickDeadzone(0.1f);
-        ocvh = new OpenCvActivityHelper((FtcRobotControllerActivity) hardwareMap.appContext);
-        ocvh.addCallback(new MatColorSpreadCallback((FtcRobotControllerActivity) hardwareMap.appContext, tv));
+        FtcRobotControllerActivity activity = (FtcRobotControllerActivity) hardwareMap.appContext;
+        ocvh = new OpenCvActivityHelper(activity, (FrameLayout) activity.findViewById(R.id.previewLayout));
+        ocvh.addCallback(new MatColorSpreadCallback(activity, tv));
         tv = new TextView(hardwareMap.appContext);
 
         // start color scan

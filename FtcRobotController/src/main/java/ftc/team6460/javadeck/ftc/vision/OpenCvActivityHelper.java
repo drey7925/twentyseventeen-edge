@@ -15,8 +15,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.R;
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_imgproc;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -24,21 +27,28 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.SynchronousQueue;
 
-import static org.bytedeco.javacpp.opencv_core.*;
+import static org.opencv.core.Core.flip;
+import static org.opencv.core.Core.transpose;
 
 /**
  * Created by hexafraction on 9/14/15.
  */
 public class OpenCvActivityHelper {
+
+    static{
+        OpenCVLoader.initDebug();
+    }
+
     private static final Object NOTIFIER_SINGLETON = new Object();
     private FrameLayout layout;
     protected FaceView faceView;
     private Preview mPreview;
-    private FtcRobotControllerActivity cx;
+    private Activity cx;
     CopyOnWriteArraySet<MatCallback> callbacks = new CopyOnWriteArraySet<MatCallback>();
 
     static volatile boolean running;
     private static int degrees;
+    private FrameLayout previewLayout;
 
     public synchronized void addCallback(MatCallback cb) {
         callbacks.add(cb);
@@ -90,8 +100,9 @@ public class OpenCvActivityHelper {
 
     }
 
-    public OpenCvActivityHelper(FtcRobotControllerActivity cx) {
+    public OpenCvActivityHelper(Activity cx, FrameLayout previewLayout) {
         this.cx = cx;
+        this.previewLayout = previewLayout;
     }
 
     public synchronized void attach() {
@@ -105,7 +116,8 @@ public class OpenCvActivityHelper {
             layout.addView(mPreview);
 
             layout.addView(faceView);
-            ((FrameLayout) cx.findViewById(R.id.previewLayout)).addView(layout);
+
+            previewLayout.addView(layout);
         } catch (IOException e) {
             e.printStackTrace();
             new AlertDialog.Builder(cx).setMessage(e.getMessage()).create().show();
@@ -120,9 +132,9 @@ public class OpenCvActivityHelper {
     // ----------------------------------------------------------------------
 
     class FaceView extends View implements Camera.PreviewCallback {
-        private opencv_core.Mat yuvImage = new opencv_core.Mat();
+        private Mat yuvImage = new Mat();
         private Mat rgbImage = new Mat();
-        private opencv_core.CvMemStorage storage;
+
         private volatile boolean needAnotherFrame = true;
         Camera.Size size;
 
@@ -146,7 +158,7 @@ public class OpenCvActivityHelper {
             super(context);
 
 
-            storage = opencv_core.CvMemStorage.create();
+            //storage = opencv_core.CvMemStorage.create();
         }
 
         public void onPreviewFrame(final byte[] data, final Camera camera) {
@@ -177,41 +189,38 @@ public class OpenCvActivityHelper {
         private byte[] arrData, arrPending;
         volatile boolean run = true;
         Thread imgProcessor;
-
+        double[] temp = new double[3];
         protected void processImage(byte[] data, int width, int height) {
             Log.i("KPP", ("data = [" + data + "], width = [" + width + "], height = [" + height + "]"));
             Log.i("KP", "Entering process");
             // First, downsample our image and convert it into a grayscale IplImage
             int bytesPerPixel = data.length / (width * height);
             //1620 for YUV NV21
-            if (yuvImage == null || yuvImage.arrayWidth() != width || yuvImage.arrayHeight() != height + (height / 2)) {
+            if (yuvImage == null || yuvImage.width() != width || yuvImage.height() != height + (height / 2)) {
                 Log.i("PREPROC", "Remaking yuv");
-                yuvImage.create(height + (height / 2), width, CV_8UC1);
+                yuvImage.create(height + (height / 2), width, CvType.CV_8UC1);
             }
-            if (rgbImage == null || rgbImage.arrayWidth() != width || rgbImage.arrayHeight() != height) {
-                Log.i("PREPROC", "Remaking rgbImage: Currently " + rgbImage.arrayWidth() + "*" + rgbImage.arrayHeight());
-                rgbImage.create(height, width, CV_8UC1);
+            if (rgbImage == null || rgbImage.width() != width || rgbImage.height() != height) {
+                Log.i("PREPROC", "Remaking rgbImage: Currently " + rgbImage.width() + "*" + rgbImage.height());
+                rgbImage.create(height, width, CvType.CV_8UC3);
             }
 
 
             Log.i("OPENCV", "Processing " + Thread.currentThread().getName());
 
-            ByteBuffer imageBuffer = yuvImage.createBuffer();
-            for (int i = 0; i < data.length; i++) {
-                imageBuffer.put(i, data[i]);
 
-            }
-            opencv_imgproc.cvtColor(yuvImage, rgbImage, opencv_imgproc.COLOR_YUV2RGB_NV21);
+            yuvImage.put(0,0,data);
+            Imgproc.cvtColor(yuvImage, rgbImage, Imgproc.COLOR_YUV2RGB_NV21);
 
             //90 is already OK
             if (degrees == 0) {
-                transpose(rgbImage, rgbImage);
-                flip(rgbImage, rgbImage, 1);
+                Core.transpose(rgbImage, rgbImage);
+                Core.flip(rgbImage, rgbImage, 1);
             } else if (degrees == 270) {
-                flip(rgbImage, rgbImage, -1);
+                Core.flip(rgbImage, rgbImage, -1);
             } else if (degrees == 180) {
-                transpose(rgbImage, rgbImage);
-                flip(rgbImage, rgbImage, 0);
+                Core.transpose(rgbImage, rgbImage);
+                Core.flip(rgbImage, rgbImage, 0);
             }
             for (MatCallback cb : OpenCvActivityHelper.this.callbacks) {
                 cb.handleMat(rgbImage);
@@ -221,7 +230,7 @@ public class OpenCvActivityHelper {
             }  else if (degrees == 180) {
                 transpose(rgbImage, rgbImage);
             }
-            cvClearMemStorage(storage);
+            //cvClearMemStorage(storage);
             postInvalidate();
             startNotifier.offer(NOTIFIER_SINGLETON);
         }
@@ -383,7 +392,7 @@ public class OpenCvActivityHelper {
         cx.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((FrameLayout) cx.findViewById(R.id.previewLayout)).removeView(layout);
+                previewLayout.removeView(layout);
             }
         });
     }

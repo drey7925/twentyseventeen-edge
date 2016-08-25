@@ -7,8 +7,7 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.widget.TextView;
 import ftc.team6460.javadeck.ftc.vision.MatCallback;
-import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
-import org.bytedeco.javacpp.opencv_core;
+import org.opencv.core.Mat;
 
 /**
  * Created by hexafraction on 9/30/15.
@@ -17,7 +16,8 @@ public class MatColorSpreadCallback implements MatCallback {
     private Activity cx;
     private TextView tv;
     private volatile String overText = "";
-
+    long lastTs;
+    long lastTime;
     public void setOverText(String overText) {
         this.overText = overText;
     }
@@ -35,12 +35,13 @@ public class MatColorSpreadCallback implements MatCallback {
 
 
     @Override
-    public void handleMat(opencv_core.Mat mat) { //called on every frame
-        UByteBufferIndexer bi = mat.createIndexer(); // JNI call to get access to the image pixels
+    public void handleMat(Mat mat) { //called on every frame
+
         int row = mat.rows() / 2; // find middle row
         int cols = mat.cols();
         double xT = 0, yT = 0;
         float[] hsv = new float[3];
+        byte[] rgb = new byte[3];
         int mTotal = 0;
 
         // center oriented weight
@@ -57,7 +58,8 @@ public class MatColorSpreadCallback implements MatCallback {
         for (int i = 0; i < cols / 2; i += 8) { // for each pixel in left: Add unitized vector to vecsum
             int mul = Math.min(i, (cols / 2 - i) * 3);
             //convert RGB to HSV
-            Color.RGBToHSV(bi.get(row, i, 0), bi.get(row, i, 1), bi.get(row, i, 2), hsv);
+            mat.get(row, i, rgb);
+            Color.RGBToHSV(rgb[0] & 0xFF, rgb[1] & 0xFF, rgb[2] & 0xFF, hsv);
             if (hsv[2] > 0.1 && hsv[1] > 0.3) {
                 xT += Math.cos(Math.toRadians(hsv[0])) * mul;
                 yT += Math.sin(Math.toRadians(hsv[0])) * mul;
@@ -79,7 +81,8 @@ public class MatColorSpreadCallback implements MatCallback {
         mTotal = 0;
         for (int i = cols / 2; i < cols; i += 8) { // for each pixel in right: Add unitized vector to vecsum
             int mul = Math.min((i - cols / 2) * 3, cols - i);
-            Color.RGBToHSV(bi.get(row, i, 0), bi.get(row, i, 1), bi.get(row, i, 2), hsv);
+            mat.get(row, i, rgb);
+            Color.RGBToHSV(rgb[0] & 0xFF, rgb[1] & 0xFF, rgb[2] & 0xFF, hsv);
             if (hsv[2] > 0.1 && hsv[1] > 0.3) {
                 xT += Math.cos(Math.toRadians(hsv[0])) * mul;
                 yT += Math.sin(Math.toRadians(hsv[0])) * mul;
@@ -102,6 +105,9 @@ public class MatColorSpreadCallback implements MatCallback {
             }
         });
         Log.i("STATE", state);
+        lastTime = System.currentTimeMillis() - lastTs;
+        Log.d("PERF", "Last frame millis: " + lastTime);
+        lastTs = System.currentTimeMillis();
     }
 
     @Override
@@ -141,5 +147,6 @@ public class MatColorSpreadCallback implements MatCallback {
 
         canvas.drawLine(0, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight()/2, p);
         canvas.drawText(overText, 0, canvas.getHeight()/3, p);
+        //canvas.drawText(Long.toString(lastTime), canvas.getWidth()/2, canvas.getHeight()/3, p);
     }
 }

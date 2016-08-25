@@ -35,10 +35,11 @@ dependencies {
     compile (name:'WirelessP2p-release', ext:'aar')
     compile project(':SwerveRoboticsLibrary')
     compile(name: 'commons-codec-1.10', ext: 'jar')
-    compile 'org.bytedeco:javacpp-presets:0.11'
-    compile 'org.bytedeco:javacpp:0.11'
-    compile 'org.bytedeco:javacv:0.11'
+    //compile 'org.bytedeco:javacpp-presets:0.11'
+    //compile 'org.bytedeco:javacpp:0.11'
+    //compile 'org.bytedeco:javacv:0.11'
     compile files('libs/android-support-v4.jar')
+    compile files('libs/opencv-310.jar')
 }
 buildscript {
     dependencies {

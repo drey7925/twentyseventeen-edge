@@ -12,7 +12,7 @@ import ftc.team6460.javadeck.ftc.Utils;
 import org.swerverobotics.library.SynchronousOpMode;
 
 /**
- * Created by akh06977 on 9/18/2015.
+ *
  */
 
 public class RectResqFallbackTeleop extends SynchronousOpMode {
@@ -39,7 +39,7 @@ public class RectResqFallbackTeleop extends SynchronousOpMode {
         r1.setDirection(DcMotor.Direction.REVERSE);
         l0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         l1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        r0.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        r0.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         r1.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         w.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         try {
