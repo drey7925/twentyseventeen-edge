@@ -33,10 +33,14 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:ems="10"
-                    android:id="@+id/param1" android:layout_weight="1" android:text="200" android:hint="param1"/>
+                    android:id="@+id/param1" android:layout_weight="1" android:text="200" android:hint="param1"
+                    android:editable="true"/>
             <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:inputType="number" android:ems="10" android:id="@+id/param2" android:layout_weight="1"
-                      android:text="100" android:hint="param2"/>
+                      android:text="100" android:hint="param2" android:editable="true"/>
+            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:inputType="number" android:ems="10" android:id="@+id/param3" android:layout_weight="1"
+                      android:text="3001" android:hint="minHessian" android:editable="true"/>
         </LinearLayout>
         <FrameLayout
                 android:layout_width="match_parent"

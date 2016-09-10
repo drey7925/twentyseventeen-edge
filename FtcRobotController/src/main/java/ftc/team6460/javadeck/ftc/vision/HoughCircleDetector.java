@@ -22,6 +22,9 @@ public class HoughCircleDetector implements MatCallback {
 
     @Override
     public synchronized void handleMat(Mat mat) {
+        if(param1==0 || param2==0){
+            return;
+        }
         if(gray==null) gray = new Mat();
         if(circles==null) circles = new Mat();
         Imgproc.cvtColor(mat, gray, Imgproc.COLOR_RGB2GRAY);
@@ -36,6 +39,9 @@ float[] temp = new float[3];
 
     @Override
     public synchronized void draw(Canvas canvas) {
+        if(param1==0 || param2==0){
+            return;
+        }
         if(circles==null) return;
 
         float scaleX = canvas.getWidth()/(float)gray.width();
