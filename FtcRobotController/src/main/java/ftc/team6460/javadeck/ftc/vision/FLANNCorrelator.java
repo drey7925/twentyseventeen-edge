@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FLANNCorrelator implements MatCallback {
-    public static final int SCALEDOWN_FACTOR = 8;
+    public static final int SCALEDOWN_FACTOR = 6;
     private final DescriptorMatcher dm;
     private FeatureDetector fd;
     private final MatOfKeyPoint targetKeypoints;
@@ -162,10 +162,10 @@ public class FLANNCorrelator implements MatCallback {
                         if (points[i].y > b) b = points[i].y;
                     }
                     renderMat.fromArray(points);
-                    l-=10;
+                    /*l-=10;
                     r+=10;
                     t-=10;
-                    b+=10;
+                    b+=10;*/
                     if(l<0) l = 0;
                     if(r>w) r = w;
                     if(t<0) t = 0;
@@ -197,6 +197,7 @@ public class FLANNCorrelator implements MatCallback {
             }
         } catch (Exception e) {
             Log.wtf("FLANN EXCEPTION", e);
+            lastGood = false;
             result = null;
         }
     }

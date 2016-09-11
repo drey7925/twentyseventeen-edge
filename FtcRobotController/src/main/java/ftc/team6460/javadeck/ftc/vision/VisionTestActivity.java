@@ -23,7 +23,7 @@ public class VisionTestActivity extends Activity {
         // see KPDetector for description of this numerical parameter
         //ocvh.addCallback(new KPDetector(2001));
         try {
-            ocvh.addCallback(new FLANNCorrelator(AndroidOpenCvUtil.readGrayscale(getResources(), R.drawable.tools)));
+            ocvh.addCallback(new FLANNCorrelator(AndroidOpenCvUtil.readGrayscale(getResources(), R.drawable.legos)));
         } catch (IOException e) {
             Log.wtf("EXCEPTION", e);
         }

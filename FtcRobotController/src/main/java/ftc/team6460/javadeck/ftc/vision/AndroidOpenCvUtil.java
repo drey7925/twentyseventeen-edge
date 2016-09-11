@@ -16,8 +16,8 @@ public class AndroidOpenCvUtil {
         byte[] temporaryImageInMemory = readStream(inputStream);
 
         // Decode into mat. Use any IMREAD_ option that describes your image appropriately
-        return Imgcodecs.imread("/sdcard/tools.jpg", Imgcodecs.IMREAD_GRAYSCALE);
-        //return Imgcodecs.imdecode(new MatOfByte(temporaryImageInMemory), Imgcodecs.IMREAD_GRAYSCALE);
+        //return Imgcodecs.imread("/sdcard/tools.jpg", Imgcodecs.IMREAD_GRAYSCALE);
+        return Imgcodecs.imdecode(new MatOfByte(temporaryImageInMemory), Imgcodecs.IMREAD_GRAYSCALE);
     }
 
     private static byte[] readStream(InputStream stream) throws IOException {
