@@ -2,12 +2,14 @@ package ftc.team6460.javadeck.ftc.vision;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.qualcomm.ftcrobotcontroller.R;
 import resq.MatColorSpreadCallback;
+
+import java.io.IOException;
 
 public class VisionTestActivity extends Activity {
     OpenCvActivityHelper ocvh;
@@ -19,7 +21,12 @@ public class VisionTestActivity extends Activity {
        // ocvh.addCallback(new HoughCircleDetector(Integer.parseInt(((EditText) findViewById(R.id.param1)).getText().toString()),
          //       Integer.parseInt(((EditText) findViewById(R.id.param2)).getText().toString())));
         // see KPDetector for description of this numerical parameter
-        ocvh.addCallback(new KPDetector(2001));
+        //ocvh.addCallback(new KPDetector(2001));
+        try {
+            ocvh.addCallback(new FLANNCorrelator(AndroidOpenCvUtil.readGrayscale(getResources(), R.drawable.tools)));
+        } catch (IOException e) {
+            Log.wtf("EXCEPTION", e);
+        }
         ocvh.addCallback(new MatColorSpreadCallback(this, null));
         ((Button) findViewById(R.id.btnStart)).setOnClickListener(new View.OnClickListener() {
             @Override
