@@ -27,7 +27,7 @@ public class VisionTestActivity extends Activity {
         } catch (IOException e) {
             Log.wtf("EXCEPTION", e);
         }
-        ocvh.addCallback(new MatColorSpreadCallback(this, null));
+        //ocvh.addCallback(new MatColorSpreadCallback(this, null));
         ((Button) findViewById(R.id.btnStart)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

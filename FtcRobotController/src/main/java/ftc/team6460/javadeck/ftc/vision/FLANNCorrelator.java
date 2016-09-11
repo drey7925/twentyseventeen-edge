@@ -34,6 +34,7 @@ public class FLANNCorrelator implements MatCallback {
     private Mat result;
     private int h;
     private int w;
+    private boolean lastGood;
 
     /*private static final int
             OPPONENTEXTRACTOR = 1000;
@@ -56,8 +57,15 @@ public class FLANNCorrelator implements MatCallback {
             OPPONENT_AKAZE = OPPONENTEXTRACTOR + AKAZE;*/
 
     public FLANNCorrelator(Mat target) {
+        rectMat = new MatOfPoint2f();
+
+        renderMat = new MatOfPoint2f();
         this.target = target;
         Imgproc.resize(this.target, this.target, new Size(target.width() / 2, target.height() / 2));
+        rectMat.fromArray(new Point(0, 0),
+                new Point(target.width(), 0),
+                new Point(target.width(), target.height()),
+                new Point(0, target.height()));
         // black magic; change if needed
         fd = FeatureDetector.create(FeatureDetector.SURF);
         de = DescriptorExtractor.create(DescriptorExtractor.SURF);
@@ -83,21 +91,28 @@ public class FLANNCorrelator implements MatCallback {
 
     @Override
     public synchronized void handleMat(Mat mat) {
-        
-        try {
-            w = mat.width();
-            h = mat.height();
 
+        try {
 
             MatOfPoint2f tgtGood = new MatOfPoint2f();
             MatOfPoint2f camGood = new MatOfPoint2f();
             Imgproc.resize(mat, mat, new Size(mat.width() / SCALEDOWN_FACTOR, mat.height() / SCALEDOWN_FACTOR));
+            w = mat.width();
+            h = mat.height();
             Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
+            double l = mat.width(), r = 0, t = mat.height(), b = 0;
+            if(roiLostLock>4 || (roiR-roiL<40) || (roiB-roiT<40)){
+                roiL = 0;
+                roiR = w;
+                roiT = 0;
+                roiB = h;
+            }
+            mat = mat.submat(roiT, roiB, roiL, roiR);
             fd.detect(mat, camKeypoints);
             de.compute(mat, camKeypoints, camDescriptors);
             camCardinality = camDescriptors.rows();
-            targetDescriptors.convertTo(targetDescriptors, CvType.CV_32F);
-            camDescriptors.convertTo(camDescriptors, CvType.CV_32F);
+            //targetDescriptors.convertTo(targetDescriptors, CvType.CV_32F);
+            //camDescriptors.convertTo(camDescriptors, CvType.CV_32F);
             if (camDescriptors.rows() == 0) {
                 result = null;
                 return;
@@ -129,17 +144,68 @@ public class FLANNCorrelator implements MatCallback {
             Log.d("FLANN:RPT", tgtGood.rows() + "," + camGood.rows());
             if (tgtGood.rows() > 9 && camGood.rows() > 9) {
                 result = Calib3d.findHomography(tgtGood, camGood, Calib3d.RANSAC, 3);
-                Log.d("FLANN:RSLT", result.dump());
+
+                if (result.rows() > 0) {
+                    Core.perspectiveTransform(rectMat, renderMat, result);
+
+                    lastGood = true;
+                    Log.d("FLANN:RSLT", result.dump());
+                    roiLostLock = 0;
+                    Point[] points = renderMat.toArray();
+
+                    for (int i = 0; i < points.length; i++) {
+                        points[i].x += roiL;
+                        points[i].y += roiT;
+                        if (points[i].x < l) l = points[i].x;
+                        if (points[i].x > r) r = points[i].x;
+                        if (points[i].y < t) t = points[i].y;
+                        if (points[i].y > b) b = points[i].y;
+                    }
+                    renderMat.fromArray(points);
+                    l-=10;
+                    r+=10;
+                    t-=10;
+                    b+=10;
+                    if(l<0) l = 0;
+                    if(r>w) r = w;
+                    if(t<0) t = 0;
+                    if(b>h) b = h;
+                    oroiL = roiL;
+                    oroiR = roiR;
+                    oroiT = roiT;
+                    oroiB = roiB;
+                    roiL = (int) l;
+                    roiR = (int) r;
+                    roiT = (int) t;
+                    roiB = (int) b;
+                    if((roiR-roiL<40) || (roiB-roiT<40)){
+                        roiL = 0;
+                        roiR = w;
+                        roiT = 0;
+                        roiB = h;
+                    }
+
+                } else {
+                    result = null;
+                    lastGood = false;
+                    roiLostLock++;
+                }
             } else {
                 result = null;
+                lastGood = false;
+                roiLostLock++;
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             Log.wtf("FLANN EXCEPTION", e);
             result = null;
         }
     }
 
-    MatOfPoint2f rectMat = new MatOfPoint2f();
+    MatOfPoint2f rectMat;
+    MatOfPoint2f renderMat;
+    int roiL, roiR, roiT, roiB;
+    int oroiL, oroiR, oroiT, oroiB;
+    int roiLostLock;
 
     @Override
     public synchronized void draw(Canvas canvas) {
@@ -149,26 +215,34 @@ public class FLANNCorrelator implements MatCallback {
         p.setColor(Color.RED);
         if (camGoodPoints == null) return;
         for (Point pt : camGoodPoints) {
-            canvas.drawCircle((float) pt.x * scaleX * SCALEDOWN_FACTOR, (float) pt.y * scaleY * SCALEDOWN_FACTOR, 4, p);
+            canvas.drawCircle((float) (pt.x+oroiL) * scaleX, (float) (pt.y+oroiT) * scaleY, 4, p);
         }
         p.setColor(Color.GREEN);
-        if (result != null && result.rows() > 0) {
-            rectMat.fromArray(new Point(0, 0),
-                    new Point(target.width(), 0),
-                    new Point(target.width(), target.height()),
-                    new Point(0, target.height()));
-            Core.perspectiveTransform(rectMat, rectMat, result);
-            Point[] points = rectMat.toArray();
-            assert (points.length == 4);
-            canvas.drawLine((float) points[0].x * SCALEDOWN_FACTOR * scaleX, (float) points[0].y * SCALEDOWN_FACTOR * scaleY, (float) points[1].x * SCALEDOWN_FACTOR * scaleX, (float) points[1].y * SCALEDOWN_FACTOR * scaleY, p);
-            canvas.drawLine((float) points[1].x * SCALEDOWN_FACTOR * scaleX, (float) points[1].y * SCALEDOWN_FACTOR * scaleY, (float) points[2].x * SCALEDOWN_FACTOR * scaleX, (float) points[2].y * SCALEDOWN_FACTOR * scaleY, p);
-            canvas.drawLine((float) points[2].x * SCALEDOWN_FACTOR * scaleX, (float) points[2].y * SCALEDOWN_FACTOR * scaleY, (float) points[3].x * SCALEDOWN_FACTOR * scaleX, (float) points[3].y * SCALEDOWN_FACTOR * scaleY, p);
-            canvas.drawLine((float) points[3].x * SCALEDOWN_FACTOR * scaleX, (float) points[3].y * SCALEDOWN_FACTOR * scaleY, (float) points[0].x * SCALEDOWN_FACTOR * scaleX, (float) points[0].y * SCALEDOWN_FACTOR * scaleY, p);
-            canvas.drawLine((float) points[0].x * SCALEDOWN_FACTOR * scaleX, (float) points[0].y * SCALEDOWN_FACTOR * scaleY, (float) points[2].x * SCALEDOWN_FACTOR * scaleX, (float) points[2].y * SCALEDOWN_FACTOR * scaleY, p);
-            canvas.drawLine((float) points[1].x * SCALEDOWN_FACTOR * scaleX, (float) points[1].y * SCALEDOWN_FACTOR * scaleY, (float) points[3].x * SCALEDOWN_FACTOR * scaleX, (float) points[3].y * SCALEDOWN_FACTOR * scaleY, p);
-        }
+        if (lastGood) {
 
-        canvas.drawText(String.format("tgt: %d \ncam: %d\ngood: %d", tgtCardinality, camCardinality, goodCardinality), 0, canvas.getHeight()-256, p);
+            Point[] points = renderMat.toArray();
+            assert (points.length == 4);
+            canvas.drawLine((float) points[0].x * scaleX, (float) points[0].y * scaleY, (float) points[1].x * scaleX, (float) points[1].y * scaleY, p);
+            canvas.drawLine((float) points[1].x * scaleX, (float) points[1].y * scaleY, (float) points[2].x * scaleX, (float) points[2].y * scaleY, p);
+            canvas.drawLine((float) points[2].x * scaleX, (float) points[2].y * scaleY, (float) points[3].x * scaleX, (float) points[3].y * scaleY, p);
+            canvas.drawLine((float) points[3].x * scaleX, (float) points[3].y * scaleY, (float) points[0].x * scaleX, (float) points[0].y * scaleY, p);
+            canvas.drawLine((float) points[0].x * scaleX, (float) points[0].y * scaleY, (float) points[2].x * scaleX, (float) points[2].y * scaleY, p);
+            canvas.drawLine((float) points[1].x * scaleX, (float) points[1].y * scaleY, (float) points[3].x * scaleX, (float) points[3].y * scaleY, p);
+        }
+        p.setColor(Color.BLUE);
+        canvas.drawLine(oroiL * scaleX, oroiT * scaleY, oroiR * scaleX, oroiT * scaleY, p);
+        canvas.drawLine(oroiR * scaleX, oroiT * scaleY, oroiR * scaleX, oroiB * scaleY, p);
+        canvas.drawLine(oroiL * scaleX, oroiB * scaleY, oroiR * scaleX, oroiB * scaleY, p);
+        canvas.drawLine(oroiL * scaleX, oroiT * scaleY, oroiL * scaleX, oroiB * scaleY, p);
+        p.setColor(Color.YELLOW);
+        canvas.drawLine(roiL * scaleX, roiT * scaleY, roiR * scaleX, roiT * scaleY, p);
+        canvas.drawLine(roiR * scaleX, roiT * scaleY, roiR * scaleX, roiB * scaleY, p);
+        canvas.drawLine(roiL * scaleX, roiB * scaleY, roiR * scaleX, roiB * scaleY, p);
+        canvas.drawLine(roiL * scaleX, roiT * scaleY, roiL * scaleX, roiB * scaleY, p);
+        canvas.drawText(String.format("ROI: %d %d %d %d", roiL, roiR, roiT, roiB), 0, canvas.getHeight() - 192, p);
+        p.setColor(Color.RED);
+        canvas.drawText(String.format("tgt: %d \ncam: %d\ngood: %d \nmatches: %d \nminDist: %f \nmaxDist: %f", tgtCardinality, camCardinality, goodCardinality, matches.rows(), minDist, maxDist), 0, canvas.getHeight() - 256, p);
     }
 }
+
 
