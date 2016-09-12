@@ -35,7 +35,43 @@ public class FLANNCorrelator implements MatCallback {
     private int h;
     private int w;
     private boolean lastGood;
+    private volatile boolean isActive = true;
 
+    public synchronized void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public synchronized void clearTrack(){
+        roiLostLock = 999;
+        roiL = 0;
+        roiR = w;
+        roiT = 0;
+        roiB = h;
+    }
+
+    public synchronized Mat getTransformMatrix(){
+        return result;
+    }
+
+    public int getCamCardinality() {
+        return camCardinality;
+    }
+
+    public int getGoodCardinality() {
+        return goodCardinality;
+    }
+
+    public int getTgtCardinality() {
+        return tgtCardinality;
+    }
+
+    public MatOfPoint2f getRenderMat() {
+        return renderMat;
+    }
+
+    public boolean isLastGood() {
+        return lastGood;
+    }
     /*private static final int
             OPPONENTEXTRACTOR = 1000;
 
@@ -91,7 +127,15 @@ public class FLANNCorrelator implements MatCallback {
 
     @Override
     public synchronized void handleMat(Mat mat) {
-
+        if(!isActive) {
+            roiL = 0;
+            roiR = w;
+            roiT = 0;
+            roiB = h;
+            // good practice
+            Thread.yield();
+            return;
+        }
         try {
 
             MatOfPoint2f tgtGood = new MatOfPoint2f();
@@ -108,6 +152,10 @@ public class FLANNCorrelator implements MatCallback {
                 roiB = h;
             }
             mat = mat.submat(roiT, roiB, roiL, roiR);
+            oroiL = roiL;
+            oroiR = roiR;
+            oroiT = roiT;
+            oroiB = roiB;
             fd.detect(mat, camKeypoints);
             de.compute(mat, camKeypoints, camDescriptors);
             camCardinality = camDescriptors.rows();
@@ -170,10 +218,7 @@ public class FLANNCorrelator implements MatCallback {
                     if(r>w) r = w;
                     if(t<0) t = 0;
                     if(b>h) b = h;
-                    oroiL = roiL;
-                    oroiR = roiR;
-                    oroiT = roiT;
-                    oroiB = roiB;
+
                     roiL = (int) l;
                     roiR = (int) r;
                     roiT = (int) t;
@@ -198,8 +243,11 @@ public class FLANNCorrelator implements MatCallback {
         } catch (Exception e) {
             Log.wtf("FLANN EXCEPTION", e);
             lastGood = false;
+
+            roiLostLock++;
             result = null;
         }
+        Thread.yield();
     }
 
     MatOfPoint2f rectMat;
@@ -210,6 +258,7 @@ public class FLANNCorrelator implements MatCallback {
 
     @Override
     public synchronized void draw(Canvas canvas) {
+        if(!isActive) return;
         float scaleX = canvas.getWidth() / (float) w;
         float scaleY = canvas.getHeight() / (float) h;
         Paint p = new Paint();

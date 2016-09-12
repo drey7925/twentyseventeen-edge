@@ -6,15 +6,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
-import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
-import com.qualcomm.ftcrobotcontroller.R;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -22,12 +19,10 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.SynchronousQueue;
 
-import static org.opencv.core.Core.flip;
 import static org.opencv.core.Core.transpose;
 
 /**
@@ -37,6 +32,19 @@ public class OpenCvActivityHelper {
 
     static{
         OpenCVLoader.initDebug();
+    }
+    private volatile boolean flashState = false;
+
+    public boolean isFlashState() {
+        return flashState;
+    }
+
+    public void flashOn(){flashState = true;}
+
+    public void flashOff(){flashState = false;}
+
+    public void setFlashState(boolean flashState) {
+        this.flashState = flashState;
     }
 
     private static final Object NOTIFIER_SINGLETON = new Object();
@@ -127,6 +135,10 @@ public class OpenCvActivityHelper {
     public void awaitStart() throws InterruptedException {
         startNotifier.take();
     }
+    private volatile boolean pendingFocus = true;
+    public void focus() {
+        pendingFocus = true;
+    }
 
 
     // ----------------------------------------------------------------------
@@ -161,8 +173,15 @@ public class OpenCvActivityHelper {
             //storage = opencv_core.CvMemStorage.create();
         }
 
-        public void onPreviewFrame(final byte[] data, final Camera camera) {
+        public boolean isLastFocusSuccessful() {
+            return lastFocusSuccessful;
+        }
 
+        private volatile boolean lastFocusSuccessful = false;
+        public void onPreviewFrame(final byte[] data, final Camera camera) {
+            Camera.Parameters p = camera.getParameters();
+            p.setFlashMode(flashState?Camera.Parameters.FLASH_MODE_TORCH:Camera.Parameters.FLASH_MODE_OFF);
+            camera.setParameters(p);
 
             try
 
@@ -182,6 +201,15 @@ public class OpenCvActivityHelper {
                 for (StackTraceElement el : e.getStackTrace()) {
                     Log.e("KP:ST", el.toString());
                 }
+            }
+            if(pendingFocus){
+                pendingFocus = false;
+                camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean b, Camera camera) {
+                        lastFocusSuccessful = b;
+                    }
+                });
             }
 
         }
@@ -397,4 +425,5 @@ public class OpenCvActivityHelper {
         });
     }
 }
+
 

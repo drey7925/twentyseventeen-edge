@@ -40,6 +40,25 @@ public class VisionTestActivity extends Activity {
                 ocvh.stop();
             }
         });
+        ((Button) findViewById(R.id.btnFlashOff)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ocvh.flashOff();
+            }
+        });
+        ((Button) findViewById(R.id.btnFlashOn)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ocvh.flashOn();
+            }
+        });
+        ((Button) findViewById(R.id.btnFocus)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ocvh.focus();
+            }
+        });
     }
 
 }
+
