@@ -13,8 +13,10 @@ import org.swerverobotics.library.interfaces.*;
 public class MyFirstOpMode extends SynchronousOpMode
     {
     /* Declare here any fields you might find useful. */
-    // DcMotor motorLeft = null;
-    // DcMotor motorRight = null;
+        DcMotor motorLeftFront = null;
+        DcMotor motorLeftBack = null;
+        DcMotor motorRightFront = null;
+        DcMotor motorRightBack = null;
 
     @Override public void main() throws InterruptedException
         {
@@ -22,8 +24,11 @@ public class MyFirstOpMode extends SynchronousOpMode
          * to 'get' must correspond to the names you assigned during the robot configuration
          * step you did in the FTC Robot Controller app on the phone.
          */
-        // this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        // this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+            this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
+            this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
+            this.motorRightBack = this.hardwareMap.dcMotor.get("motorLeftBack");
+            this.motorRightFront = this.hardwareMap.dcMotor.get("motorLeftFront");
+
 
         // Wait for the game to start
         waitForStart();
@@ -33,7 +38,10 @@ public class MyFirstOpMode extends SynchronousOpMode
             {
             if (updateGamepads())
                 {
-                // The game pad state has changed. Do something with that!
+                    this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
+                    this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
+                    this.motorRightBack.setPower(this.gamepad1.right_stick_y);
+                    this.motorRightFront.setPower(this.gamepad1.right_stick_y);
                 }
 
             telemetry.update();
