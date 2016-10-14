@@ -42,10 +42,11 @@ public class MyFirstOpMode extends SynchronousOpMode
                     this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
                     this.motorRightBack.setPower(this.gamepad1.right_stick_y);
                     this.motorRightFront.setPower(this.gamepad1.right_stick_y);
+                            
                 }
 
-            telemetry.update();
-            idle();
+                boolean update = telemetry.update();
+                idle();
             }
         }
     }
