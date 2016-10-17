@@ -17,6 +17,7 @@ public class MyFirstOpMode extends SynchronousOpMode
         DcMotor motorLeftBack = null;
         DcMotor motorRightFront = null;
         DcMotor motorRightBack = null;
+        DcMotor ballPicker = null;
 
     @Override public void main() throws InterruptedException
         {
@@ -26,27 +27,24 @@ public class MyFirstOpMode extends SynchronousOpMode
          */
             this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
             this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
-            this.motorRightBack = this.hardwareMap.dcMotor.get("motorLeftBack");
-            this.motorRightFront = this.hardwareMap.dcMotor.get("motorLeftFront");
+            this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
+            this.motorRightFront = this.hardwareMap.dcMotor.get("motorRightFront");
+            this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
 
 
         // Wait for the game to start
         waitForStart();
 
         // Go go gadget robot!
-        while (opModeIsActive())
-            {
-            if (updateGamepads())
-                {
-                    this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
-                    this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
-                    this.motorRightBack.setPower(this.gamepad1.right_stick_y);
-                    this.motorRightFront.setPower(this.gamepad1.right_stick_y);
-                            
-                }
-
-                boolean update = telemetry.update();
-                idle();
-            }
+        while (opModeIsActive()) {
+            updateGamepads();
+            this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
+            this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
+            this.motorRightBack.setPower(this.gamepad1.right_stick_y);
+            this.motorRightFront.setPower(this.gamepad1.right_stick_y);
+            this.ballPicker.setPower(this.gamepad2.right_stick_y);
+            boolean update = telemetry.update();
+            idle();
         }
     }
+}
