@@ -50,18 +50,15 @@ public class MyFirstOpMode extends SynchronousOpMode {
 
         // Wait for the game to start
         waitForStart();
-        float startTime = System.currentTimeMillis();
         // Go go gadget robot!
         while (opModeIsActive()) {
+
             this.updateGamepads();
 
             this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
             this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
             this.motorRightBack.setPower(this.gamepad1.right_stick_y);
             this.motorRightFront.setPower(this.gamepad1.right_stick_y);
-            telemetry.addData("Bob: ", this.gamepad1.right_stick_y);
-            telemetry.addData("Joe: ", this.gamepad1.left_stick_y);
-
             boolean update = telemetry.update();
             this.idle();
         }
