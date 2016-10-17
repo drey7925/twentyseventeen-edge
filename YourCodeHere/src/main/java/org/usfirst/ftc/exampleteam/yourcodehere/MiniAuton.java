@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 import org.swerverobotics.library.interfaces.Autonomous;
-import resq.ResqAuton;
+import resq.ResqAuton.*;
 
 /**
  * Created by kam07440 on 10/7/2016.
@@ -19,8 +19,16 @@ public class MiniAuton extends SynchronousOpMode{
     DcMotor motorLeftBack = null;
     DcMotor motorRightFront = null;
     DcMotor motorRightBack = null;
+    DcMotor catapult = null;
+    DcMotor linearSlideOne = null;
+    DcMotor linearSlideTwo = null;
+    Servo buttonPusher = null;
+    Servo ballPicker = null;
 
     SharedPreferences sharedPref;
+    protected static Colors teamColor;
+    protected static Side startSide;
+
 
     double drivePower = 0.5;
 
@@ -28,11 +36,37 @@ public class MiniAuton extends SynchronousOpMode{
     {
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
+        teamColor = getTeam();
+        startSide = getSide();
 
         this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
         this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
         this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
         this.motorRightFront = this.hardwareMap.dcMotor.get("motorRightFront");
+        this.catapult = this.hardwareMap.dcMotor.get("catapult");
+        this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
+        this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
+        this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
+        this.ballPicker = this.hardwareMap.servo.get("ballPicker");
+
+        if (teamColor.equals(Colors.BLUE)){
+            if(startSide.equals(Side.MOUNTAIN)){  //mountain side, blue
+
+            }
+            else{                                   //midline side, blue
+
+            }
+        }
+        else if (teamColor.equals(Colors.RED)){
+            if(startSide.equals(Side.MOUNTAIN)){  //mountain side, red
+
+            }
+            else{                                   //midline side, red
+
+            }
+        }
+
+
     }
 
     void goStraight()
@@ -66,8 +100,13 @@ public class MiniAuton extends SynchronousOpMode{
         this.motorRightFront.setPower(0);
     }
 
-    public ResqAuton.Colors getTeam() {
-        return ResqAuton.Colors.valueOf(sharedPref.getString("auton_team_color", "BLUE"));
+    public Colors getTeam() {
+        return Colors.valueOf(sharedPref.getString("auton_team_color", "BLUE"));
+
+    }
+
+    public Side getSide(){
+        return Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN"));
 
     }
 }
