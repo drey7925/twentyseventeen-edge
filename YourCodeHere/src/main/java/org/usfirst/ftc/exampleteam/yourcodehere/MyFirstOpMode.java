@@ -17,7 +17,11 @@ public class MyFirstOpMode extends SynchronousOpMode
         DcMotor motorLeftBack = null;
         DcMotor motorRightFront = null;
         DcMotor motorRightBack = null;
-        DcMotor ballPicker = null;
+        DcMotor catapult = null;
+        DcMotor linearSlideOne = null;
+        DcMotor linearSlideTwo = null;
+        Servo buttonPusher = null;
+        Servo ballPicker = null;
 
     @Override public void main() throws InterruptedException
         {
@@ -29,7 +33,12 @@ public class MyFirstOpMode extends SynchronousOpMode
             this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
             this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
             this.motorRightFront = this.hardwareMap.dcMotor.get("motorRightFront");
-            this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
+            this.catapult = this.hardwareMap.dcMotor.get("catapult");
+            this.linearSlideOne = this.hardwareMap.dcMotor.get("linearSlideOne");
+            this.linearSlideTwo = this.hardwareMap.dcMotor.get("linearSlideTwo");
+            this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+            this.ballPicker = this.hardwareMap.servo.get("ballPicker");
+
 
 
         // Wait for the game to start
@@ -38,11 +47,13 @@ public class MyFirstOpMode extends SynchronousOpMode
         // Go go gadget robot!
         while (opModeIsActive()) {
             updateGamepads();
+
             this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
             this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
             this.motorRightBack.setPower(this.gamepad1.right_stick_y);
             this.motorRightFront.setPower(this.gamepad1.right_stick_y);
-            this.ballPicker.setPower(this.gamepad2.right_stick_y);
+
+           // this.catapult.setPower(this.gamepad2.)
             boolean update = telemetry.update();
             idle();
         }
