@@ -14,14 +14,14 @@ public class MyFirstOpMode extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
-
-    /*
     DcMotor catapult = null;
-        DcMotor linearSlideOne = null;
-        DcMotor linearSlideTwo = null;
-        Servo buttonPusher = null;
-        Servo ballPicker = null;
-        */
+    /*
+
+    DcMotor linearSlideOne = null;
+    DcMotor linearSlideTwo = null;
+    Servo buttonPusher = null;
+    Servo ballPicker = null;
+    */
 
     @Override
     public void main() throws InterruptedException {
@@ -31,8 +31,9 @@ public class MyFirstOpMode extends SynchronousOpMode {
          */
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.catapult = this.hardwareMap.dcMotor.get("catapult");
             /*
-            this.catapult = this.hardwareMap.dcMotor.get("catapult");
+
             this.linearSlideOne = this.hardwareMap.dcMotor.get("linearSlideOne");
             this.linearSlideTwo = this.hardwareMap.dcMotor.get("linearSlideTwo");
             this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
@@ -40,6 +41,7 @@ public class MyFirstOpMode extends SynchronousOpMode {
             */
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         float adjustedRightPower = this.gamepad1.right_stick_y;
         float adjustedLeftPower = this.gamepad1.left_stick_y;
@@ -51,27 +53,29 @@ public class MyFirstOpMode extends SynchronousOpMode {
         waitForStart();
         // Go go gadget robot!
         while (opModeIsActive()) {
-            this.idle();
-            boolean update = telemetry.update();
             this.updateGamepads();
 
             if (adjustedLeftPower > this.gamepad1.left_stick_y + 0.05) {
-                adjustedLeftPower = (adjustedLeftPower - (System.currentTimeMillis()-cycleStartTime)/1000*(float)decelerationTime)*(float)topSpeedRatio;
-            }
-            else if (adjustedLeftPower < this.gamepad1.left_stick_y - 0.05) {
-                adjustedLeftPower = (adjustedLeftPower + (System.currentTimeMillis()-cycleStartTime)/1000*(float)decelerationTime)*(float)topSpeedRatio;
+                adjustedLeftPower = (adjustedLeftPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            } else if (adjustedLeftPower < this.gamepad1.left_stick_y - 0.05) {
+                adjustedLeftPower = (adjustedLeftPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
             }
 
             if (adjustedRightPower > this.gamepad1.right_stick_y + 0.05) {
-                adjustedRightPower = (adjustedRightPower - (System.currentTimeMillis()-cycleStartTime)/1000*(float)decelerationTime)*(float)topSpeedRatio;
-            }
-            else if (adjustedRightPower < this.gamepad1.right_stick_y - 0.05) {
-                adjustedRightPower = (adjustedRightPower + (System.currentTimeMillis()-cycleStartTime)/1000*(float)decelerationTime)*(float)topSpeedRatio;
+                adjustedRightPower = (adjustedRightPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            } else if (adjustedRightPower < this.gamepad1.right_stick_y - 0.05) {
+                adjustedRightPower = (adjustedRightPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
             }
 
             this.motorLeft.setPower(adjustedLeftPower);
             this.motorRight.setPower(adjustedRightPower);
+            telemetry.addData("left speed: ", adjustedLeftPower);
+            telemetry.addData("right speed: ", adjustedRightPower);
+            this.catapult.setPower(this.gamepad1.right_trigger);
             cycleStartTime = System.currentTimeMillis();
+            boolean update = telemetry.update();
+            this.idle();
+
         }
     }
 }
