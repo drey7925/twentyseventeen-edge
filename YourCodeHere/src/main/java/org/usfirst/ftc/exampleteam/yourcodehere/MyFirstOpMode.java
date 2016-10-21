@@ -12,17 +12,16 @@ import org.swerverobotics.library.interfaces.*;
 @TeleOp(name = "My Very First OpMode")
 public class MyFirstOpMode extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
-    DcMotor motorLeftFront = null;
-    DcMotor motorLeftBack = null;
-    DcMotor motorRightFront = null;
-    DcMotor motorRightBack = null;
-    /*
+    DcMotor motorLeft = null;
+    DcMotor motorRight = null;
     DcMotor catapult = null;
-        DcMotor linearSlideOne = null;
-        DcMotor linearSlideTwo = null;
-        Servo buttonPusher = null;
-        Servo ballPicker = null;
-        */
+    /*
+
+    DcMotor linearSlideOne = null;
+    DcMotor linearSlideTwo = null;
+    Servo buttonPusher = null;
+    Servo ballPicker = null;
+    */
 
     @Override
     public void main() throws InterruptedException {
@@ -30,40 +29,53 @@ public class MyFirstOpMode extends SynchronousOpMode {
          * to 'get' must correspond to the names you assigned during the robot configuration
          * step you did in the FTC Robot Controller app on the phone.
          */
-        this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
-        this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
-        this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
-        this.motorRightFront = this.hardwareMap.dcMotor.get("motorRightFront");
+        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.catapult = this.hardwareMap.dcMotor.get("catapult");
             /*
-            this.catapult = this.hardwareMap.dcMotor.get("catapult");
+
             this.linearSlideOne = this.hardwareMap.dcMotor.get("linearSlideOne");
             this.linearSlideTwo = this.hardwareMap.dcMotor.get("linearSlideTwo");
             this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
             this.ballPicker = this.hardwareMap.servo.get("ballPicker");
             */
-        this.motorLeftBack.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRightBack.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorLeftFront.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRightFront.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
-        this.motorRightFront.setDirection(DcMotor.Direction.REVERSE);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
+        float adjustedRightPower = this.gamepad1.right_stick_y;
+        float adjustedLeftPower = this.gamepad1.left_stick_y;
+        long cycleStartTime = System.currentTimeMillis();
+        double decelerationTime = 0.25; //in seconds
+        double topSpeedRatio = 0.5;
 
         // Wait for the game to start
         waitForStart();
-        float startTime = System.currentTimeMillis();
         // Go go gadget robot!
         while (opModeIsActive()) {
             this.updateGamepads();
 
-            this.motorLeftBack.setPower(this.gamepad1.left_stick_y);
-            this.motorLeftFront.setPower(this.gamepad1.left_stick_y);
-            this.motorRightBack.setPower(this.gamepad1.right_stick_y);
-            this.motorRightFront.setPower(this.gamepad1.right_stick_y);
-            telemetry.addData("Bob: ", this.gamepad1.right_stick_y);
-            telemetry.addData("Joe: ", this.gamepad1.left_stick_y);
+            if (adjustedLeftPower > this.gamepad1.left_stick_y + 0.05) {
+                adjustedLeftPower = (adjustedLeftPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            } else if (adjustedLeftPower < this.gamepad1.left_stick_y - 0.05) {
+                adjustedLeftPower = (adjustedLeftPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            }
 
+            if (adjustedRightPower > this.gamepad1.right_stick_y + 0.05) {
+                adjustedRightPower = (adjustedRightPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            } else if (adjustedRightPower < this.gamepad1.right_stick_y - 0.05) {
+                adjustedRightPower = (adjustedRightPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+            }
+
+            this.motorLeft.setPower(adjustedLeftPower);
+            this.motorRight.setPower(adjustedRightPower);
+            telemetry.addData("left speed: ", adjustedLeftPower);
+            telemetry.addData("right speed: ", adjustedRightPower);
+            this.catapult.setPower(this.gamepad1.right_trigger);
+            cycleStartTime = System.currentTimeMillis();
             boolean update = telemetry.update();
             this.idle();
+
         }
     }
 }
