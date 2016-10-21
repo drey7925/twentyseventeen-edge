@@ -9,7 +9,7 @@ import org.swerverobotics.library.interfaces.*;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name = "My Very First OpMode")
+@TeleOp(name = "Velocity Vortex Official Tele-Op Mode")
 public class MyFirstOpMode extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     DcMotor motorLeft = null;
@@ -45,7 +45,7 @@ public class MyFirstOpMode extends SynchronousOpMode {
         this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         float adjustedRightPower = this.gamepad1.right_stick_y;
         float adjustedLeftPower = this.gamepad1.left_stick_y;
-        long cycleStartTime = System.currentTimeMillis();
+        long cycleStartTime = System.nanoTime();
         double decelerationTime = 0.25; //in seconds
         double topSpeedRatio = 0.5;
 
@@ -56,15 +56,15 @@ public class MyFirstOpMode extends SynchronousOpMode {
             this.updateGamepads();
 
             if (adjustedLeftPower > this.gamepad1.left_stick_y + 0.05) {
-                adjustedLeftPower = (adjustedLeftPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+                adjustedLeftPower = (adjustedLeftPower - (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
             } else if (adjustedLeftPower < this.gamepad1.left_stick_y - 0.05) {
-                adjustedLeftPower = (adjustedLeftPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+                adjustedLeftPower = (adjustedLeftPower + (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
             }
 
             if (adjustedRightPower > this.gamepad1.right_stick_y + 0.05) {
-                adjustedRightPower = (adjustedRightPower - (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+                adjustedRightPower = (adjustedRightPower - (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
             } else if (adjustedRightPower < this.gamepad1.right_stick_y - 0.05) {
-                adjustedRightPower = (adjustedRightPower + (System.currentTimeMillis() - cycleStartTime) / 1000 * (float) decelerationTime) * (float) topSpeedRatio;
+                adjustedRightPower = (adjustedRightPower + (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
             }
 
             this.motorLeft.setPower(adjustedLeftPower);
@@ -72,7 +72,7 @@ public class MyFirstOpMode extends SynchronousOpMode {
             telemetry.addData("left speed: ", adjustedLeftPower);
             telemetry.addData("right speed: ", adjustedRightPower);
             this.catapult.setPower(this.gamepad1.right_trigger);
-            cycleStartTime = System.currentTimeMillis();
+            cycleStartTime = System.nanoTime();
             boolean update = telemetry.update();
             this.idle();
 
