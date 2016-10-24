@@ -1,19 +1,17 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.*;
-import org.swerverobotics.library.*;
+import org.swerverobotics.library.*;  //imports important stuff
 import org.swerverobotics.library.interfaces.*;
 
 /**
- * A skeletal example of a do-nothing first OpMode. Go ahead and change this code
- * to suit your needs, or create sibling OpModes adjacent to this one in the same
- * Java package.
+ * Created by Gabriel Kammer on 10/17/16
  */
 @TeleOp(name = "Velocity Vortex Official Tele-Op Mode")
 public class MyFirstOpMode extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     DcMotor motorLeft = null;
-    DcMotor motorRight = null;
+    DcMotor motorRight = null; //declares motors
     DcMotor catapult = null;
     /*
 
@@ -30,7 +28,7 @@ public class MyFirstOpMode extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates motors
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
             /*
 
@@ -41,40 +39,30 @@ public class MyFirstOpMode extends SynchronousOpMode {
             */
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
-        float adjustedRightPower = this.gamepad1.right_stick_y;
-        float adjustedLeftPower = this.gamepad1.left_stick_y;
-        long cycleStartTime = System.nanoTime();
-        double decelerationTime = 0.25; //in seconds
-        double topSpeedRatio = 0.5;
+        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION); //sets the mode for each motor
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+        this.catapult.setDirection(DcMotor.Direction.REVERSE);
+        int initialCatapultPosition = catapult.getCurrentPosition();
 
+        double topSpeedRatio = 0.5; //sets the top speed
         // Wait for the game to start
         waitForStart();
-        // Go go gadget robot!
         while (opModeIsActive()) {
-            this.updateGamepads();
+            this.updateGamepads();  //updates game pads
+            this.motorLeft.setPower(this.gamepad1.left_stick_y); //sets power to motor left
+            this.motorRight.setPower(this.gamepad1.right_stick_y); //sets power to motor right
 
-            if (adjustedLeftPower > this.gamepad1.left_stick_y + 0.05) {
-                adjustedLeftPower = (adjustedLeftPower - (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
-            } else if (adjustedLeftPower < this.gamepad1.left_stick_y - 0.05) {
-                adjustedLeftPower = (adjustedLeftPower + (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
+            if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){ //starts the catapult cycle
+               // this.catapult.setTargetPosition(420);
+                this.catapult.setPower(1);
             }
-
-            if (adjustedRightPower > this.gamepad1.right_stick_y + 0.05) {
-                adjustedRightPower = (adjustedRightPower - (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
-            } else if (adjustedRightPower < this.gamepad1.right_stick_y - 0.05) {
-                adjustedRightPower = (adjustedRightPower + (System.nanoTime() - cycleStartTime) / 1000000000 * (float) decelerationTime) * (float) topSpeedRatio;
+            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-420){ //stops the catapult cycle
+                this.catapult.setPower(0);
+                initialCatapultPosition = catapult.getCurrentPosition();
             }
-
-            this.motorLeft.setPower(adjustedLeftPower);
-            this.motorRight.setPower(adjustedRightPower);
-            telemetry.addData("left speed: ", adjustedLeftPower);
-            telemetry.addData("right speed: ", adjustedRightPower);
-            this.catapult.setPower(this.gamepad1.right_trigger);
-            cycleStartTime = System.nanoTime();
-            boolean update = telemetry.update();
-            this.idle();
+            telemetry.addData("position: ", catapult.getCurrentPosition());
+            boolean update = telemetry.update(); //does important background stuff at the end of each loop
+            this.idle(); //does more important background stuff at the end of each loop
 
         }
     }
