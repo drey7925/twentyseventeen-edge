@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import org.apache.commons.codec.DecoderException;
@@ -24,6 +25,7 @@ public class GyrolessAuton extends SynchronousOpMode{
     DcMotor catapult = null;
     DcMotor linearSlideOne = null;
     DcMotor linearSlideTwo = null;
+    DcMotor catapult = null;
     Servo buttonPusher = null;
     Servo ballPicker = null;
 
@@ -38,9 +40,6 @@ public class GyrolessAuton extends SynchronousOpMode{
     double y = 0;
     final GyroHelper gyroHelper = new GyroHelper(this);
 
-
-
-    double drivePower = 0.5;
 
     @Override public void main() throws InterruptedException
     {
@@ -62,11 +61,54 @@ public class GyrolessAuton extends SynchronousOpMode{
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
-                turnLeft();
+                goStraight(0.5);
+                Thread.sleep(sharedPref.getLong("1_mountainside", 1000));
+                turnRight(0.5);
+                Thread.sleep(sharedPref.getLong("2_mountainside",1000));
+                goBackStraight(0.5);
+                Thread.sleep(sharedPref.getLong("3_mountainside",1000));
+                stopRobot();
+                this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+                this.motorRight.setDirection(DcMotor.Direction.FORWARD);
+                this.catapult.setPower(1);
+                Thread.sleep(sharedPref.getLong("catapult_time",1000));
+                this.catapult.setPower(0);
+                //shoot second ball
+                goBackStraight(0.5);
+                Thread.sleep(sharedPref.getLong("4_mountainside",1000));
+                turnRight(0.5);
+                Thread.sleep(sharedPref.getLong("5_mountainside",1000));
+                goBackStraight(0.5);
+                Thread.sleep(sharedPref.getLong("6_mountainside",1000));
+                //detect and hit beacons
+
+
 
             }
             else{                                   //midline side, red
 
+                goStraight(0.5);
+                Thread.sleep(sharedPref.getLong("1_corner", 1));  //ADD IN ALL OF THESE XML VALUES
+                turnLeft(0.5);
+                Thread.sleep(sharedPref.getLong("2_corner", 1));
+                goStraight(0.5);
+                Thread.sleep(sharedPref.getLong("3_corner", 1));
+                turnRight(0.5);
+                Thread.sleep(sharedPref.getLong("4_corner", 1));
+                stopRobot();
+                catapult.setPower(1.0);
+                Thread.sleep(sharedPref.getLong("catapult_time", 1));
+                catapult.setPower(0);
+                //COCK THE CATAPULT
+                catapult.setPower(1.0);
+                Thread.sleep(sharedPref.getLong("catapult_time", 1));
+                catapult.setPower(0);
+                turnLeft(0.5);
+                Thread.sleep(sharedPref.getLong("5_corner", 1));
+                goStraight(0.5);
+                Thread.sleep(sharedPref.getLong("6_corner", 1));
+                turnLeft(0.5);
+                Thread.sleep(sharedPref.getLong("7_corner", 1));
             }
         }
 
@@ -80,6 +122,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
+        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
         this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
         this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
@@ -114,19 +157,25 @@ public class GyrolessAuton extends SynchronousOpMode{
         setRightSpeed((rSpd + spd) / 2);
     }
 
-    void goStraight()
+    void goBackStraight(double drivePower){
+        this.motorLeft.setDirection(DcMotor.Direction.FORWARD);
+        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
+        this.motorLeft.setPower(drivePower);
+        this.motorRight.setPower(drivePower);
+    }
+    void goStraight(double drivePower)
     {
         this.motorLeft.setPower(drivePower);
         this.motorRight.setPower(drivePower);
     }
-    void turnLeft()
+    void turnLeft(double drivePower)
     {
         this.motorLeft.setPower(-drivePower);
         this.motorRight.setPower(drivePower);
 
     }
 
-    void turnRight() {
+    void turnRight(double drivePower) {
 
         this.motorLeft.setPower(drivePower);
         this.motorRight.setPower(-drivePower);

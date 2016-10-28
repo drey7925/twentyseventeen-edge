@@ -204,11 +204,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ###########################################################
         <EditTextPreference
                 android:defaultValue="1000"
-                android:dialogTitle="1: Time to turn, mountainside"
+                android:dialogTitle="1: forward, mountain"
                 android:inputType="number"
                 android:key="1_mountainside"
-                android:summary="How long to turn till parallel to the the mountain, starting mountainside."
-                android:title="1: Time to turn, mountainside"/>
+                android:summary="1: forward, mountain"
+                android:title="1: forward, mountain"/>
+        <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="2: turn, mountain"
+                android:inputType="number"
+                android:key="2_mountainside"
+                android:summary="2: turn, mountain"
+                android:title="2: turn, mountain"/>
+        <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="3: backward move, mountain"
+                android:inputType="number"
+                android:key="3_mountainside"
+                android:summary="3: backward move, mountain"
+                android:title="3: backward move, mountain"/>
+        <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="catapult time"
+                android:inputType="number"
+                android:key="catapult_time"
+                android:summary="catapult time"
+                android:title="catapult time"/>
         ############################################################
         <EditTextPreference
                 android:defaultValue="0"
