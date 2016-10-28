@@ -201,6 +201,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                   android:key="camera_to_btn_offset"
                   android:summary="How long to drive for to move the button pusher in alignment to the button. Negative to reverse movement."
                   android:title="Time to align button pusher"/>
+        ###########################################################
+        <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="1: Time to turn, mountainside"
+                android:inputType="number"
+                android:key="1_mountainside"
+                android:summary="How long to turn till parallel to the the mountain, starting mountainside."
+                android:title="1: Time to turn, mountainside"/>
+        ############################################################
         <EditTextPreference
                 android:defaultValue="0"
                 android:dialogTitle="Time to drive for camera undershoot correction"
