@@ -49,7 +49,7 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){      //
                 this.catapult.setPower(catapultSpeed);                          //starts the catapult cycle
             }                                                                   //
-            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-600){    //
+            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-1680){    //
                 this.catapult.setPower(0);                                          //stops the catapult cycle
                 initialCatapultPosition = catapult.getCurrentPosition();            //
             }

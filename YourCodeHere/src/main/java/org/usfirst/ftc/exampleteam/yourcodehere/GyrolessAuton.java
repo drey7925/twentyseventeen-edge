@@ -22,13 +22,12 @@ public class GyrolessAuton extends SynchronousOpMode{
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
 
-    DcMotor catapult = null;
     DcMotor linearSlideOne = null;
     DcMotor linearSlideTwo = null;
     DcMotor catapult = null;
     Servo buttonPusher = null;
     Servo ballPicker = null;
-
+    double driveSpeedRatio = 0.5; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
     protected static ResqAuton.Colors teamColor;
@@ -120,16 +119,14 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorFront");
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
-
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
-        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
         this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
         this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
         this.ballPicker = this.hardwareMap.servo.get("ballPicker");
-
-
-
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
     }
 
 
@@ -163,10 +160,19 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setPower(drivePower);
         this.motorRight.setPower(drivePower);
     }
-    void goStraight(double drivePower)
+    void goStraight(double revolutions)
     {
-        this.motorLeft.setPower(drivePower);
-        this.motorRight.setPower(drivePower);
+        double leftSpeed = driveSpeedRatio;
+        double rightSpeed = driveSpeedRatio;
+        int leftStartPosition = this.motorLeft.getCurrentPosition();
+        int rightStartPosition = this.motorRight.getCurrentPosition();
+        this.motorLeft.setPower(leftSpeed);
+        this.motorRight.setPower(rightSpeed);
+        while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions) {
+            if ()
+        }
+        this.motorLeft.setPower(0);
+        this.motorRight.setPower(0);
     }
     void turnLeft(double drivePower)
     {
