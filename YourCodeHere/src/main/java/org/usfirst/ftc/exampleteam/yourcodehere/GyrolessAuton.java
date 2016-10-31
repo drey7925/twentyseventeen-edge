@@ -19,14 +19,14 @@ import resq.ResqAuton;
  */
 @Autonomous(name="Gyroless Auton")
 public class GyrolessAuton extends SynchronousOpMode{
-    DcMotor motorLeft = null;
-    DcMotor motorRight = null;
+    DcMotor motorLeft;
+    DcMotor motorRight;
 
-    DcMotor linearSlideOne = null;
-    DcMotor linearSlideTwo = null;
+  //  DcMotor linearSlideOne = null;
+    //DcMotor linearSlideTwo = null;
     DcMotor catapult = null;
-    Servo buttonPusher = null;
-    Servo ballPicker = null;
+    //Servo buttonPusher = null;
+   // Servo ballPicker = null;
     double driveSpeedRatio = 0.5; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
@@ -42,13 +42,16 @@ public class GyrolessAuton extends SynchronousOpMode{
 
     @Override public void main() throws InterruptedException
     {
-
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         teamColor = getTeam();
         startSide = getSide();
 
-
         startUpHardware();
+        this.waitForStart();
+
+        telemetry.addData("Now has it even started yet? ", true);
+
+        goStraight(1);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
@@ -60,54 +63,11 @@ public class GyrolessAuton extends SynchronousOpMode{
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
-                goStraight(0.5);
-                Thread.sleep(sharedPref.getLong("1_mountainside", 1000));
-                turnRight(0.5);
-                Thread.sleep(sharedPref.getLong("2_mountainside",1000));
-                goBackStraight(0.5);
-                Thread.sleep(sharedPref.getLong("3_mountainside",1000));
-                stopRobot();
-                this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
-                this.motorRight.setDirection(DcMotor.Direction.FORWARD);
-                this.catapult.setPower(1);
-                Thread.sleep(sharedPref.getLong("catapult_time",1000));
-                this.catapult.setPower(0);
-                //shoot second ball
-                goBackStraight(0.5);
-                Thread.sleep(sharedPref.getLong("4_mountainside",1000));
-                turnRight(0.5);
-                Thread.sleep(sharedPref.getLong("5_mountainside",1000));
-                goBackStraight(0.5);
-                Thread.sleep(sharedPref.getLong("6_mountainside",1000));
-                //detect and hit beacons
-
-
 
             }
             else{                                   //midline side, red
 
-                goStraight(0.5);
-                Thread.sleep(sharedPref.getLong("1_corner", 1));  //ADD IN ALL OF THESE XML VALUES
-                turnLeft(0.5);
-                Thread.sleep(sharedPref.getLong("2_corner", 1));
-                goStraight(0.5);
-                Thread.sleep(sharedPref.getLong("3_corner", 1));
-                turnRight(0.5);
-                Thread.sleep(sharedPref.getLong("4_corner", 1));
-                stopRobot();
-                catapult.setPower(1.0);
-                Thread.sleep(sharedPref.getLong("catapult_time", 1));
-                catapult.setPower(0);
-                //COCK THE CATAPULT
-                catapult.setPower(1.0);
-                Thread.sleep(sharedPref.getLong("catapult_time", 1));
-                catapult.setPower(0);
-                turnLeft(0.5);
-                Thread.sleep(sharedPref.getLong("5_corner", 1));
-                goStraight(0.5);
-                Thread.sleep(sharedPref.getLong("6_corner", 1));
-                turnLeft(0.5);
-                Thread.sleep(sharedPref.getLong("7_corner", 1));
+
             }
         }
 
@@ -117,13 +77,13 @@ public class GyrolessAuton extends SynchronousOpMode{
 
 
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        this.motorRight = this.hardwareMap.dcMotor.get("motorFront");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
-        this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
+      /*  this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
         this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
         this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
-        this.ballPicker = this.hardwareMap.servo.get("ballPicker");
+        this.ballPicker = this.hardwareMap.servo.get("ballPicker");*/
         this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
@@ -160,6 +120,8 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setPower(drivePower);
         this.motorRight.setPower(drivePower);
     }
+
+
     void goStraight(double revolutions)
     {
         double leftSpeed = driveSpeedRatio;
@@ -168,16 +130,55 @@ public class GyrolessAuton extends SynchronousOpMode{
         int rightStartPosition = this.motorRight.getCurrentPosition();
         this.motorLeft.setPower(leftSpeed);
         this.motorRight.setPower(rightSpeed);
-        while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions) {
-            if ()
+        while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions && this.motorRight.getCurrentPosition()-rightStartPosition < 1120*revolutions) {
+            telemetry.addData("Right Speed: ", rightSpeed);
+            telemetry.addData("Left Speed: ", leftSpeed);
+            if ((motorLeft.getCurrentPosition()-leftStartPosition) > (motorRight.getCurrentPosition()-rightStartPosition)+10 && rightSpeed==driveSpeedRatio) {
+                leftSpeed -= 0.01;
+            }
+            else if ((motorLeft.getCurrentPosition()-leftStartPosition) > (motorRight.getCurrentPosition()-rightStartPosition)+10) {
+                rightSpeed += 0.01;
+            }
+            else if ((motorLeft.getCurrentPosition()-leftStartPosition) < (motorRight.getCurrentPosition()-rightStartPosition)-10 && leftSpeed==driveSpeedRatio) {
+                rightSpeed -= 0.01;
+            }
+            else if ((motorLeft.getCurrentPosition()-leftStartPosition) < (motorRight.getCurrentPosition()-rightStartPosition-10)) {
+                rightSpeed += 0.01;
+            }
+            this.motorLeft.setPower(leftSpeed);
+            this.motorRight.setPower(rightSpeed);
         }
         this.motorLeft.setPower(0);
         this.motorRight.setPower(0);
     }
-    void turnLeft(double drivePower)
+
+
+    void turnLeft(double revolutions)
     {
-        this.motorLeft.setPower(-drivePower);
-        this.motorRight.setPower(drivePower);
+        double leftSpeed = -driveSpeedRatio;
+        double rightSpeed = driveSpeedRatio;
+        int leftStartPosition = this.motorLeft.getCurrentPosition();
+        int rightStartPosition = this.motorRight.getCurrentPosition();
+        this.motorLeft.setPower(leftSpeed);
+        this.motorRight.setPower(rightSpeed);
+        while (leftStartPosition-this.motorLeft.getCurrentPosition() < 1120*revolutions && this.motorRight.getCurrentPosition()-rightStartPosition < 1120*revolutions) {
+            if (motorLeft.getCurrentPosition()>motorRight.getCurrentPosition()+10 && rightSpeed==driveSpeedRatio) {
+                leftSpeed += 0.01;
+            }
+            else if (motorLeft.getCurrentPosition()>motorRight.getCurrentPosition()+10) {
+                rightSpeed += 0.01;
+            }
+            else if (motorLeft.getCurrentPosition()<motorRight.getCurrentPosition()-10 && leftSpeed==driveSpeedRatio) {
+                rightSpeed -= 0.01;
+            }
+            else if (motorLeft.getCurrentPosition()<motorRight.getCurrentPosition()-10) {
+                rightSpeed += 0.01;
+            }
+            this.motorLeft.setPower(leftSpeed);
+            this.motorRight.setPower(rightSpeed);
+        }
+        this.motorLeft.setPower(0);
+        this.motorRight.setPower(0);
 
     }
 
