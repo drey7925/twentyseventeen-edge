@@ -43,10 +43,25 @@ public class GyrolessAuton extends SynchronousOpMode{
     @Override public void main() throws InterruptedException
     {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
-        teamColor = getTeam();
-        startSide = getSide();
+        try {
+            teamColor = getTeam();
+            startSide = getSide();
+        }
+        catch (Exception e) {
+            telemetry.addData("Error: ", "something done goofed.");
+        }
 
-        startUpHardware();
+        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+        this.catapult = this.hardwareMap.dcMotor.get("catapult");
+      /*  this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
+        this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
+        this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
+        this.ballPicker = this.hardwareMap.servo.get("ballPicker");*/
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.waitForStart();
 
         telemetry.addData("Now has it even started yet? ", true);
@@ -88,39 +103,6 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
     }
-
-
-
-    double lSpd, rSpd;
-
-    public void setLeftSpeed(double speed) {
-
-        speed = Range.clip(speed, -1, 1);
-        lSpd = speed;
-        motorLeft.setPower(speed);
-    }
-
-    public void setRightSpeed(double speed) {
-        speed = Range.clip(speed, -1, 1);
-        rSpd = speed;
-        motorRight.setPower(speed);
-    }
-
-    public void blendLeftSpeed(double spd) {
-        setLeftSpeed((lSpd + spd) / 2);
-    }
-
-    public void blendRightSpeed(double spd) {
-        setRightSpeed((rSpd + spd) / 2);
-    }
-
-    void goBackStraight(double drivePower){
-        this.motorLeft.setDirection(DcMotor.Direction.FORWARD);
-        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
-        this.motorLeft.setPower(drivePower);
-        this.motorRight.setPower(drivePower);
-    }
-
 
     void goStraight(double revolutions)
     {
