@@ -49,6 +49,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         }
         catch (Exception e) {
             telemetry.addData("Error: ", "something done goofed.");
+            telemetry.update();
         }
 
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
@@ -65,6 +66,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.waitForStart();
 
         telemetry.addData("Now has it even started yet? ", true);
+        telemetry.update();
 
         goStraight(1);
 
@@ -115,6 +117,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions && this.motorRight.getCurrentPosition()-rightStartPosition < 1120*revolutions) {
             telemetry.addData("Right Speed: ", rightSpeed);
             telemetry.addData("Left Speed: ", leftSpeed);
+            telemetry.update();
             if ((motorLeft.getCurrentPosition()-leftStartPosition) > (motorRight.getCurrentPosition()-rightStartPosition)+10 && rightSpeed==driveSpeedRatio) {
                 leftSpeed -= 0.01;
             }
@@ -164,11 +167,30 @@ public class GyrolessAuton extends SynchronousOpMode{
 
     }
 
-    void turnRight(double drivePower) {
-
-        this.motorLeft.setPower(drivePower);
-        this.motorRight.setPower(-drivePower);
+    void turnRight(double revolutions) {
+        double leftSpeed = driveSpeedRatio;
+        double rightSpeed = -driveSpeedRatio;
+        int leftStartPosition = this.motorLeft.getCurrentPosition();
+        int rightStartPosition = this.motorRight.getCurrentPosition();
+        this.motorLeft.setPower(leftSpeed);
+        this.motorRight.setPower(rightSpeed);
+        while (leftStartPosition - this.motorLeft.getCurrentPosition() < 1120 * revolutions && this.motorRight.getCurrentPosition() - rightStartPosition < 1120 * revolutions) {
+            if (motorLeft.getCurrentPosition() > motorRight.getCurrentPosition() + 10 && rightSpeed == driveSpeedRatio) {
+                leftSpeed += 0.01;
+            } else if (motorLeft.getCurrentPosition() > motorRight.getCurrentPosition() + 10) {
+                rightSpeed += 0.01;
+            } else if (motorLeft.getCurrentPosition() < motorRight.getCurrentPosition() - 10 && leftSpeed == driveSpeedRatio) {
+                rightSpeed -= 0.01;
+            } else if (motorLeft.getCurrentPosition() < motorRight.getCurrentPosition() - 10) {
+                rightSpeed += 0.01;
+            }
+            this.motorLeft.setPower(leftSpeed);
+            this.motorRight.setPower(rightSpeed);
+        }
+        this.motorLeft.setPower(0);
+        this.motorRight.setPower(0);
     }
+
     void stopRobot()
     {
         this.motorLeft.setPower(0);

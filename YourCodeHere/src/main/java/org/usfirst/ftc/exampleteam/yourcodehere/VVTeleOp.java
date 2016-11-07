@@ -14,7 +14,6 @@ public class VVTeleOp extends SynchronousOpMode {
     DcMotor motorLeft = null;
     DcMotor motorRight = null; //declares motors
     DcMotor catapult = null;
-    DcMotor ballPicker = null;
 
     @Override
     public void main() throws InterruptedException {
@@ -25,14 +24,13 @@ public class VVTeleOp extends SynchronousOpMode {
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates motors
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
-        this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
 
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION); //sets the mode for each motor
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
         this.catapult.setDirection(DcMotor.Direction.REVERSE);
-        this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         int initialCatapultPosition = catapult.getCurrentPosition();
 
         double driveSpeedRatio = 0.5; //sets the top speed for drive train
@@ -54,12 +52,12 @@ public class VVTeleOp extends SynchronousOpMode {
                 initialCatapultPosition = catapult.getCurrentPosition();            //
             }
 
-            if (this.gamepad1.left_bumper) {                //
+            /*if (this.gamepad1.left_bumper) {                //
                 this.ballPicker.setPower(ballPickerSpeed);  //
             }                                               // sets ball picker speed based on left bumper
             else {                                          //
                 this.ballPicker.setPower(0);                //
-            }
+            } */
 
             telemetry.addData("position: ", catapult.getCurrentPosition());
             boolean update = telemetry.update(); //does important background stuff at the end of each loop

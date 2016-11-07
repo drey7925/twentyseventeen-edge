@@ -17,19 +17,6 @@ import resq.ResqAuton;
 @Autonomous(name="Workshop Gyroless Auton")
 public class WorkshopGyrolessAuton extends SynchronousOpMode{
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.swerverobotics.library.SynchronousOpMode;
-import org.swerverobotics.library.interfaces.Autonomous;
-import resq.GyroHelper;
-import resq.ResqAuton;
 
     /**
      * Created by hon07726 on 10/28/2016.
@@ -186,7 +173,6 @@ import resq.ResqAuton;
             this.motorLeft.setPower(leftSpeed);
             this.motorRight.setPower(rightSpeed);
             while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions) {
-                if ()
             }
             this.motorLeft.setPower(0);
             this.motorRight.setPower(0);
