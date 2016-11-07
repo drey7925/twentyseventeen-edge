@@ -112,27 +112,34 @@ public class GyrolessAuton extends SynchronousOpMode{
         double rightSpeed = driveSpeedRatio;
         int leftStartPosition = this.motorLeft.getCurrentPosition();
         int rightStartPosition = this.motorRight.getCurrentPosition();
+        int leftDistance = 0;
+        int rightDistance = 0;
         this.motorLeft.setPower(leftSpeed);
         this.motorRight.setPower(rightSpeed);
-        while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions && this.motorRight.getCurrentPosition()-rightStartPosition < 1120*revolutions) {
+
+        while (leftDistance < 1120*revolutions && rightDistance < 1120*revolutions) {
             telemetry.addData("Right Speed: ", rightSpeed);
             telemetry.addData("Left Speed: ", leftSpeed);
             telemetry.update();
-            if ((motorLeft.getCurrentPosition()-leftStartPosition) > (motorRight.getCurrentPosition()-rightStartPosition)+10 && rightSpeed==driveSpeedRatio) {
+            leftDistance = Math.abs(motorLeft.getCurrentPosition()-leftStartPosition);
+            rightDistance = Math.abs(motorRight.getCurrentPosition()-rightStartPosition);
+            if (leftDistance > rightDistance+10 && rightSpeed==driveSpeedRatio) {
                 leftSpeed -= 0.01;
             }
-            else if ((motorLeft.getCurrentPosition()-leftStartPosition) > (motorRight.getCurrentPosition()-rightStartPosition)+10) {
+            else if (leftDistance > rightDistance+10) {
                 rightSpeed += 0.01;
             }
-            else if ((motorLeft.getCurrentPosition()-leftStartPosition) < (motorRight.getCurrentPosition()-rightStartPosition)-10 && leftSpeed==driveSpeedRatio) {
+            else if (leftDistance < rightDistance-10 && leftSpeed==driveSpeedRatio) {
                 rightSpeed -= 0.01;
             }
-            else if ((motorLeft.getCurrentPosition()-leftStartPosition) < (motorRight.getCurrentPosition()-rightStartPosition-10)) {
+            else if (leftDistance < rightDistance-10) {
                 rightSpeed += 0.01;
             }
             this.motorLeft.setPower(leftSpeed);
             this.motorRight.setPower(rightSpeed);
         }
+        telemetry.addData("loop end: ", true);
+        telemetry.update();
         this.motorLeft.setPower(0);
         this.motorRight.setPower(0);
     }
