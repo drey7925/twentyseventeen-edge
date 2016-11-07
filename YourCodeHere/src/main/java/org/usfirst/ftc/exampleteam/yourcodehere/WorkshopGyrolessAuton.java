@@ -18,10 +18,6 @@ import resq.ResqAuton;
 public class WorkshopGyrolessAuton extends SynchronousOpMode{
 
 
-    /**
-     * Created by hon07726 on 10/28/2016.
-     */
-
 
         DcMotor motorLeft = null;
         DcMotor motorRight = null;
@@ -173,6 +169,7 @@ public class WorkshopGyrolessAuton extends SynchronousOpMode{
             this.motorLeft.setPower(leftSpeed);
             this.motorRight.setPower(rightSpeed);
             while (this.motorLeft.getCurrentPosition()-leftStartPosition < 1120*revolutions) {
+
             }
             this.motorLeft.setPower(0);
             this.motorRight.setPower(0);

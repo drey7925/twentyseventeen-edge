@@ -47,7 +47,7 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){      //
                 this.catapult.setPower(catapultSpeed);                          //starts the catapult cycle
             }                                                                   //
-            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-1680){    //
+            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-420){    //
                 this.catapult.setPower(0);                                          //stops the catapult cycle
                 initialCatapultPosition = catapult.getCurrentPosition();            //
             }
@@ -60,6 +60,8 @@ public class VVTeleOp extends SynchronousOpMode {
             } */
 
             telemetry.addData("position: ", catapult.getCurrentPosition());
+            telemetry.addData("right stick: ", this.gamepad1.right_stick_y);
+            telemetry.addData("left stick: ", this.gamepad1.left_stick_y);
             boolean update = telemetry.update(); //does important background stuff at the end of each loop
             this.idle(); //does more important background stuff at the end of each loop
 
