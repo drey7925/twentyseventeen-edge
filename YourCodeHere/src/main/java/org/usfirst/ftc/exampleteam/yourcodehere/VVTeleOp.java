@@ -34,7 +34,7 @@ public class VVTeleOp extends SynchronousOpMode {
         int initialCatapultPosition = catapult.getCurrentPosition();
 
         double driveSpeedRatio = 0.5; //sets the top speed for drive train
-        double catapultSpeed = 1.0; //sets top catapult speed
+        double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         // Wait for the game to start
         waitForStart();
@@ -47,7 +47,7 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){      //
                 this.catapult.setPower(catapultSpeed);                          //starts the catapult cycle
             }                                                                   //
-            if(this.catapult.getCurrentPosition()<=initialCatapultPosition-420){    //
+            if(this.catapult.getCurrentPosition()>=initialCatapultPosition+1000){    //
                 this.catapult.setPower(0);                                          //stops the catapult cycle
                 initialCatapultPosition = catapult.getCurrentPosition();            //
             }

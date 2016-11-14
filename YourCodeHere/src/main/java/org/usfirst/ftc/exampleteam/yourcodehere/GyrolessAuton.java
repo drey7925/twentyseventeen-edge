@@ -59,16 +59,21 @@ public class GyrolessAuton extends SynchronousOpMode{
       /*  this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
         this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
         this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
-        this.ballPicker = this.hardwareMap.servo.get("ballPicker");*/
+        this.ballPicker = this.hardwareMap.servo.get("ballPicker");
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);*/
+
         this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
         this.waitForStart();
 
         telemetry.addData("Now has it even started yet? ", true);
         telemetry.update();
 
-        goStraight(1);
+       goStraight(1);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
@@ -114,12 +119,19 @@ public class GyrolessAuton extends SynchronousOpMode{
         int rightStartPosition = this.motorRight.getCurrentPosition();
         int leftDistance = 0;
         int rightDistance = 0;
+        Double rev = revolutions*1120;
+        int revo = rev.intValue();
+        this.motorLeft.setTargetPosition(revo);
+        this.motorRight.setTargetPosition(revo);
         this.motorLeft.setPower(leftSpeed);
         this.motorRight.setPower(rightSpeed);
 
         while (leftDistance < 1120*revolutions && rightDistance < 1120*revolutions) {
-            telemetry.addData("Right Speed: ", rightSpeed);
-            telemetry.addData("Left Speed: ", leftSpeed);
+            telemetry.addData("left dist: ", leftDistance);
+            telemetry.addData("right dist: ", rightDistance);
+            telemetry.addData("left currentPosition: ", motorLeft.getCurrentPosition());
+            telemetry.addData("left start position: ",leftStartPosition);
+
             telemetry.update();
             leftDistance = Math.abs(motorLeft.getCurrentPosition()-leftStartPosition);
             rightDistance = Math.abs(motorRight.getCurrentPosition()-rightStartPosition);
@@ -135,11 +147,10 @@ public class GyrolessAuton extends SynchronousOpMode{
             else if (leftDistance < rightDistance-10) {
                 rightSpeed += 0.01;
             }
+
             this.motorLeft.setPower(leftSpeed);
             this.motorRight.setPower(rightSpeed);
         }
-        telemetry.addData("loop end: ", true);
-        telemetry.update();
         this.motorLeft.setPower(0);
         this.motorRight.setPower(0);
     }
