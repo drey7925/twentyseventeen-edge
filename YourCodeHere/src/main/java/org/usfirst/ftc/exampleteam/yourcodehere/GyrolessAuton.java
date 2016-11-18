@@ -111,8 +111,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
     }
 
-    void goStraight(double revolutions)
-    {
+    void goStraight(double revolutions) {
         double leftSpeed = driveSpeedRatio;
         double rightSpeed = driveSpeedRatio;
         int leftStartPosition = this.motorLeft.getCurrentPosition();
@@ -147,19 +146,11 @@ public class GyrolessAuton extends SynchronousOpMode{
             else if (leftDistance < rightDistance-10) {
                 rightSpeed += 0.01;
             }
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
             this.motorLeft.setPower(leftSpeed);
             this.motorRight.setPower(rightSpeed);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         }
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorLeft.setPower(0);
         this.motorRight.setPower(0);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
     }
 
 
