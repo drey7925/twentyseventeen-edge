@@ -22,7 +22,7 @@ public class VVTeleOp extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates motors
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballpicker");
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
