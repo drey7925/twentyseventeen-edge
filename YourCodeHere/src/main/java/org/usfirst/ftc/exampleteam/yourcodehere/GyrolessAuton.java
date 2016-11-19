@@ -119,8 +119,8 @@ public class GyrolessAuton extends SynchronousOpMode{
         int leftDistance = 0;
         int rightDistance = 0;
         Double rev = revolutions*1120;
-      //  int revo = rev.intValue();
-      //  this.motorLeft.setTargetPosition(revo);
+       // int revo = rev.intValue();
+       // this.motorLeft.setTargetPosition(revo);
        // this.motorRight.setTargetPosition(revo);
         this.motorLeft.setPower(leftSpeed);
         this.motorRight.setPower(rightSpeed);
