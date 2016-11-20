@@ -17,6 +17,8 @@ import resq.ResqAuton.*;
 
 /**
  * Created by kam07440 on 10/7/2016.
+ * Contributors:
+ * Lillian Hong and Gabriel Kammer
  */
 
 @Autonomous(name="Mini Auton")
@@ -81,8 +83,10 @@ public class MiniAuton extends SynchronousOpMode{
 
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorFront");
+        motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
+
         this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
         this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
         this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");
@@ -304,6 +308,7 @@ public class MiniAuton extends SynchronousOpMode{
         }
     }
 
+
     double lSpd, rSpd;
 
     public void setLeftSpeed(double speed) {
@@ -341,6 +346,7 @@ public class MiniAuton extends SynchronousOpMode{
         }
         Log.w("TRACK", "EXIT DO-PERIODIC");
     }
+
 
 /*
     private double origYAW;

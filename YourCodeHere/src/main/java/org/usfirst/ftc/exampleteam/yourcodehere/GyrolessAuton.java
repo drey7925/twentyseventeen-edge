@@ -3,6 +3,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -72,8 +73,9 @@ public class GyrolessAuton extends SynchronousOpMode{
 
         telemetry.addData("Now has it even started yet? ", true);
         telemetry.update();
+        goStraightCorrectionless(1);
+        goStraight(1);
 
-       goStraight(1);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
@@ -111,6 +113,29 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
     }
 
+    void goStraightCorrectionless(double revolutions) {
+        int leftStartPosition = this.motorLeft.getCurrentPosition();
+        int rightStartPosition = this.motorRight.getCurrentPosition();
+        int leftDistance = 0;
+        int rightDistance = 0;
+        this.motorLeft.setPower(driveSpeedRatio);
+        this.motorRight.setPower(driveSpeedRatio);
+
+        while (leftDistance < 1120*revolutions && rightDistance < 1120*revolutions) {
+            telemetry.addData("left dist: ", leftDistance);
+            telemetry.addData("right dist: ", rightDistance);
+            telemetry.addData("left currentPosition: ", motorLeft.getCurrentPosition());
+            telemetry.addData("left start position: ",leftStartPosition);
+            telemetry.update();
+            leftDistance = Math.abs(motorLeft.getCurrentPosition()-leftStartPosition);
+            rightDistance = Math.abs(motorRight.getCurrentPosition()-rightStartPosition);
+            this.motorLeft.setPower(driveSpeedRatio);
+            this.motorRight.setPower(driveSpeedRatio);
+        }
+        this.motorLeft.setPower(0);
+        this.motorRight.setPower(0);
+    }
+
     void goStraight(double revolutions) {
         double leftSpeed = driveSpeedRatio;
         double rightSpeed = driveSpeedRatio;
@@ -130,7 +155,8 @@ public class GyrolessAuton extends SynchronousOpMode{
             telemetry.addData("right dist: ", rightDistance);
             telemetry.addData("left currentPosition: ", motorLeft.getCurrentPosition());
             telemetry.addData("left start position: ",leftStartPosition);
-
+            telemetry.addData("Left Speed: ", leftSpeed);
+            telemetry.addData("Right Speed: ", rightSpeed);
             telemetry.update();
             leftDistance = Math.abs(motorLeft.getCurrentPosition()-leftStartPosition);
             rightDistance = Math.abs(motorRight.getCurrentPosition()-rightStartPosition);
