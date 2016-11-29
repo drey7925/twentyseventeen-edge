@@ -71,7 +71,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION); */
 
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+       this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
@@ -84,7 +84,7 @@ public class GyrolessAuton extends SynchronousOpMode{
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
                 telemetry.addData("Running1? ", true);
                 telemetry.update();
-                goStraight(25);
+                goStraight(8);
                 while (Math.abs(motorLeft.getPower())>0) {}//
                 turnRight(1);
                 while (Math.abs(motorLeft.getPower())>0) {}//
@@ -132,15 +132,12 @@ public class GyrolessAuton extends SynchronousOpMode{
     void goStraight(double revolutions) {
         motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorLeft.setTargetPosition(this.motorLeft.getCurrentPosition()+(int) (1120 * revolutions));
-        motorRight.setTargetPosition(this.motorRight.getCurrentPosition()+(int) (1120 * revolutions));
+        motorLeft.setTargetPosition((int) (1120 * revolutions));
+        motorRight.setTargetPosition((int) (1120 * revolutions));
         motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         motorLeft.setPower(driveSpeedRatio);
         motorRight.setPower(driveSpeedRatio);
-        while(motorLeft.isBusy()){}
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
 
         telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
         telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());

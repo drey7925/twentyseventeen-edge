@@ -27,8 +27,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-       this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION); //sets the mode for each motor
+
         this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         this.catapult.setDirection(DcMotor.Direction.REVERSE);
         //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -38,10 +37,11 @@ public class VVTeleOp extends SynchronousOpMode {
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         // Wait for the game to start
+        this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         waitForStart();
         while (opModeIsActive()) {
             this.updateGamepads();  //updates game pads
-
+            
             this.motorLeft.setPower(this.gamepad1.left_stick_y * driveSpeedRatio); //sets power to motor left
             this.motorRight.setPower(this.gamepad1.right_stick_y * driveSpeedRatio); //sets power to motor right
 
@@ -51,9 +51,6 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
                 this.catapult.setDirection(DcMotor.Direction.REVERSE);
                 this.catapult.setPower(0.25);
-
-                while(catapult.isBusy()){}
-                this.catapult.setPower(0);
 
 
                 telemetry.addData("Catapult Running: ", "yuppo");
