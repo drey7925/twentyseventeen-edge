@@ -28,7 +28,7 @@ public class GyrolessAuton extends SynchronousOpMode{
     DcMotor catapult = null;
     //Servo buttonPusher = null;
     DcMotor ballPicker = null;
-    double driveSpeedRatio = 0.5; //sets the top speed for drive train
+    double driveSpeedRatio = 0.35; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
     protected static ResqAuton.Colors teamColor;
@@ -57,23 +57,11 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
-        /*this.linearSlideOne = this.hardwareMap.dcMotor.get("catapult");
-        this.linearSlideTwo= this.hardwareMap.dcMotor.get("linearSlideOne");
-        this.buttonPusher = this.hardwareMap.servo.get("linearSlideTwo");*/
-        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
-       /* this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.ballPicker.setMode(DcMotorController.RunMode.RESET_ENCODERS);
 
-        this.ballPicker.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION); */
-
-       this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.waitForStart();
 
@@ -84,21 +72,16 @@ public class GyrolessAuton extends SynchronousOpMode{
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
                 telemetry.addData("Running1? ", true);
                 telemetry.update();
-                goStraight(8);
-                while (Math.abs(motorLeft.getPower())>0) {}//
-                turnRight(1);
-                while (Math.abs(motorLeft.getPower())>0) {}//
+                goStraight(2);
+                turnRight(2);
                 shootCatapult();
-                while (Math.abs(catapult.getPower())>0) {}//
                 runBallPicker();
-                while (ballPicker.isBusy()) {}
                 shootCatapult();
-                while (catapult.isBusy()) {}
-                turnLeft(1);    //face the big ball
-                goStraight(1);  //bump the big ball
-                turnRight(1);   //turn parallel to midline
-                goStraight(1);  //run along the midline
-                turnRight(2); //turn to be parallel along the beacon walls
+                //turnLeft(2);    //face the big ball
+                //goStraight(1);  //bump the big ball
+                //turnRight(1);   //turn parallel to midline
+                //goStraight(1);  //run along the midline
+                //turnRight(2); //turn to be parallel along the beacon walls
 
             }
             else{
@@ -130,54 +113,62 @@ public class GyrolessAuton extends SynchronousOpMode{
 
 
     void goStraight(double revolutions) {
-        motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorLeft.setTargetPosition((int) (1120 * revolutions));
-        motorRight.setTargetPosition((int) (1120 * revolutions));
-        motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorLeft.setPower(driveSpeedRatio);
-        motorRight.setPower(driveSpeedRatio);
+        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
+        this.motorRight.setTargetPosition((int) (1120 * revolutions));
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setPower(driveSpeedRatio);
+        this.motorRight.setPower(driveSpeedRatio);
 
         telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
         telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-
+        telemetry.update();
+        while(Math.abs(this.motorLeft.getCurrentPosition())<this.motorLeft.getTargetPosition()) {}
+        while(Math.abs(this.motorRight.getCurrentPosition())<this.motorRight.getTargetPosition()) {}
     }
 
     void turnLeft(double revolutions) {
-        motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorLeft.setTargetPosition(-(int)(1120 * revolutions));
-        motorRight.setTargetPosition((int)(1120 * revolutions));
-        motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorLeft.setPower(-driveSpeedRatio);
-        motorRight.setPower(driveSpeedRatio);
+        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorLeft.setTargetPosition(-(int)(1120 * revolutions));
+        this.motorRight.setTargetPosition((int)(1120 * revolutions));
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setPower(driveSpeedRatio);
+        this.motorRight.setPower(driveSpeedRatio);
+        while(Math.abs(motorLeft.getCurrentPosition())<motorLeft.getTargetPosition()) {}
+        while(Math.abs(motorRight.getCurrentPosition())<motorRight.getTargetPosition()) {}
     }
 
     void turnRight(double revolutions) {
-        motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorLeft.setTargetPosition((int)(1120 * revolutions));
-        motorRight.setTargetPosition(-(int)(1120 * revolutions));
-        motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        motorLeft.setPower(driveSpeedRatio);
-        motorRight.setPower(-driveSpeedRatio);
+        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorLeft.setTargetPosition((int)(1120 * revolutions));
+        this.motorRight.setTargetPosition(-(int)(1120 * revolutions));
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setPower(driveSpeedRatio);
+        this.motorRight.setPower(driveSpeedRatio);
+        while(Math.abs(motorLeft.getCurrentPosition())<motorLeft.getTargetPosition()) {}
+        while(motorRight.getCurrentPosition()<motorRight.getTargetPosition()) {}
+
     }
 
     void shootCatapult() {
-        catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        catapult.setTargetPosition(1760);
-        catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        catapult.setPower(0.25);
+        this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.catapult.setTargetPosition(1760);
+        this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.catapult.setPower(0.25);
+        while(Math.abs(catapult.getCurrentPosition())<catapult.getTargetPosition()) {}
     }
 
     void runBallPicker() {
-        ballPicker.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        ballPicker.setTargetPosition(2240);
-        ballPicker.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        ballPicker.setPower(0.5);
+        this.ballPicker.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.ballPicker.setTargetPosition(2240);
+        this.ballPicker.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.ballPicker.setPower(0.5);
     }
 
     public ResqAuton.Colors getTeam() {
