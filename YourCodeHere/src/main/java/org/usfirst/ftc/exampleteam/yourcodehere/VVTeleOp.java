@@ -29,7 +29,6 @@ public class VVTeleOp extends SynchronousOpMode {
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         this.motorRight.setDirection(DcMotor.Direction.REVERSE);
-        this.catapult.setDirection(DcMotor.Direction.REVERSE);
         //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         int initialCatapultPosition = catapult.getCurrentPosition();
 
@@ -37,7 +36,7 @@ public class VVTeleOp extends SynchronousOpMode {
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         // Wait for the game to start
-        this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         waitForStart();
         while (opModeIsActive()) {
             this.updateGamepads();  //updates game pads
@@ -46,16 +45,18 @@ public class VVTeleOp extends SynchronousOpMode {
             this.motorRight.setPower(this.gamepad1.right_stick_y * driveSpeedRatio); //sets power to motor right
 
             if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){
-                this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-                this.catapult.setTargetPosition(this.catapult.getCurrentPosition()+1120);
-                this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
-                this.catapult.setDirection(DcMotor.Direction.REVERSE);
-                this.catapult.setPower(0.25);
 
+                this.catapult.setTargetPosition((this.catapult.getCurrentPosition()+1120));
+                this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
+                this.catapult.setPower(0.25);
 
                 telemetry.addData("Catapult Running: ", "yuppo");
                 telemetry.addData("Catapult Position: ", this.catapult.getCurrentPosition());
                 telemetry.update();
+            }
+
+            if(!this.catapult.isBusy()) {
+                this.catapult.setPower(0);
             }/*                                                                   //
             if(this.catapult.getCurrentPosition()>=initialCatapultPosition+1120){    //
                 this.catapult.setPower(0);                                          //stops the catapult cycle
@@ -64,6 +65,7 @@ public class VVTeleOp extends SynchronousOpMode {
                 initialCatapultPosition = catapult.getCurrentPosition();            //
             }
 */
+
             telemetry.addData("Catapult Speed: ", catapult.getPower());
 
             if (this.gamepad1.left_bumper) {                //
