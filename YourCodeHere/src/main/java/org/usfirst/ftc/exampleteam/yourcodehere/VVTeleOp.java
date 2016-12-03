@@ -31,6 +31,7 @@ public class VVTeleOp extends SynchronousOpMode {
         //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         double driveSpeedRatio = 0.5; //sets the top speed for drive train
+        double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         // Wait for the game to start
@@ -38,41 +39,38 @@ public class VVTeleOp extends SynchronousOpMode {
         while (opModeIsActive()) {
             this.updateGamepads();  //updates game pads
             if (this.gamepad1.right_trigger>0.5) {
-                driveSpeedRatio = 0.35;
+                correctedSpeedRatio = 0.25;
             }
-            this.motorLeft.setPower(-this.gamepad1.left_stick_y * driveSpeedRatio); //sets power to motor left
-            this.motorRight.setPower(-this.gamepad1.right_stick_y * driveSpeedRatio); //sets power to motor right
+            else {
+                correctedSpeedRatio = driveSpeedRatio;
+            }
+            this.motorLeft.setPower(-this.gamepad1.left_stick_y * correctedSpeedRatio); //sets power to motor left
+            this.motorRight.setPower(-this.gamepad1.right_stick_y * correctedSpeedRatio); //sets power to motor right
 
           //  telemetry.addData("Left Power: ",this.motorLeft.getPower());
           //  telemetry.addData("Right Power: ", this.motorRight.getPower());
 
-            if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){
+            if(this.catapult.getPower()==0 && this.gamepad2.right_bumper){
                 this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-                this.catapult.setTargetPosition(-(int)(1120*2.5));
+                this.catapult.setTargetPosition((int)(1120*2.5));
                 this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
                 this.catapult.setPower(catapultSpeed);
-
-
             }
 
-            if(this.catapult.getCurrentPosition() <= this.catapult.getTargetPosition()) {
+            if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition())) {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 this.catapult.setPower(0);
             }
 
-            if (this.gamepad1.left_bumper) {                //
+            if (this.gamepad2.left_bumper) {                //
                 this.ballPicker.setPower(ballPickerSpeed);  //
             }// sets ball picker speed based on left bumper
             else {                                          //
                 this.ballPicker.setPower(0);                //
             }
-            if(this.gamepad1.left_trigger>0.5){
+            if(this.gamepad2.left_trigger>0.5){
                 this.ballPicker.setPower(-ballPickerSpeed);
             }
-            telemetry.addData("Catapult Speed: ", this.catapult.getPower());
-            telemetry.addData("position: ", this.catapult.getCurrentPosition());
-            telemetry.addData("right stick: ", this.gamepad1.right_stick_y);
-            telemetry.addData("left stick: ", this.gamepad1.left_stick_y);
             telemetry.update(); //does important background stuff at the end of each loop
             this.idle(); //does more important background stuff at the end of each loop
 
