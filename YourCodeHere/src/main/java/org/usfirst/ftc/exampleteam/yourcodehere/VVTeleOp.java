@@ -2,6 +2,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
@@ -15,6 +16,7 @@ public class VVTeleOp extends SynchronousOpMode {
     DcMotor motorRight = null; //declares motors
     DcMotor catapult = null;
     DcMotor ballPicker = null;
+    Servo buttonPusher = null;
     @Override
     public void main() throws InterruptedException {
         /* Initialize our hardware variables. Note that the strings used here as parameters
@@ -25,9 +27,11 @@ public class VVTeleOp extends SynchronousOpMode {
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
+        this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+
         //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         double driveSpeedRatio = 0.5; //sets the top speed for drive train
@@ -56,12 +60,10 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
                 this.catapult.setPower(catapultSpeed);
             }
-
             if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition())) {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 this.catapult.setPower(0);
             }
-
             if (this.gamepad2.left_bumper) {                //
                 this.ballPicker.setPower(ballPickerSpeed);  //
             }// sets ball picker speed based on left bumper
@@ -71,6 +73,7 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.gamepad2.left_trigger>0.5){
                 this.ballPicker.setPower(-ballPickerSpeed);
             }
+            buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0.091 : 0.365);
             telemetry.update(); //does important background stuff at the end of each loop
             this.idle(); //does more important background stuff at the end of each loop
 

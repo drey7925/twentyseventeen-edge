@@ -58,51 +58,46 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.waitForStart();
-
-        telemetry.addData("Now has it even started yet? ", true);
-        telemetry.update();
-        goStraightSmooth(2);
-
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
-                goStraight(2);
-                turnRight(0.5);
+                goStraightSmooth(2);
+                turnRightSmooth(0.5);
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeft(2);
-                goStraight(3);
+                turnLeftSmooth(2);
+                goStraightSmooth(3);
             }
             else{                                           //midline side, blue
-                goStraight(2);
-                turnRight(0.5);
-                goStraight(3); // go to position
+                goStraightSmooth(2);
+                turnRightSmooth(0.5);
+                goStraightSmooth(3); // go to position
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeft(0.5);    //face the big ball
-                goStraight(3);  //bump the big ball
+                turnLeftSmooth(0.5);    //face the big ball
+                goStraightSmooth(3);  //bump the big ball
             }
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
-                goStraight(2);
-                turnRight(0.5);
+                goStraightSmooth(2);
+                turnRightSmooth(0.5);
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeft(2);
-                goStraight(3);
+                turnLeftSmooth(2);
+                goStraightSmooth(3);
             }
             else{                                   //midline side, red
-                goStraight(2);
-                turnRight(0.5);
-                goStraight(-3); // go to position
+                goStraightSmooth(2);
+                turnRightSmooth(0.5);
+                goStraightSmooth(-3); // go to position
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeft(0.5);    //face the big ball
-                goStraight(3);
+                turnLeftSmooth(0.5);    //face the big ball
+                goStraightSmooth(3);
             }
         }
 
@@ -139,16 +134,23 @@ public class GyrolessAuton extends SynchronousOpMode{
             this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
             this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
         }
         while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
             this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
             this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
             this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
         }
-        telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-        telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-        telemetry.update();
     }
 
     void turnLeft(double revolutions) {
@@ -162,6 +164,39 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorRight.setPower(DRIVE_SPEED_RATIO);
         while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition())) {}
         while(Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {}
+    }
+
+    void turnLeftSmooth (double revolutions) {
+        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorLeft.setTargetPosition(-(int) (1120 * revolutions));
+        this.motorRight.setTargetPosition((int) (1120 * revolutions));
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setPower(0.2);
+        this.motorRight.setPower(0.2);
+        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(0.5*motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(0.5*motorRight.getTargetPosition())) {
+            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
+        }
+        while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
+            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
+        }
     }
 
     void turnRight(double revolutions) {
@@ -179,6 +214,39 @@ public class GyrolessAuton extends SynchronousOpMode{
             telemetry.update();
         }
         while(Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {}
+    }
+
+    void turnRightSmooth (double revolutions) {
+        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
+        this.motorRight.setTargetPosition(-(int) (1120 * revolutions));
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.motorLeft.setPower(0.2);
+        this.motorRight.setPower(0.2);
+        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(0.5*motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(0.5*motorRight.getTargetPosition())) {
+            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
+        }
+        while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
+            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
+            telemetry.addData("Left Power: ", motorLeft.getPower());
+            telemetry.addData("Right Power: ", motorRight.getPower());
+            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
+            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
+            telemetry.update();
+        }
     }
 
     void shootCatapult() {
