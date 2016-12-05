@@ -60,7 +60,7 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
                 this.catapult.setPower(catapultSpeed);
             }
-            if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition())) {
+            if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition()) && catapult.getMode()==DcMotorController.RunMode.RUN_TO_POSITION) {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 this.catapult.setPower(0);
             }
@@ -74,9 +74,6 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.ballPicker.setPower(-ballPickerSpeed);
             }
             buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0.091 : 0.365);
-            telemetry.update(); //does important background stuff at the end of each loop
-            this.idle(); //does more important background stuff at the end of each loop
-
         }
     }
 }
