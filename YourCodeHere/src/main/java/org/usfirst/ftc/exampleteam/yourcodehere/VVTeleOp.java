@@ -2,6 +2,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
@@ -15,6 +16,7 @@ public class VVTeleOp extends SynchronousOpMode {
     DcMotor motorRight = null; //declares motors
     DcMotor catapult = null;
     DcMotor ballPicker = null;
+    Servo buttonPusher = null;
     @Override
     public void main() throws InterruptedException {
         /* Initialize our hardware variables. Note that the strings used here as parameters
@@ -25,62 +27,53 @@ public class VVTeleOp extends SynchronousOpMode {
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight"); //instantiates
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
+        this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         //this.ballPicker.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        int initialCatapultPosition = catapult.getCurrentPosition();
 
         double driveSpeedRatio = 0.5; //sets the top speed for drive train
+        double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         // Wait for the game to start
-        this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         waitForStart();
         while (opModeIsActive()) {
             this.updateGamepads();  //updates game pads
-            
-            this.motorLeft.setPower(this.gamepad1.left_stick_y * driveSpeedRatio); //sets power to motor left
-            this.motorRight.setPower(this.gamepad1.right_stick_y * driveSpeedRatio); //sets power to motor right
+            if (this.gamepad1.right_trigger>0.5) {
+                correctedSpeedRatio = 0.25;
+            }
+            else {
+                correctedSpeedRatio = driveSpeedRatio;
+            }
+            this.motorLeft.setPower(-this.gamepad1.left_stick_y * correctedSpeedRatio); //sets power to motor left
+            this.motorRight.setPower(-this.gamepad1.right_stick_y * correctedSpeedRatio); //sets power to motor right
 
-            if(this.catapult.getPower()==0 && this.gamepad1.right_bumper){
+          //  telemetry.addData("Left Power: ",this.motorLeft.getPower());
+          //  telemetry.addData("Right Power: ", this.motorRight.getPower());
 
-                this.catapult.setTargetPosition((this.catapult.getCurrentPosition()+1120));
+            if(this.catapult.getPower()==0 && this.gamepad2.right_bumper){
+                this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+                this.catapult.setTargetPosition((int)(1120*2.5));
                 this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
-                this.catapult.setPower(0.25);
-
-                telemetry.addData("Catapult Running: ", "yuppo");
-                telemetry.addData("Catapult Position: ", this.catapult.getCurrentPosition());
-                telemetry.update();
+                this.catapult.setPower(catapultSpeed);
             }
-
-            if(!this.catapult.isBusy()) {
+            if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition()) && catapult.getMode()==DcMotorController.RunMode.RUN_TO_POSITION) {
+                this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 this.catapult.setPower(0);
-            }/*                                                                   //
-            if(this.catapult.getCurrentPosition()>=initialCatapultPosition+1120){    //
-                this.catapult.setPower(0);                                          //stops the catapult cycle
-                telemetry.addData("Stop Catapult: ", "yuppo");
-                telemetry.update();
-                initialCatapultPosition = catapult.getCurrentPosition();            //
             }
-*/
-
-            telemetry.addData("Catapult Speed: ", catapult.getPower());
-
-            if (this.gamepad1.left_bumper) {                //
+            if (this.gamepad2.left_bumper) {                //
                 this.ballPicker.setPower(ballPickerSpeed);  //
-            }                                               // sets ball picker speed based on left bumper
+            }// sets ball picker speed based on left bumper
             else {                                          //
                 this.ballPicker.setPower(0);                //
             }
-
-            telemetry.addData("position: ", catapult.getCurrentPosition());
-            telemetry.addData("right stick: ", this.gamepad1.right_stick_y);
-            telemetry.addData("left stick: ", this.gamepad1.left_stick_y);
-            boolean update = telemetry.update(); //does important background stuff at the end of each loop
-            this.idle(); //does more important background stuff at the end of each loop
-
+            if(this.gamepad2.left_trigger>0.5){
+                this.ballPicker.setPower(-ballPickerSpeed);
+            }
+            buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0.091 : 0.365);
         }
     }
 }
