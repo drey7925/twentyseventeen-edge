@@ -60,13 +60,17 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.waitForStart();
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
-                goStraightSmooth(2);
-                turnRightSmooth(0.5);
+               // goStraightSmooth(2);
+                //turnRightSmooth(0.5);
+                goForwardTime(1);
+                turnRightTime(1);
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeftSmooth(2);
-                goStraightSmooth(3);
+                //turnLeftSmooth(0.5);
+                //goStraightSmooth(3);
+                turnLeftTime(1);
+                goForwardTime(2);
             }
             else{                                           //midline side, blue
                 goStraightSmooth(2);
@@ -86,7 +90,7 @@ public class GyrolessAuton extends SynchronousOpMode{
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeftSmooth(2);
+                turnLeftSmooth(0.5);
                 goStraightSmooth(3);
             }
             else{                                   //midline side, red
@@ -249,12 +253,78 @@ public class GyrolessAuton extends SynchronousOpMode{
         }
     }
 
+    void turnRightTime(double seconds) {
+        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setPower(DRIVE_SPEED_RATIO);
+        motorRight.setPower(-DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+    }
+    void turnLeftTime(double seconds) {
+        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setPower(-DRIVE_SPEED_RATIO);
+        motorRight.setPower(DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+    }
+    void goForwardTime(double seconds) {
+        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setPower(DRIVE_SPEED_RATIO);
+        motorRight.setPower(DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+    }
+    void goBackwardTime(double seconds) {
+        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setPower(-DRIVE_SPEED_RATIO);
+        motorRight.setPower(-DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+    }
+
+
     void shootCatapult() {
         this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.catapult.setTargetPosition(1760);
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setPower(0.25);
-        while(Math.abs(catapult.getCurrentPosition())<Math.abs(catapult.getTargetPosition())) {}
+        while(Math.abs(catapult.getCurrentPosition())<Math.abs(catapult.getTargetPosition())) {
+            telemetry.addData("Catapult Position: ", catapult.getCurrentPosition());
+            telemetry.update();
+        }
+        this.catapult.setPower(0);
     }
 
     void runBallPicker() {
@@ -262,7 +332,11 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.ballPicker.setTargetPosition(2240);
         this.ballPicker.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.ballPicker.setPower(0.5);
-        while(Math.abs(ballPicker.getCurrentPosition())<Math.abs(ballPicker.getTargetPosition())) {}
+        while(Math.abs(ballPicker.getCurrentPosition())<Math.abs(ballPicker.getTargetPosition())) {
+            telemetry.addData("Ball Picker Position: ", ballPicker.getCurrentPosition());
+            telemetry.update();
+        }
+        this.ballPicker.setPower(0);
     }
 
     public ResqAuton.Colors getTeam() {
