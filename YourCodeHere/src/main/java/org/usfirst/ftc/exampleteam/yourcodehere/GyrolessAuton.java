@@ -60,48 +60,44 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.waitForStart();
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
-               // goStraightSmooth(2);
-                //turnRightSmooth(0.5);
-                goForwardTime(1);
-                turnRightTime(1);
+                goForwardTime(0.5);
+                turnRightTime(1.5);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                //turnLeftSmooth(0.5);
-                //goStraightSmooth(3);
-                turnLeftTime(1);
-                goForwardTime(2);
+                turnLeftTime(1.5);
+                goForwardTime(3);
             }
             else{                                           //midline side, blue
-                goStraightSmooth(2);
-                turnRightSmooth(0.5);
-                goStraightSmooth(3); // go to position
+                goForwardTime(0.5);
+                turnRightTime(1.5);
+                goForwardTime(2); // go to position
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeftSmooth(0.5);    //face the big ball
-                goStraightSmooth(3);  //bump the big ball
+                turnLeftTime(1.5);    //face the big ball
+                goForwardTime(3);  //bump the big ball
             }
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
-                goStraightSmooth(2);
-                turnRightSmooth(0.5);
+                goForwardTime(0.5);
+                turnRightTime(1.5);
                 shootCatapult();
-                runBallPicker();
+                runBallPickerTime();
                 shootCatapult();
-                turnLeftSmooth(0.5);
-                goStraightSmooth(3);
+                turnLeftTime(1.5);
+                goForwardTime(3);
             }
             else{                                   //midline side, red
-                goStraightSmooth(2);
-                turnRightSmooth(0.5);
-                goStraightSmooth(-3); // go to position
+                goForwardTime(0.5);
+                turnRightTime(1.5);
+                goBackwardTime(2); // go to position
                 shootCatapult();
                 runBallPicker();
                 shootCatapult();
-                turnLeftSmooth(0.5);    //face the big ball
-                goStraightSmooth(3);
+                turnLeftTime(1.5);    //face the big ball
+                goForwardTime(3);  //bump the big ball
             }
         }
 

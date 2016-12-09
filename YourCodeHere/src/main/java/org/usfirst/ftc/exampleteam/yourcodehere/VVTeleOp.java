@@ -17,6 +17,8 @@ public class VVTeleOp extends SynchronousOpMode {
     DcMotor catapult = null;
     DcMotor ballPicker = null;
     Servo buttonPusher = null;
+
+   // DcMotor linearSlide = null;
     @Override
     public void main() throws InterruptedException {
         /* Initialize our hardware variables. Note that the strings used here as parameters
@@ -28,6 +30,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+     //   this.linearSlide = this.hardwareMap.dcMotor.get("linearSide");
         this.buttonPusher.setDirection(Servo.Direction.REVERSE);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -52,21 +55,6 @@ public class VVTeleOp extends SynchronousOpMode {
             }
             this.motorLeft.setPower(-this.gamepad1.left_stick_y * correctedSpeedRatio); //sets power to motor left
             this.motorRight.setPower(-this.gamepad1.right_stick_y * correctedSpeedRatio); //sets power to motor right
-
-          //  telemetry.addData("Left Power: ",this.motorLeft.getPower());
-          //  telemetry.addData("Right Power: ", this.motorRight.getPower());
-/*
-            if(this.catapult.getPower()==0 && this.gamepad2.right_bumper){
-                this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-                this.catapult.setTargetPosition((int)(1120*2.5));
-                this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);//starts the catapult cycle
-                this.catapult.setPower(catapultSpeed);
-            }
-            if(Math.abs(this.catapult.getCurrentPosition()) > Math.abs(this.catapult.getTargetPosition()) && catapult.getMode()==DcMotorController.RunMode.RUN_TO_POSITION) {
-                this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-                this.catapult.setPower(0);
-            }
-           */
 
             if(this.gamepad2.right_bumper){
                 this.catapult.setPower(catapultSpeed);
@@ -102,17 +90,26 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.gamepad1.left_bumper){
                 this.motorLeft.setPower(driveSpeedRatio);
                 this.motorRight.setPower(-driveSpeedRatio);
-                Thread.sleep(200);
+                Thread.sleep(100);
                 this.motorLeft.setPower(0);
                 this.motorRight.setPower(0);
             }
             if(this.gamepad1.right_bumper){
                 this.motorLeft.setPower(-driveSpeedRatio);
                 this.motorRight.setPower(driveSpeedRatio);
-                Thread.sleep(200);
+                Thread.sleep(100);
                 this.motorLeft.setPower(0);
                 this.motorRight.setPower(0);
             }
+            /*
+            if(this.gamepad1.left_trigger>0.5){
+                this.linearSlide.setPower(0.5);
+            }
+            else{
+                this.linearSlide.setPower(0);
+            }
+             */
+
 
         }
     }
