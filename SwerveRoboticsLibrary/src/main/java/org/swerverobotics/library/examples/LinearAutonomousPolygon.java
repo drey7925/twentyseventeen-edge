@@ -30,6 +30,7 @@ public class LinearAutonomousPolygon extends LinearOpMode
         {
         motorLeft   = hardwareMap.dcMotor.get("motorLeft");
         motorRight  = hardwareMap.dcMotor.get("motorRight");
+
         motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.waitForStart();

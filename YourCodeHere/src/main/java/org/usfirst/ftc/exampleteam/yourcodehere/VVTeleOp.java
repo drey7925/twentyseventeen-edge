@@ -28,6 +28,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+        this.buttonPusher.setDirection(Servo.Direction.REVERSE);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -53,7 +54,7 @@ public class VVTeleOp extends SynchronousOpMode {
 
           //  telemetry.addData("Left Power: ",this.motorLeft.getPower());
           //  telemetry.addData("Right Power: ", this.motorRight.getPower());
-
+/*
             if(this.catapult.getPower()==0 && this.gamepad2.right_bumper){
                 this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
                 this.catapult.setTargetPosition((int)(1120*2.5));
@@ -64,6 +65,15 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.catapult.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 this.catapult.setPower(0);
             }
+           */
+
+            if(this.gamepad2.right_bumper){
+                this.catapult.setPower(catapultSpeed);
+            }
+            else{
+                this.catapult.setPower(0);
+            }
+
             if (this.gamepad2.left_bumper) {                //
                 this.ballPicker.setPower(ballPickerSpeed);  //
             }// sets ball picker speed based on left bumper
@@ -74,6 +84,25 @@ public class VVTeleOp extends SynchronousOpMode {
                 this.ballPicker.setPower(-ballPickerSpeed);
             }
             buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0.091 : 0.365);
+
+
+            //CODE FOR SMALL NUDGE MOVEMENTS:
+
+            if(this.gamepad1.left_bumper){
+                this.motorLeft.setPower(driveSpeedRatio);
+                this.motorRight.setPower(-driveSpeedRatio);
+                Thread.sleep(200);
+                this.motorLeft.setPower(0);
+                this.motorRight.setPower(0);
+            }
+            if(this.gamepad1.right_bumper){
+                this.motorLeft.setPower(-driveSpeedRatio);
+                this.motorRight.setPower(driveSpeedRatio);
+                Thread.sleep(200);
+                this.motorLeft.setPower(0);
+                this.motorRight.setPower(0);
+            }
+
         }
     }
 }

@@ -232,6 +232,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:title="catapult time"/>
         ############################################################
         <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="Mountain Side: time A"
+                android:inputType="number"
+                android:key="auton_timeA"
+                android:summary="How long to drive for to push off ball from center"
+                android:title="Time A, Mountain Side"/>
+
+        <EditTextPreference
+                android:defaultValue="1000"
+                android:dialogTitle="Mountain Side: time A"
+                android:inputType="number"
+                android:key="auton_timeB"
+                android:summary="How long to turn so we are parallel to the center"
+                android:title="Time B, Mountain Side"/>
+
+        <EditTextPreference
                 android:defaultValue="0"
                 android:dialogTitle="Time to drive for camera undershoot correction"
                 android:inputType="number"
