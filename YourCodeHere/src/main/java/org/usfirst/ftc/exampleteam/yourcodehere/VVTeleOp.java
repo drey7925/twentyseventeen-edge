@@ -39,6 +39,7 @@ public class VVTeleOp extends SynchronousOpMode {
         double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
+        double buttonPusherPosition = 0.35;
         // Wait for the game to start
         waitForStart();
         while (opModeIsActive()) {
@@ -83,8 +84,18 @@ public class VVTeleOp extends SynchronousOpMode {
             if(this.gamepad2.left_trigger>0.5){
                 this.ballPicker.setPower(-ballPickerSpeed);
             }
-            buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0.091 : 0.365);
 
+            /*if (this.gamepad2.right_trigger>0.5) {
+                buttonPusherPosition+=0.01;
+            }
+            else {
+                buttonPusherPosition-=0.01;
+            }
+
+            buttonPusher.setPosition(buttonPusherPosition);
+            telemetry.addData("buttonPusher Position: ", buttonPusher.getPosition());
+            telemetry.update();*/
+            buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0 : 1);
 
             //CODE FOR SMALL NUDGE MOVEMENTS:
 

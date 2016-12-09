@@ -65,7 +65,7 @@ public class GyrolessAuton extends SynchronousOpMode{
                 goForwardTime(1);
                 turnRightTime(1);
                 shootCatapult();
-                runBallPicker();
+                runBallPickerTime();
                 shootCatapult();
                 //turnLeftSmooth(0.5);
                 //goStraightSmooth(3);
@@ -317,7 +317,9 @@ public class GyrolessAuton extends SynchronousOpMode{
 
     void shootCatapult() {
         this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.catapult.setTargetPosition(1760);
+        //this.catapult.setTargetPosition(1760);
+        this.catapult.setTargetPosition(5000);
+
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setPower(0.25);
         while(Math.abs(catapult.getCurrentPosition())<Math.abs(catapult.getTargetPosition())) {
@@ -336,6 +338,18 @@ public class GyrolessAuton extends SynchronousOpMode{
             telemetry.addData("Ball Picker Position: ", ballPicker.getCurrentPosition());
             telemetry.update();
         }
+        this.ballPicker.setPower(0);
+    }
+
+    void runBallPickerTime() {
+        this.ballPicker.setPower(0.3);
+
+        try{
+        Thread.sleep(1000);}
+        catch(Exception e){
+            telemetry.addData("Ballpicker Error", e.getMessage());
+        }
+
         this.ballPicker.setPower(0);
     }
 
