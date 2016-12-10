@@ -60,44 +60,44 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.waitForStart();
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
-                goForwardTime(0.5);
-                turnRightTime(1.5);
+                goForwardTime(0.3);
+                turnRightTime(0.5);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(1.5);
-                goForwardTime(3);
+                turnLeftTime(.5);
+                goForwardTime(1.5);
             }
             else{                                           //midline side, blue
-                goForwardTime(0.5);
-                turnRightTime(1.5);
-                goForwardTime(2); // go to position
+                goForwardTime(0.3);
+                turnRightTime(0.5);
+                goForwardTime(0.75); // go to position
                 shootCatapult();
-                runBallPicker();
+                runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(1.5);    //face the big ball
-                goForwardTime(3);  //bump the big ball
+                turnLeftTime(.5);    //face the big ball
+                goForwardTime(1.5);  //bump the big ball
             }
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
-                goForwardTime(0.5);
-                turnRightTime(1.5);
+                goForwardTime(0.3);
+                turnRightTime(0.5);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(1.5);
-                goForwardTime(3);
+                turnLeftTime(0.5);
+                goForwardTime(1.5);
             }
             else{                                   //midline side, red
-                goForwardTime(0.5);
-                turnRightTime(1.5);
-                goBackwardTime(2); // go to position
+                goForwardTime(0.3);
+                turnRightTime(0.5);
+                goBackwardTime(0.75); // go to position
                 shootCatapult();
-                runBallPicker();
+                runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(1.5);    //face the big ball
-                goForwardTime(3);  //bump the big ball
+                turnLeftTime(0.5);    //face the big ball
+                goForwardTime(1.5);  //bump the big ball
             }
         }
 
@@ -250,8 +250,8 @@ public class GyrolessAuton extends SynchronousOpMode{
     }
 
     void turnRightTime(double seconds) {
-        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motorLeft.setPower(DRIVE_SPEED_RATIO);
         motorRight.setPower(-DRIVE_SPEED_RATIO);
         try {
@@ -265,8 +265,8 @@ public class GyrolessAuton extends SynchronousOpMode{
         motorRight.setPower(0);
     }
     void turnLeftTime(double seconds) {
-        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motorLeft.setPower(-DRIVE_SPEED_RATIO);
         motorRight.setPower(DRIVE_SPEED_RATIO);
         try {
@@ -280,8 +280,8 @@ public class GyrolessAuton extends SynchronousOpMode{
         motorRight.setPower(0);
     }
     void goForwardTime(double seconds) {
-        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motorLeft.setPower(DRIVE_SPEED_RATIO);
         motorRight.setPower(DRIVE_SPEED_RATIO);
         try {
@@ -295,8 +295,8 @@ public class GyrolessAuton extends SynchronousOpMode{
         motorRight.setPower(0);
     }
     void goBackwardTime(double seconds) {
-        motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motorLeft.setPower(-DRIVE_SPEED_RATIO);
         motorRight.setPower(-DRIVE_SPEED_RATIO);
         try {
@@ -338,6 +338,7 @@ public class GyrolessAuton extends SynchronousOpMode{
     }
 
     void runBallPickerTime() {
+        ballPicker.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.ballPicker.setPower(0.3);
 
         try{

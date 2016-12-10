@@ -43,6 +43,7 @@ public class VVTeleOp extends SynchronousOpMode {
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         double buttonPusherPosition = 0.35;
+
         // Wait for the game to start
         waitForStart();
         while (opModeIsActive()) {
@@ -56,61 +57,32 @@ public class VVTeleOp extends SynchronousOpMode {
             this.motorLeft.setPower(-this.gamepad1.left_stick_y * correctedSpeedRatio); //sets power to motor left
             this.motorRight.setPower(-this.gamepad1.right_stick_y * correctedSpeedRatio); //sets power to motor right
 
-            if(this.gamepad2.right_bumper){
-                this.catapult.setPower(catapultSpeed);
-            }
-            else{
-                this.catapult.setPower(0);
-            }
+            if(this.gamepad2.right_bumper) {this.catapult.setPower(catapultSpeed);}                     // sets catapult speed based on right controls
+            else if (this.gamepad2.right_trigger>0.5) {this.catapult.setPower(-catapultSpeed); }
+            else {this.catapult.setPower(0);}
 
-            if (this.gamepad2.left_bumper) {                //
-                this.ballPicker.setPower(ballPickerSpeed);  //
-            }// sets ball picker speed based on left bumper
-            else {                                          //
-                this.ballPicker.setPower(0);                //
-            }
-            if(this.gamepad2.left_trigger>0.5){
-                this.ballPicker.setPower(-ballPickerSpeed);
-            }
+            if (this.gamepad2.left_bumper) {this.ballPicker.setPower(ballPickerSpeed);}                // sets ball picker speed based on left controls
+            else if(this.gamepad2.left_trigger>0.5) {this.ballPicker.setPower(-ballPickerSpeed);}
+            else {this.ballPicker.setPower(0);}                //
 
-            /*if (this.gamepad2.right_trigger>0.5) {
-                buttonPusherPosition+=0.01;
-            }
-            else {
-                buttonPusherPosition-=0.01;
-            }
-
-            buttonPusher.setPosition(buttonPusherPosition);
-            telemetry.addData("buttonPusher Position: ", buttonPusher.getPosition());
-            telemetry.update();*/
-            buttonPusher.setPosition(this.gamepad2.right_trigger>0.5 ? 0 : 1);
+            buttonPusher.setPosition(this.gamepad2.b ? 0 : 1);
 
             //CODE FOR SMALL NUDGE MOVEMENTS:
 
-            if(this.gamepad1.left_bumper){
+            if(this.gamepad1.right_bumper){
                 this.motorLeft.setPower(driveSpeedRatio);
                 this.motorRight.setPower(-driveSpeedRatio);
                 Thread.sleep(100);
                 this.motorLeft.setPower(0);
                 this.motorRight.setPower(0);
             }
-            if(this.gamepad1.right_bumper){
+            if(this.gamepad1.left_bumper){
                 this.motorLeft.setPower(-driveSpeedRatio);
                 this.motorRight.setPower(driveSpeedRatio);
                 Thread.sleep(100);
                 this.motorLeft.setPower(0);
                 this.motorRight.setPower(0);
             }
-            /*
-            if(this.gamepad1.left_trigger>0.5){
-                this.linearSlide.setPower(0.5);
-            }
-            else{
-                this.linearSlide.setPower(0);
-            }
-             */
-
-
         }
     }
 }
