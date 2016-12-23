@@ -3,6 +3,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
@@ -12,12 +13,12 @@ import org.swerverobotics.library.interfaces.TeleOp;
 @TeleOp(name = "Velocity Vortex Official Tele-Op Mode")
 public class VVTeleOp extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
-    DcMotor motorLeft = null;
-    DcMotor motorRight = null; //declares motors
-    DcMotor catapult = null;
-    DcMotor ballPicker = null;
-    Servo buttonPusher = null;
-
+    protected DcMotor motorLeft = null;
+    protected DcMotor motorRight = null; //declares motors
+    protected DcMotor catapult = null;
+    protected DcMotor ballPicker = null;
+    protected Servo buttonPusher = null;
+    protected UltrasonicSensor ultrasonic = null;
    // DcMotor linearSlide = null;
     @Override
     public void main() throws InterruptedException {
@@ -30,6 +31,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+        this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultraSonic");
      //   this.linearSlide = this.hardwareMap.dcMotor.get("linearSide");
         this.buttonPusher.setDirection(Servo.Direction.REVERSE);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -65,8 +67,17 @@ public class VVTeleOp extends SynchronousOpMode {
             else if(this.gamepad2.left_trigger>0.5) {this.ballPicker.setPower(-ballPickerSpeed);}
             else {this.ballPicker.setPower(0);}                //
 
-            buttonPusher.setPosition(this.gamepad2.b ? 0 : 1);
+            if (gamepad2.dpad_up) {
+                buttonPusherPosition = Math.min(0.9, buttonPusherPosition+0.01);
+                buttonPusher.setPosition(buttonPusherPosition);
+            }
+            else if (gamepad2.dpad_down) {
+                buttonPusherPosition = Math.max(0.5, buttonPusherPosition-0.01);
+                buttonPusher.setPosition(buttonPusherPosition);
+            }
 
+            telemetry.addData("Ultrasonic: ", ultrasonic.getUltrasonicLevel());
+            telemetry.update();
             //CODE FOR SMALL NUDGE MOVEMENTS:
 
             if(this.gamepad1.right_bumper){

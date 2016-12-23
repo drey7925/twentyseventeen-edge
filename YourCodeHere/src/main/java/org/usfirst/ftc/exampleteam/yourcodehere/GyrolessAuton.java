@@ -1,9 +1,12 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.Autonomous;
 import resq.GyroHelper;
@@ -22,6 +25,8 @@ public class GyrolessAuton extends SynchronousOpMode{
     DcMotor catapult = null;
     //Servo buttonPusher = null;
     DcMotor ballPicker = null;
+    ColorSensor cSensor = null;
+
     double DRIVE_SPEED_RATIO = 0.35; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
@@ -51,6 +56,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
+        this.cSensor = this.hardwareMap.colorSensor.get("cSensor");
 
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -101,152 +107,6 @@ public class GyrolessAuton extends SynchronousOpMode{
             }
         }
 
-    }
-
-
-    void goStraight(double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
-        this.motorRight.setTargetPosition((int) (1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(DRIVE_SPEED_RATIO);
-        this.motorRight.setPower(DRIVE_SPEED_RATIO);
-        telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-        telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-        telemetry.update();
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition())) {}
-        while(Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {}
-    }
-
-    void goStraightSmooth(double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
-        this.motorRight.setTargetPosition((int) (1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(0.2);
-        this.motorRight.setPower(0.2);
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(0.5*motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(0.5*motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
-        while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
-    }
-
-    void turnLeft(double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition(-(int)(1120 * revolutions));
-        this.motorRight.setTargetPosition((int)(1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(DRIVE_SPEED_RATIO);
-        this.motorRight.setPower(DRIVE_SPEED_RATIO);
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition())) {}
-        while(Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {}
-    }
-
-    void turnLeftSmooth (double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition(-(int) (1120 * revolutions));
-        this.motorRight.setTargetPosition((int) (1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(0.2);
-        this.motorRight.setPower(0.2);
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(0.5*motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(0.5*motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
-        while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
-    }
-
-    void turnRight(double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int)(1120 * revolutions));
-        this.motorRight.setTargetPosition(-(int)(1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(DRIVE_SPEED_RATIO);
-        this.motorRight.setPower(DRIVE_SPEED_RATIO);
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition())) {
-            telemetry.addData("Left Position: ", motorLeft.getCurrentPosition());
-            telemetry.addData("Left Target: ", motorLeft.getTargetPosition());
-            telemetry.update();
-        }
-        while(Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {}
-    }
-
-    void turnRightSmooth (double revolutions) {
-        this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
-        this.motorRight.setTargetPosition(-(int) (1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorLeft.setPower(0.2);
-        this.motorRight.setPower(0.2);
-        while(Math.abs(motorLeft.getCurrentPosition())<Math.abs(0.5*motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(0.5*motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs(motorLeft.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs(motorRight.getCurrentPosition()/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
-        while (Math.abs(motorLeft.getCurrentPosition())<Math.abs(motorLeft.getTargetPosition()) || Math.abs(motorRight.getCurrentPosition())<Math.abs(motorRight.getTargetPosition())) {
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            this.motorLeft.setPower(0.2+Math.min(Math.abs((motorLeft.getTargetPosition()-motorLeft.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            this.motorRight.setPower(0.2+Math.min(Math.abs((motorRight.getTargetPosition()-motorRight.getCurrentPosition())/1120)*(DRIVE_SPEED_RATIO-0.2),DRIVE_SPEED_RATIO));
-            telemetry.addData("Left Power: ", motorLeft.getPower());
-            telemetry.addData("Right Power: ", motorRight.getPower());
-            telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-            telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-            telemetry.update();
-        }
     }
 
     void turnRightTime(double seconds) {
@@ -356,5 +216,9 @@ public class GyrolessAuton extends SynchronousOpMode{
 
     public ResqAuton.Side getSide(){
         return ResqAuton.Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN"));
+    }
+
+    public int colorSensorDarkness() {
+        return (cSensor.green()+cSensor.red()+cSensor.blue())/3;
     }
 }
