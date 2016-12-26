@@ -31,7 +31,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
-        this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultraSonic");
+        this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
      //   this.linearSlide = this.hardwareMap.dcMotor.get("linearSide");
         this.buttonPusher.setDirection(Servo.Direction.REVERSE);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);

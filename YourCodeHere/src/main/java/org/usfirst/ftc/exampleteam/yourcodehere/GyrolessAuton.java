@@ -1,6 +1,7 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import android.content.SharedPreferences;
+import android.graphics.Camera;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -17,28 +18,22 @@ import resq.ResqAuton;
  */
 @Autonomous(name="Gyroless Auton")
 public class GyrolessAuton extends SynchronousOpMode{
-    DcMotor motorLeft;
-    DcMotor motorRight;
+    protected DcMotor motorLeft;
+    protected DcMotor motorRight;
 
   //  DcMotor linearSlideOne = null;
     //DcMotor linearSlideTwo = null;
-    DcMotor catapult = null;
+    protected DcMotor catapult = null;
     //Servo buttonPusher = null;
-    DcMotor ballPicker = null;
-    ColorSensor cSensor = null;
+    protected DcMotor ballPicker = null;
+    protected ColorSensor cSensor = null;
+    protected UltrasonicSensor ultrasonic = null;
 
     double DRIVE_SPEED_RATIO = 0.35; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
     protected static ResqAuton.Colors teamColor;
     protected static ResqAuton.Side startSide;
-
-    protected double curYAW;
-    protected double initYaw = 0;
-    double x = 0;
-    double y = 0;
-    final GyroHelper gyroHelper = new GyroHelper(this);
-
 
     @Override public void main() throws InterruptedException
     {
@@ -57,6 +52,7 @@ public class GyrolessAuton extends SynchronousOpMode{
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.cSensor = this.hardwareMap.colorSensor.get("cSensor");
+        this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
 
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
