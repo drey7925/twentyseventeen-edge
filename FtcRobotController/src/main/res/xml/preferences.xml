@@ -162,16 +162,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 android:entryValues="@array/colorAlias"/>
         <CheckBoxPreference
                 android:key="auton_do_beacon"
-                android:summary="Target pressing the beacon light"
-                android:title="Press beacon light"
+                android:summary="Target pressing the beacon lights"
+                android:title="Press beacon lights"
                 android:defaultValue="true"
                 />
         <CheckBoxPreference
-                android:key="auton_park_on_ramp"
-                android:summary="Target parking on ramp"
-                android:title="Park on ramp"
+                android:key="auton_hit_cap_ball"
+                android:summary="Target hitting cap ball"
+                android:title="Hit cap ball"
                 android:defaultValue="true"
                 />
+        <CheckBoxPreference
+                android:key="auton_wait_5_seconds"
+                android:summary="Wait 5 seconds before initiating auton"
+                android:title="Wait 5 seconds"
+                android:defaultValue="false"
+        />
         <ListPreference
                 android:key="auton_ramp_selection"
                 android:title="Autonomous ramp selection"
