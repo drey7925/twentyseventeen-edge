@@ -37,7 +37,7 @@ public class MatColorSpreadCallback implements MatCallback {
     @Override
     public void handleMat(Mat mat) { //called on every frame
 
-        int row = mat.rows() / 2; // find middle row
+        int row = (3*mat.rows())/ 2; // find middle row
         int cols = mat.cols();
         double xT = 0, yT = 0;
         float[] hsv = new float[3];
@@ -145,7 +145,7 @@ public class MatColorSpreadCallback implements MatCallback {
         canvas.drawRect(canvas.getWidth()/2, 0, canvas.getWidth(), canvas.getHeight() / 16, p);
         p.setColor(Color.RED);
 
-        canvas.drawLine(0, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight()/2, p);
+        canvas.drawLine(0, (3*canvas.getHeight())/2, canvas.getWidth(), canvas.getHeight()/2, p);
         canvas.drawText(overText, 0, canvas.getHeight()/3, p);
         //canvas.drawText(Long.toString(lastTime), canvas.getWidth()/2, canvas.getHeight()/3, p);
     }

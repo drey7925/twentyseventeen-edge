@@ -1,16 +1,18 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Camera;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+import android.widget.FrameLayout;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
+import com.qualcomm.robotcore.hardware.*;
+import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.Autonomous;
 import resq.GyroHelper;
+import resq.MatColorSpreadCallback;
 import resq.ResqAuton;
 
 /**
@@ -29,6 +31,10 @@ public class GyrolessAuton extends SynchronousOpMode{
     protected ColorSensor cSensor = null;
     protected UltrasonicSensor ultrasonic = null;
 
+
+    static MatColorSpreadCallback cb;
+    private OpenCvActivityHelper ocvh;
+
     double DRIVE_SPEED_RATIO = 0.35; //sets the top speed for drive train
 
     SharedPreferences sharedPref;
@@ -38,8 +44,29 @@ public class GyrolessAuton extends SynchronousOpMode{
     protected boolean hitCapBall;
     protected boolean doBeacon;
 
+    protected void startCamera() throws InterruptedException {
+        if (cb != null) return;
+        cb = new MatColorSpreadCallback((Activity) hardwareMap.appContext, null);
+        FtcRobotControllerActivity activity = (FtcRobotControllerActivity) hardwareMap.appContext;
+        ocvh = new OpenCvActivityHelper(activity, (FrameLayout) activity.findViewById(com.qualcomm.ftcrobotcontroller.R.id.previewLayout));
+        ((Activity) hardwareMap.appContext).runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                ocvh.addCallback(cb);
+                ocvh.attach();
+            }
+        });
+        ocvh.awaitStart();
+
+
+    }
+
     @Override public void main() throws InterruptedException
     {
+        startCamera();
+
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this.hardwareMap.appContext);
         waitFive = sharedPref.getBoolean("auton_wait_5_seconds", false);
         hitCapBall = sharedPref.getBoolean("auton_hit_cap_ball", true);

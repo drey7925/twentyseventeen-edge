@@ -45,15 +45,26 @@ public class AutonTester extends SynchronousOpMode {
     void goStraight(double revolutions) {
         this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int) (1120 * revolutions));
-        this.motorRight.setTargetPosition((int) (1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        int lPos = -motorLeft.getCurrentPosition();
+        int rPos = -motorRight.getCurrentPosition();
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+
         this.motorLeft.setPower(driveSpeedRatio);
         this.motorRight.setPower(driveSpeedRatio);
-        telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-        telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-        telemetry.update();
+        while(lPos<1120*revolutions && rPos < 1120*revolutions){
+            telemetry.addData("Left Motor Position:",lPos);
+            telemetry.addData("Right Motor Position:",rPos);
+            lPos = -motorLeft.getCurrentPosition();
+            rPos = -motorRight.getCurrentPosition();
+            if(1120*revolutions-lPos<0) motorLeft.setPower(0);
+            if(1120*revolutions-rPos<0) motorRight.setPower(0);
+            if(1120*revolutions-lPos<80) motorLeft.setPower(driveSpeedRatio/2);
+            if(1120*revolutions-rPos<80) motorRight.setPower(driveSpeedRatio/2);
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
     }
 
     void turnLeft(double revolutions) {

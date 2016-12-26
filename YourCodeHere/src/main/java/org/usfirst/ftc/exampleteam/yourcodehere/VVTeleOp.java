@@ -18,8 +18,8 @@ public class VVTeleOp extends SynchronousOpMode {
     protected DcMotor catapult = null;
     protected DcMotor ballPicker = null;
     protected Servo buttonPusher = null;
-    protected UltrasonicSensor ultrasonic = null;
-   // DcMotor linearSlide = null;
+    //protected UltrasonicSensor ultrasonic = null;
+    //DcMotor linearSlide = null;
     @Override
     public void main() throws InterruptedException {
         /* Initialize our hardware variables. Note that the strings used here as parameters
@@ -31,8 +31,8 @@ public class VVTeleOp extends SynchronousOpMode {
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
-        this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
-     //   this.linearSlide = this.hardwareMap.dcMotor.get("linearSide");
+        //this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
+        //this.linearSlide = this.hardwareMap.dcMotor.get("linearSide");
         this.buttonPusher.setDirection(Servo.Direction.REVERSE);
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -44,7 +44,7 @@ public class VVTeleOp extends SynchronousOpMode {
         double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
-        double buttonPusherPosition = 0.35;
+        double buttonPusherPosition = 1;
 
         // Wait for the game to start
         waitForStart();
@@ -68,16 +68,18 @@ public class VVTeleOp extends SynchronousOpMode {
             else {this.ballPicker.setPower(0);}                //
 
             if (gamepad2.dpad_up) {
-                buttonPusherPosition = Math.min(0.9, buttonPusherPosition+0.01);
+                buttonPusherPosition = Math.max(0, buttonPusherPosition-0.01);
                 buttonPusher.setPosition(buttonPusherPosition);
             }
             else if (gamepad2.dpad_down) {
-                buttonPusherPosition = Math.max(0.5, buttonPusherPosition-0.01);
+                buttonPusherPosition = Math.min(1, buttonPusherPosition+0.01);
                 buttonPusher.setPosition(buttonPusherPosition);
             }
-
-            telemetry.addData("Ultrasonic: ", ultrasonic.getUltrasonicLevel());
+            telemetry.addData("buttonPusher: ", buttonPusherPosition);
             telemetry.update();
+
+          //  telemetry.addData("Ultrasonic: ", ultrasonic.getUltrasonicLevel());
+           // telemetry.update();
             //CODE FOR SMALL NUDGE MOVEMENTS:
 
             if(this.gamepad1.right_bumper){
