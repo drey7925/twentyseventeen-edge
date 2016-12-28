@@ -49,49 +49,87 @@ public class AutonTester extends SynchronousOpMode {
         int rPos = -motorRight.getCurrentPosition();
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        if (revolutions < 0) {
+            motorLeft.setDirection(DcMotor.Direction.FORWARD);
+            motorRight.setDirection(DcMotor.Direction.REVERSE);
+        }
 
-        this.motorLeft.setPower(driveSpeedRatio);
-        this.motorRight.setPower(driveSpeedRatio);
-        while(lPos<1120*revolutions && rPos < 1120*revolutions){
+        this.motorLeft.setPower(driveSpeedRatio/2);
+        this.motorRight.setPower(driveSpeedRatio/2);
+        while(lPos<1120*Math.abs(revolutions) && rPos < 1120*Math.abs(revolutions)){
             telemetry.addData("Left Motor Position:",lPos);
             telemetry.addData("Right Motor Position:",rPos);
             lPos = -motorLeft.getCurrentPosition();
             rPos = -motorRight.getCurrentPosition();
-            if(1120*revolutions-lPos<0) motorLeft.setPower(0);
-            if(1120*revolutions-rPos<0) motorRight.setPower(0);
-            if(1120*revolutions-lPos<80) motorLeft.setPower(driveSpeedRatio/2);
-            if(1120*revolutions-rPos<80) motorRight.setPower(driveSpeedRatio/2);
+
+            motorRight.setPower(Math.min(Math.min(driveSpeedRatio*(560+rPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-rPos)/1120));
+            motorLeft.setPower(Math.min(Math.min(driveSpeedRatio*(560+lPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-lPos)/1120));
+            if(1120*Math.abs(revolutions)-lPos<0) motorLeft.setPower(0);
+            if(1120*Math.abs(revolutions)-rPos<0) motorRight.setPower(0);
+            //if(1120*Math.abs(revolutions)-lPos<80) motorLeft.setPower(driveSpeedRatio/2);
+            //if(1120*Math.abs(revolutions)-rPos<80) motorRight.setPower(driveSpeedRatio/2);
             telemetry.update();
         }
         motorLeft.setPower(0);
         motorRight.setPower(0);
+        if (revolutions < 0) {
+            motorLeft.setDirection(DcMotor.Direction.REVERSE);
+            motorRight.setDirection(DcMotor.Direction.FORWARD);
+        }
     }
+
 
     void turnLeft(double revolutions) {
         this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition(-(int)(1120 * revolutions));
-        this.motorRight.setTargetPosition((int)(1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        int lPos = -motorLeft.getCurrentPosition();
+        int rPos = -motorRight.getCurrentPosition();
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorLeft.setDirection(DcMotor.Direction.FORWARD);
+
         this.motorLeft.setPower(driveSpeedRatio);
         this.motorRight.setPower(driveSpeedRatio);
-        telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-        telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-        telemetry.update();
+        while(lPos<1120*Math.abs(revolutions) && rPos < 1120*Math.abs(revolutions)){
+            telemetry.addData("Left Motor Position:",lPos);
+            telemetry.addData("Right Motor Position:",rPos);
+            lPos = -motorLeft.getCurrentPosition();
+            rPos = -motorRight.getCurrentPosition();
+            motorRight.setPower(Math.min(Math.min(driveSpeedRatio*(560+rPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-rPos)/1120));
+            motorLeft.setPower(Math.min(Math.min(driveSpeedRatio*(560+lPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-lPos)/1120));
+            if(1120*Math.abs(revolutions)-lPos<0) motorLeft.setPower(0);
+            if(1120*Math.abs(revolutions)-rPos<0) motorRight.setPower(0);
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+        motorLeft.setDirection(DcMotor.Direction.REVERSE);
     }
 
     void turnRight(double revolutions) {
         this.motorLeft.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.motorLeft.setTargetPosition((int)(1120 * revolutions));
-        this.motorRight.setTargetPosition(-(int)(1120 * revolutions));
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        int lPos = -motorLeft.getCurrentPosition();
+        int rPos = -motorRight.getCurrentPosition();
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight.setDirection(DcMotor.Direction.REVERSE);
+
         this.motorLeft.setPower(driveSpeedRatio);
         this.motorRight.setPower(driveSpeedRatio);
-        telemetry.addData("Left Motor Position:",motorLeft.getCurrentPosition());
-        telemetry.addData("Right Motor Position:",motorRight.getCurrentPosition());
-        telemetry.update();
+        while(lPos<1120*Math.abs(revolutions) && rPos < 1120*Math.abs(revolutions)){
+            telemetry.addData("Left Motor Position:",lPos);
+            telemetry.addData("Right Motor Position:",rPos);
+            lPos = -motorLeft.getCurrentPosition();
+            rPos = -motorRight.getCurrentPosition();
+            motorRight.setPower(Math.min(Math.min(driveSpeedRatio*(560+rPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-rPos)/1120));
+            motorLeft.setPower(Math.min(Math.min(driveSpeedRatio*(560+lPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-lPos)/1120));
+            if(1120*Math.abs(revolutions)-lPos<0) motorLeft.setPower(0);
+            if(1120*Math.abs(revolutions)-rPos<0) motorRight.setPower(0);
+            telemetry.update();
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+        motorRight.setDirection(DcMotor.Direction.FORWARD);
     }
 }
