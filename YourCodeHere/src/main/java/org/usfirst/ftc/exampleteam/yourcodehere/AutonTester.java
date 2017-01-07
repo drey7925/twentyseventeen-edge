@@ -17,8 +17,8 @@ public class AutonTester extends SynchronousOpMode {
     double driveSpeedRatio = 0.5; //sets the top speed for drive train
     @Override
     public void main() throws InterruptedException {
-        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.motorLeft = this.hardwareMap.dcMotor.get("lMotor");
+        this.motorRight = this.hardwareMap.dcMotor.get("rMotor");
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -66,8 +66,8 @@ public class AutonTester extends SynchronousOpMode {
             motorLeft.setPower(Math.min(Math.min(driveSpeedRatio*(560+lPos)/1120, driveSpeedRatio),driveSpeedRatio*(560+revolutions*1120-lPos)/1120));
             if(1120*Math.abs(revolutions)-lPos<0) motorLeft.setPower(0);
             if(1120*Math.abs(revolutions)-rPos<0) motorRight.setPower(0);
-            //if(1120*Math.abs(revolutions)-lPos<80) motorLeft.setPower(driveSpeedRatio/2);
-            //if(1120*Math.abs(revolutions)-rPos<80) motorRight.setPower(driveSpeedRatio/2);
+            //if(1120*Math.abs(revolutions)-lPos<80) lMotor.setPower(driveSpeedRatio/2);
+            //if(1120*Math.abs(revolutions)-rPos<80) rMotor.setPower(driveSpeedRatio/2);
             telemetry.update();
         }
         motorLeft.setPower(0);

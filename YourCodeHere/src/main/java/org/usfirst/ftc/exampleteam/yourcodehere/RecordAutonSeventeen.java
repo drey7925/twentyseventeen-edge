@@ -65,8 +65,8 @@ public class RecordAutonSeventeen extends SynchronousOpMode {
         DcMotor w2;
 
         public void initm() {
-            l0 = hardwareMap.dcMotor.get("motorLeft");
-            r0 = hardwareMap.dcMotor.get("motorRight");
+            l0 = hardwareMap.dcMotor.get("lMotor");
+            r0 = hardwareMap.dcMotor.get("rMotor");
             c = hardwareMap.dcMotor.get("catapult");
 
             r0.setDirection(DcMotor.Direction.REVERSE);

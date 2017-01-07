@@ -116,7 +116,7 @@ public class WorkshopGyrolessAuton extends SynchronousOpMode{
         protected void startUpHardware() throws InterruptedException {
 
 
-            this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
+            this.motorLeft = this.hardwareMap.dcMotor.get("lMotor");
             this.motorRight = this.hardwareMap.dcMotor.get("motorFront");
             this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
             this.catapult = this.hardwareMap.dcMotor.get("catapult");

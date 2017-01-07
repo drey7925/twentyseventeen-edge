@@ -81,7 +81,7 @@ public class MiniAuton extends SynchronousOpMode{
     protected void startUpHardware() throws InterruptedException {
 
 
-        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
+        this.motorLeft = this.hardwareMap.dcMotor.get("lMotor");
         this.motorRight = this.hardwareMap.dcMotor.get("motorFront");
         motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
