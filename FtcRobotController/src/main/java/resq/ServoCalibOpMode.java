@@ -13,7 +13,7 @@ public class ServoCalibOpMode  extends OpMode{
     ServoController sc;
     @Override
     public void init() {
-        sc = hardwareMap.servoController.get("testservo");
+        sc = hardwareMap.servoController.get("btnpushpls");
     }
 
     @Override

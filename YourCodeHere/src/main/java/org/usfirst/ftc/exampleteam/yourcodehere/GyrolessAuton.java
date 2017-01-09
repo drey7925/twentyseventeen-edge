@@ -94,6 +94,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.rMotor.setDirection(DcMotor.Direction.FORWARD);
         this.startCamera();
         this.waitForStart();
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
@@ -109,10 +110,13 @@ public class GyrolessAuton extends SynchronousOpMode {
                     telemetry.addData("Is Running: ", opModeIsActive());
                     telemetry.update();
                 }
+
                 lMotor.setPower(0);
                 rMotor.setPower(0);
+                Thread.sleep(1000);
                 turnRight(0.5);
                 goStraight(-0.5);
+                Thread.sleep(1000);
                 pressButtonSequence(Direction.BACKWARD);
                 goStraight(-0.5);
                 pressButtonSequence(Direction.BACKWARD);
@@ -120,12 +124,26 @@ public class GyrolessAuton extends SynchronousOpMode {
             } else {                                           //midline side, blue
                 goStraight(0.3);
                 turnRight(0.5);
-                goStraight(0.75); // go to position
+                goStraight(0.6); // go to position of mountainside
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeft(.5);    //face the big ball
-                goStraight(1.5);  //bump the big ball
+                while (ultrasonic.getUltrasonicLevel() > 50) {
+                    lMotor.setPower(0.25);
+                    rMotor.setPower(0.25);
+                    telemetry.addData("Is Running: ", opModeIsActive());
+                    telemetry.update();
+                }
+
+                lMotor.setPower(0);
+                rMotor.setPower(0);
+                Thread.sleep(1000);
+                turnRight(0.5);
+                goStraight(-0.5);
+                Thread.sleep(1000);
+                pressButtonSequence(Direction.BACKWARD);
+                goStraight(-0.5);
+                pressButtonSequence(Direction.BACKWARD);
             }
         } else if (teamColor.equals(ResqAuton.Colors.RED)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, red
@@ -134,17 +152,47 @@ public class GyrolessAuton extends SynchronousOpMode {
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeft(0.5);
-                goStraight(1.5);
+                turnLeft(1);
+                while (ultrasonic.getUltrasonicLevel() > 50) {
+                    lMotor.setPower(0.25);
+                    rMotor.setPower(0.25);
+                    telemetry.addData("Is Running: ", opModeIsActive());
+                    telemetry.update();
+                }
+
+                lMotor.setPower(0);
+                rMotor.setPower(0);
+                Thread.sleep(1000);
+                turnRight(0.5);
+                goStraight(0.5);
+                Thread.sleep(1000);
+                pressButtonSequence(Direction.FORWARD);
+                goStraight(0.5);
+                pressButtonSequence(Direction.FORWARD);
             } else {                                   //midline side, red
                 goStraight(0.3);
                 turnRight(0.5);
-                goStraight(-0.75); // go to position
+                goStraight(-0.6);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeft(0.5);    //face the big ball
-                goStraight(1.5);  //bump the big ball
+                turnLeft(1);
+                while (ultrasonic.getUltrasonicLevel() > 50) {
+                    lMotor.setPower(0.25);
+                    rMotor.setPower(0.25);
+                    telemetry.addData("Is Running: ", opModeIsActive());
+                    telemetry.update();
+                }
+
+                lMotor.setPower(0);
+                rMotor.setPower(0);
+                Thread.sleep(1000);
+                turnRight(0.5);
+                goStraight(0.5);
+                Thread.sleep(1000);
+                pressButtonSequence(Direction.FORWARD);
+                goStraight(0.5);
+                pressButtonSequence(Direction.FORWARD);
             }
         }
 
