@@ -30,7 +30,8 @@ public class GyrolessAuton extends SynchronousOpMode {
     protected DcMotor ballPicker = null;
     protected ColorSensor cSensor = null;
     protected UltrasonicSensor ultrasonic = null;
-
+    protected Servo lSweeper = null;
+    protected Servo rSweeper = null;
 
     static MatColorSpreadCallback cb;
     private OpenCvActivityHelper ocvh;
@@ -82,6 +83,8 @@ public class GyrolessAuton extends SynchronousOpMode {
             telemetry.addData("Error: ", "something done goofed.");
             telemetry.update();
         }
+        this.lSweeper = this.hardwareMap.servo.get("lSweeper");
+        this.rSweeper = this.hardwareMap.servo.get("rSweeper");
 
         this.lMotor = this.hardwareMap.dcMotor.get("lMotor");
         this.rMotor = this.hardwareMap.dcMotor.get("rMotor");
@@ -97,6 +100,10 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.rMotor.setDirection(DcMotor.Direction.FORWARD);
         this.startCamera();
         this.waitForStart();
+
+        lSweeper.setPosition(.70);
+        rSweeper.setPosition(.30);
+
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, blue
                 goStraight(0.3);
@@ -104,7 +111,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                while (ultrasonic.getUltrasonicLevel() > 50) {
+                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
                     telemetry.addData("Is Running: ", opModeIsActive());
@@ -128,7 +135,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                while (ultrasonic.getUltrasonicLevel() > 50) {
+                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
                     telemetry.addData("Is Running: ", opModeIsActive());
@@ -153,7 +160,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 runBallPickerTime();
                 shootCatapult();
                 turnLeft(1);
-                while (ultrasonic.getUltrasonicLevel() > 50) {
+                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
                     telemetry.addData("Is Running: ", opModeIsActive());
@@ -177,7 +184,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 runBallPickerTime();
                 shootCatapult();
                 turnLeft(1);
-                while (ultrasonic.getUltrasonicLevel() > 50) {
+                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
                     telemetry.addData("Is Running: ", opModeIsActive());
@@ -337,7 +344,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         if (direction == Direction.FORWARD) {rMotor.setDirection(DcMotor.Direction.REVERSE);}
         else {lMotor.setDirection(DcMotor.Direction.REVERSE);}
         double motorPower = 0;
-        double initialWhiteness = colorSensorWhiteness();
+        //double initialWhiteness = colorSensorWhiteness();
         while (lPos == lMotor.getCurrentPosition() || rPos == rMotor.getCurrentPosition()) {
             telemetry.addData("Left Motor Position:", lPos);
             telemetry.addData("Right Motor Position:", rPos);
@@ -349,11 +356,16 @@ public class GyrolessAuton extends SynchronousOpMode {
             telemetry.update();
         }
         while (true) {
-            if (colorSensorWhiteness() > initialWhiteness + 30) {
+            if (cb.equals("BR")||cb.equals("RB")) {
                 rMotor.setPower(0);
                 lMotor.setPower(0);
                 break;
             }
+           /* if (colorSensorWhiteness() > initialWhiteness + 30) {
+                rMotor.setPower(0);
+                lMotor.setPower(0);
+                break;
+            }*/
         }
         if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
         else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
@@ -370,6 +382,7 @@ public class GyrolessAuton extends SynchronousOpMode {
             rMotor.setPower(motorPower);
             int iterations = 0;
             while (true) {
+                iterations++;
                 if (cb.equals("RB") && cb.equals("BR")) {
                     if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
                     else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}

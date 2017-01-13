@@ -40,6 +40,9 @@ dependencies {
     //compile 'org.bytedeco:javacv:0.11'
     compile files('libs/android-support-v4.jar')
     compile files('libs/opencv-310.jar')
+    compile files('libs/rc.jar')
+    compile files('libs/license.jar')
+    compile files('libs/edm.jar')
 }
 buildscript {
     dependencies {

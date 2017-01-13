@@ -33,6 +33,8 @@ package com.qualcomm.ftcrobotcontroller;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
+import android.app.enterprise.license.EnterpriseLicenseManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -366,7 +368,13 @@ public class FtcRobotControllerActivity extends Activity {
         viewLogsIntent.putExtra(LaunchActivityConstantsList.VIEW_LOGS_ACTIVITY_FILENAME, RobotLog.getLogFilename(this));
         startActivity(viewLogsIntent);
         return true;
-    }
+    } if (id==R.id.action_activate_mdm){
+          EnterpriseLicenseManager elmManager = EnterpriseLicenseManager.getInstance(context);
+          elmManager.activateLicense("2C230705EBD05FBACDFC0F77E90D8295ECEF705EC36E57BA515BDB776210BE3BF0E797E7452EBFD83F96749B312803D61E242097916F8DEDA821A8B443796A48", pkgName);
+          Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+          intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
+          startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
+      }
     return super.onOptionsItemSelected(item);
   }
 
