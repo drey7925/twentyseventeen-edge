@@ -76,15 +76,24 @@ public class VVTeleOp extends SynchronousOpMode {
             }
 
             if (this.gamepad2.left_bumper) {
+                if(lSweeperPosition > 0.4){
+                    lSweeper.setPosition(0.4);
+                }
+                if(rSweeperPosition < 0.3) {
+                    rSweeper.setPosition(0.3);
+                }
                 this.ballPicker.setPower(ballPickerSpeed);
-                lSweeper.setPosition(.70);
-                rSweeper.setPosition(.30);
             }                // sets ball picker speed based on left controls
             else if (this.gamepad2.left_trigger > 0.5) {
+                if(lSweeperPosition > 0.4){
+                    lSweeper.setPosition(0.4);
+                }
+                if(rSweeperPosition < 0.3) {
+                    rSweeper.setPosition(0.3);
+                }
                 this.ballPicker.setPower(-ballPickerSpeed);
-                lSweeper.setPosition(.70);
-                rSweeper.setPosition(.30);
-            } else {
+            }
+            else {
                 this.ballPicker.setPower(0);
             }                //
 

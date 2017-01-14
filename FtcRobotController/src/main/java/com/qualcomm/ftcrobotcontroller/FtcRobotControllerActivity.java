@@ -370,10 +370,11 @@ public class FtcRobotControllerActivity extends Activity {
         return true;
     } if (id==R.id.action_activate_mdm){
           EnterpriseLicenseManager elmManager = EnterpriseLicenseManager.getInstance(context);
-          elmManager.activateLicense("2C230705EBD05FBACDFC0F77E90D8295ECEF705EC36E57BA515BDB776210BE3BF0E797E7452EBFD83F96749B312803D61E242097916F8DEDA821A8B443796A48", pkgName);
+          elmManager.activateLicense("2C230705EBD05FBACDFC0F77E90D8295ECEF705EC36E57BA515BDB776210BE3BF0E797E7452EBFD83F96749B312803D61E242097916F8DEDA821A8B443796A48", "com.qualcomm.ftcrobotcontroller");
+          
           Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-          intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
-          startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
+          //intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
+          startActivity(intent);
       }
     return super.onOptionsItemSelected(item);
   }
