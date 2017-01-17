@@ -40,46 +40,46 @@ import org.swerverobotics.library.internal.AnnotatedOpModeRegistrar;
 /**
  * Register Op Modes
  */
-public class FtcOpModeRegister implements OpModeRegister 
-    {
-  /**
+public class FtcOpModeRegister implements OpModeRegister {
+    /**
      * The Op Mode Manager will call this method when it wants a list of all available op modes.
      * OpModes which are registered during this call will form the contents of the OpMode
      * list on the driver station.
-   *
+     * <p>
      * There are two ways you can register an OpMode.
-     *
+     * <p>
      * 1)   Manually, by calling manager.register(displayName, class) here, where
-     *      displayName is the name you want to show up in on the driver station
-     *      and class is the class which should be instantiated to service that OpMode,
-     *
-     * 2)   Dynamically, by annotating your OpModes with @Autonomous or @TeleOp annotations,  
-     *      or using a static @OpModeRegistrar method.
+     * displayName is the name you want to show up in on the driver station
+     * and class is the class which should be instantiated to service that OpMode,
+     * <p>
+     * 2)   Dynamically, by annotating your OpModes with @Autonomous or @TeleOp annotations,
+     * or using a static @OpModeRegistrar method.
      *
      * @param manager the manager to use for manual registration
-     *
      * @see org.swerverobotics.library.interfaces.Autonomous
      * @see org.swerverobotics.library.interfaces.TeleOp
      * @see org.swerverobotics.library.interfaces.Disabled
      * @see org.swerverobotics.library.interfaces.OpModeRegistrar
      * @see org.swerverobotics.library.examples.SynchTeleOp
-<<<<<<< HEAD
-*/
-  public void register(OpModeManager manager) 
-    {
+     * <<<<<<< HEAD
+     */
+    public void register(OpModeManager manager) {
 
-   AnnotatedOpModeRegistrar.register(manager);
-    manager.register("gyrotest",GyroTestOpMode.class);
+        AnnotatedOpModeRegistrar.register(manager);
+        manager.register("gyrotest", GyroTestOpMode.class);
+        manager.register("cameratest", CameraCodeTest.class);
+    /*
         manager.register("telop", RectResqTeleop.class);
         manager.register("fallback", RectResqFallbackTeleop.class);
-        manager.register("cameratest", CameraCodeTest.class);
+
         manager.register("auton", ResqAuton.class);
         manager.register("servocalib", ServoCalibOpMode.class);
         manager.register("record", ResqRecordV1Auton.class);
         manager.register("recordv2", ResqRecordV2Auton.class);
         manager.register("play", ResqBackupPlaybackAuton.class);
         manager.register("enctest", EncoderTest.class);
-    //AnnotatedOpModeRegistrar.register(manager);
-   }
-  
+        */
+        //AnnotatedOpModeRegistrar.register(manager);
+    }
+
 }
