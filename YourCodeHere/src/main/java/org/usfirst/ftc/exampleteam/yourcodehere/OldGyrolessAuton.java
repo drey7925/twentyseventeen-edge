@@ -2,28 +2,18 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.Range;
-//import org.apache.commons.codec.DecoderException;
-//import org.apache.commons.codec.binary.Hex;
-import org.swerverobotics.library.*;
-import org.swerverobotics.library.interfaces.*;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.Autonomous;
-import resq.DeviceNaming;
 import resq.GyroHelper;
 import resq.ResqAuton;
-import resq.ResqAuton.*;
 
 /**
- * Created by kam07440 on 10/7/2016.
- * Contributors:
- * Lillian Hong and Gabriel Kammer
+ * Created by hon07726 on 10/28/2016.
  */
-
-@Autonomous(name="Old Auton")
-public class MiniAuton extends SynchronousOpMode{
-
+@Autonomous(name="Old Gyroless Auton")
+public class OldGyrolessAuton extends SynchronousOpMode{
     DcMotor motorLeft;
     DcMotor motorRight;
 
@@ -37,8 +27,6 @@ public class MiniAuton extends SynchronousOpMode{
     SharedPreferences sharedPref;
     protected static ResqAuton.Colors teamColor;
     protected static ResqAuton.Side startSide;
-    protected Servo lSweeper = null;
-    protected Servo rSweeper = null;
 
     protected double curYAW;
     protected double initYaw = 0;
@@ -59,12 +47,10 @@ public class MiniAuton extends SynchronousOpMode{
             telemetry.update();
         }
 
-        this.motorLeft = this.hardwareMap.dcMotor.get("lMotor");
-        this.motorRight = this.hardwareMap.dcMotor.get("rMotor");
+        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
         this.ballPicker = this.hardwareMap.dcMotor.get("ballPicker");
-        this.lSweeper = this.hardwareMap.servo.get("lSweeper");
-        this.rSweeper = this.hardwareMap.servo.get("rSweeper");
 
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -72,56 +58,46 @@ public class MiniAuton extends SynchronousOpMode{
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         this.waitForStart();
-
-        lSweeper.setPosition(0.4);
-        rSweeper.setPosition(0.3);
-
         if (teamColor.equals(ResqAuton.Colors.BLUE)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, blue
                 goForwardTime(0.3);
-                turnRightTime(0.6);
+                turnRightTime(0.5);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(.6);
-                goForwardTime(1.7);
                 turnLeftTime(.5);
-                turnRightTime(.5);
-                goForwardTime(.3);
+                goForwardTime(1.5);
             }
             else{                                           //midline side, blue
                 goForwardTime(0.3);
-                turnRightTime(0.6);
+                turnRightTime(0.5);
                 goForwardTime(0.75); // go to position
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(.6);    //face the big ball
-                goForwardTime(1.7);  //bump the big ball
+                turnLeftTime(.5);    //face the big ball
+                goForwardTime(1.5);  //bump the big ball
             }
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)){
             if(startSide.equals(ResqAuton.Side.MOUNTAIN)){  //mountain side, red
                 goForwardTime(0.3);
-                turnRightTime(0.6);
+                turnRightTime(0.5);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(0.6);
-                goForwardTime(1.7);
-                turnLeftTime(.5);
-                turnRightTime(.5);
-                goForwardTime(.3);
+                turnLeftTime(0.5);
+                goForwardTime(1.5);
             }
             else{                                   //midline side, red
                 goForwardTime(0.3);
-                turnRightTime(0.6);
+                turnRightTime(0.5);
                 goBackwardTime(0.75); // go to position
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeftTime(0.6);    //face the big ball
-                goForwardTime(1.7);  //bump the big ball
+                turnLeftTime(0.5);    //face the big ball
+                goForwardTime(1.5);  //bump the big ball
             }
         }
 
@@ -353,7 +329,7 @@ public class MiniAuton extends SynchronousOpMode{
         this.ballPicker.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.ballPicker.setTargetPosition(2240);
         this.ballPicker.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-        this.ballPicker.setPower(0.4);
+        this.ballPicker.setPower(0.5);
         while(Math.abs(ballPicker.getCurrentPosition())<Math.abs(ballPicker.getTargetPosition())) {
             telemetry.addData("Ball Picker Position: ", ballPicker.getCurrentPosition());
             telemetry.update();
@@ -363,10 +339,10 @@ public class MiniAuton extends SynchronousOpMode{
 
     void runBallPickerTime() {
         ballPicker.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.ballPicker.setPower(0.1);
+        this.ballPicker.setPower(0.3);
 
         try{
-            Thread.sleep(1200);}
+            Thread.sleep(1000);}
         catch(Exception e){
             telemetry.addData("Ballpicker Error", e.getMessage());
         }
@@ -382,5 +358,3 @@ public class MiniAuton extends SynchronousOpMode{
         return ResqAuton.Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN"));
     }
 }
-
-
