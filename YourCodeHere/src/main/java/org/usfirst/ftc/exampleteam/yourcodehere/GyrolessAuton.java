@@ -22,6 +22,7 @@ public class GyrolessAuton extends SynchronousOpMode {
     public static final int COUNTS_PER_ENCODER = 1120;
     protected DcMotor lMotor;
     protected DcMotor rMotor;
+    //protected DcMotor centerOmni;
 
     //  DcMotor linearSlideOne = null;
     //DcMotor linearSlideTwo = null;
@@ -33,10 +34,12 @@ public class GyrolessAuton extends SynchronousOpMode {
     protected Servo lSweeper = null;
     protected Servo rSweeper = null;
 
+
     static MatColorSpreadCallback cb;
     private OpenCvActivityHelper ocvh;
 
     double DRIVE_SPEED_RATIO = 0.35; //sets the top speed for drive train
+    double OMNI_SPEED_RATIO = 1;
     MediaPlayer r2Startup;
     SharedPreferences sharedPref;
     protected ResqAuton.Colors teamColor;
@@ -93,6 +96,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.cSensor = this.hardwareMap.colorSensor.get("cSensor");
         this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+        //this.centerOmni = this.hardwareMap.dcMotor.get("centerOmni");
         this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -101,13 +105,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.startCamera();
         this.waitForStart();
 
-        lSweeper.setPosition(.70);
+        lSweeper.setPosition(.40);
         rSweeper.setPosition(.30);
+        buttonPusher.setPosition(1);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, blue
                 goStraight(0.3);
-                turnRight(0.5);
+                turnRight(0.75);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
@@ -117,13 +122,11 @@ public class GyrolessAuton extends SynchronousOpMode {
                     telemetry.addData("Is Running: ", opModeIsActive());
                     telemetry.update();
                 }
-
                 lMotor.setPower(0);
                 rMotor.setPower(0);
-                Thread.sleep(1000);
-                turnRight(0.5);
+                turnRight(0.75);
+                //slideLeft(0.3);
                 goStraight(-0.5);
-                Thread.sleep(1000);
                 pressButtonSequence(Direction.BACKWARD);
                 goStraight(-0.5);
                 pressButtonSequence(Direction.BACKWARD);
@@ -298,6 +301,26 @@ public class GyrolessAuton extends SynchronousOpMode {
     }
 
 
+    /*void slideLeft(double revolutions) {
+        this.centerOmni.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        int pos = -centerOmni.getCurrentPosition();
+        this.centerOmni.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        if (revolutions < 0) {centerOmni.setDirection(DcMotor.Direction.REVERSE);}
+        this.centerOmni.setPower(0.5);
+        int ticks = 0;
+        while (pos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
+            telemetry.addData("Omni Position:", pos);
+            pos = -lMotor.getCurrentPosition();
+            ticks++;
+            centerOmni.setPower(Math.min(Math.min(Math.max(OMNI_SPEED_RATIO * (560 + pos) / COUNTS_PER_ENCODER, ticks / START_SLEW_RATIO), OMNI_SPEED_RATIO), OMNI_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - pos) / COUNTS_PER_ENCODER));
+            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - pos < 0) centerOmni.setPower(0);
+            telemetry.update();
+        }
+        centerOmni.setPower(0);
+        centerOmni.setDirection(DcMotor.Direction.FORWARD);
+    }*/
+
+
     void shootCatapult() {
         this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         //this.catapult.setTargetPosition(1760);
@@ -341,8 +364,13 @@ public class GyrolessAuton extends SynchronousOpMode {
         int rPos = -rMotor.getCurrentPosition();
         this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        if (direction == Direction.FORWARD) {rMotor.setDirection(DcMotor.Direction.REVERSE);}
-        else {lMotor.setDirection(DcMotor.Direction.REVERSE);}
+        if (direction == Direction.FORWARD) {
+            rMotor.setDirection(DcMotor.Direction.FORWARD);
+            lMotor.setDirection(DcMotor.Direction.REVERSE);
+        } else {
+            rMotor.setDirection(DcMotor.Direction.REVERSE);
+            lMotor.setDirection(DcMotor.Direction.FORWARD);
+        }
         double motorPower = 0;
         //double initialWhiteness = colorSensorWhiteness();
         while (lPos == lMotor.getCurrentPosition() || rPos == rMotor.getCurrentPosition()) {
