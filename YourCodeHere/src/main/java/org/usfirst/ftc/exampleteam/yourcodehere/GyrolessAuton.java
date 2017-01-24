@@ -22,7 +22,7 @@ public class GyrolessAuton extends SynchronousOpMode {
     public static final int COUNTS_PER_ENCODER = 1120;
     protected DcMotor lMotor;
     protected DcMotor rMotor;
-    //protected DcMotor centerOmni;
+    protected DcMotor centerOmni;
 
     //  DcMotor linearSlideOne = null;
     //DcMotor linearSlideTwo = null;
@@ -96,7 +96,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.cSensor = this.hardwareMap.colorSensor.get("cSensor");
         this.ultrasonic = this.hardwareMap.ultrasonicSensor.get("ultrasonic");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
-        //this.centerOmni = this.hardwareMap.dcMotor.get("centerOmni");
+        this.centerOmni = this.hardwareMap.dcMotor.get("centerOmni");
         this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.catapult.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -116,7 +116,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
+                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel() == 0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
                     telemetry.addData("Is Running: ", opModeIsActive());
@@ -125,7 +125,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 lMotor.setPower(0);
                 rMotor.setPower(0);
                 turnRight(0.75);
-                //slideLeft(0.3);
+                slideLeft(0.3);
                 goStraight(-0.5);
                 pressButtonSequence(Direction.BACKWARD);
                 goStraight(-0.5);
@@ -301,7 +301,7 @@ public class GyrolessAuton extends SynchronousOpMode {
     }
 
 
-    /*void slideLeft(double revolutions) {
+    void slideLeft(double revolutions) {
         this.centerOmni.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         int pos = -centerOmni.getCurrentPosition();
         this.centerOmni.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -318,7 +318,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         }
         centerOmni.setPower(0);
         centerOmni.setDirection(DcMotor.Direction.FORWARD);
-    }*/
+    }
 
 
     void shootCatapult() {

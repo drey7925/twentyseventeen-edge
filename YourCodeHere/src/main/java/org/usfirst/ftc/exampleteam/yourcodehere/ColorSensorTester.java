@@ -1,6 +1,7 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.LightSensor;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
@@ -10,19 +11,18 @@ import org.swerverobotics.library.interfaces.TeleOp;
 @TeleOp(name = "Color Sensor Tester")
 public class ColorSensorTester extends SynchronousOpMode {
 
-    protected ColorSensor sensor = null;
+  //  protected ColorSensor sensor = null;
+  //  protected ColorSensor sensor = null;
+    protected LightSensor sensor = null;
 
     @Override
     public void main() throws InterruptedException {
-        sensor = hardwareMap.colorSensor.get("cSensor");
-        double whiteness = 0;
+       // sensor = hardwareMap.colorSensor.get("cSensor");
+        sensor = hardwareMap.lightSensor.get("lightSensor");
+
         waitForStart();
         while (opModeIsActive()) {
-            telemetry.addData("Red: ", sensor.red());
-            telemetry.addData("Green: ", sensor.green());
-            telemetry.addData("Blue: ", sensor.blue());
-            whiteness = (sensor.red() + sensor.blue() + sensor.green()) / 3;
-            telemetry.addData("Whiteness: ", whiteness);
+            telemetry.addData("Raw value: ", sensor.getLightDetectedRaw());
             telemetry.update();
         }
 

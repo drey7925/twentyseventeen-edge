@@ -46,7 +46,7 @@ dependencies {
 }
 */
 apply from: '../build.common.gradle'
-
+/*
 android {
     buildToolsVersion '25.0.2'
-}
+}*/

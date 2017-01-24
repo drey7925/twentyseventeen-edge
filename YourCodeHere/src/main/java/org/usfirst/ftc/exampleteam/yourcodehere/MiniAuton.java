@@ -19,9 +19,10 @@ import resq.ResqAuton.*;
  * Created by kam07440 on 10/7/2016.
  * Contributors:
  * Lillian Hong and Gabriel Kammer
+ * lel Lillian really wants to claim ownership
  */
 
-@Autonomous(name="Old Auton")
+@Autonomous(name="Oldy Auton")
 public class MiniAuton extends SynchronousOpMode{
 
     DcMotor motorLeft;

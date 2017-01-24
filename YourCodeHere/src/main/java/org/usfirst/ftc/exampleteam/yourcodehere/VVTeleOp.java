@@ -47,7 +47,7 @@ public class VVTeleOp extends SynchronousOpMode {
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
 
-        double driveSpeedRatio = 0.75; //sets the top speed for drive train
+        double driveSpeedRatio = 1; //sets the top speed for drive train
         double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
         double actualSpeed = 0;
         double catapultSpeed = 0.25; //sets top catapult speed
@@ -68,8 +68,12 @@ public class VVTeleOp extends SynchronousOpMode {
             else {correctedSpeedRatio = driveSpeedRatio;}
 
             //SET MOTOR POWER: gamepad1 left and right sticks
-            this.motorLeft.setPower(Math.min(actualSpeed+0.1, -this.gamepad1.left_stick_y * correctedSpeedRatio));
-            this.motorRight.setPower(Math.min(actualSpeed+0.1, -this.gamepad1.right_stick_y * correctedSpeedRatio));
+            if (this.gamepad1.left_stick_y > 0.1) {this.motorLeft.setPower(-driveSpeedRatio);}
+            else if (this.gamepad1.left_stick_y < -0.1){this.motorLeft.setPower(driveSpeedRatio);}
+            else {this.motorLeft.setPower(0);}
+            if (this.gamepad1.right_stick_y > 0.1) {this.motorRight.setPower(-driveSpeedRatio);}
+            else if (this.gamepad1.right_stick_y < -0.1) {this.motorRight.setPower(driveSpeedRatio);}
+            else {this.motorRight.setPower(0);}
 
             //SET MIDDLE OMNI POWER: gamepad1 dpad left and right
             if (this.gamepad1.dpad_left) {centerOmni.setPower(1.0);}
@@ -106,9 +110,12 @@ public class VVTeleOp extends SynchronousOpMode {
                 lSweeperPosition = Math.min(.84, lSweeperPosition + 0.05);
                 rSweeperPosition = -83*lSweeperPosition/79 + 1663/1580;
                 lSweeper.setPosition(lSweeperPosition);
+                rSweeper.setPosition(rSweeperPosition);
             } else if (gamepad2.left_stick_y < -0.5 && !this.gamepad2.left_bumper && this.gamepad2.left_trigger <= 0.5) {
                 lSweeperPosition = Math.max(0.05, lSweeperPosition - 0.05);
+                rSweeperPosition = -83*lSweeperPosition/79 + 1663/1580;
                 lSweeper.setPosition(lSweeperPosition);
+                rSweeper.setPosition(rSweeperPosition);
             }
 
             //CODE FOR SMALL NUDGE MOVEMENTS:

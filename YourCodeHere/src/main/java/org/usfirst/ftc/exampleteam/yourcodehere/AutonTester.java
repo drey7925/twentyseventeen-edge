@@ -2,6 +2,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
@@ -13,6 +14,8 @@ public class AutonTester extends SynchronousOpMode {
     protected DcMotor lMotor = null;
     protected DcMotor rMotor = null;
     protected DcMotor centerOmni = null;
+    protected Servo lSweeper = null;
+    protected Servo rSweeper = null;
     double DRIVE_SPEED_RATIO = 0.5; //sets the top speed for drive train
     double OMNI_SPEED_RATIO = 1;
     int COUNTS_PER_ENCODER = 1120;
@@ -23,27 +26,70 @@ public class AutonTester extends SynchronousOpMode {
         this.lMotor = this.hardwareMap.dcMotor.get("lMotor");
         this.rMotor = this.hardwareMap.dcMotor.get("rMotor");
         this.centerOmni = this.hardwareMap.dcMotor.get("centerOmni");
+        this.lSweeper = this.hardwareMap.servo.get("lSweeper");
+        this.rSweeper = this.hardwareMap.servo.get("rSweeper");
         this.lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+        double lSweeperPosition = 0;
+        double rSweeperPosition = 0;
+        double[] revolutions = new double[4];
+        int method = 0;
 
         // Wait for the game to start
         waitForStart();
         while (opModeIsActive()) {
             this.updateGamepads();
 
-            if (gamepad1.y) {
-                goStraight(2);
-            }
-            if (gamepad1.b) {
-                turnRight(1);
-            }
-            if (gamepad1.a) {
-                goStraight(-2);
-            }
+            //RUN SELECTED METHOD
             if (gamepad1.x) {
-                turnLeft(1);
+                if (method == 0) {goStraight(revolutions[0]);}
+                else if (method == 1) {turnLeft(revolutions[1]);}
+                else if (method == 2) {turnRight(revolutions[2]);}
+                else if (method == 3) {slideLeft(revolutions[3]);}
             }
+
+            //SWEEPER TEST
+            if (gamepad1.dpad_up) {lSweeper.setPosition(lSweeperPosition+=0.001);}
+            else if (gamepad1.dpad_down) {lSweeper.setPosition(lSweeperPosition-=0.001);}
+            if (gamepad1.y) {rSweeper.setPosition(rSweeperPosition+=0.001);}
+            else if (gamepad1.a) {rSweeper.setPosition(rSweeperPosition-=0.001);}
+
+            //CHANGE NUMBER OF REVOLUTIONS
+            if (gamepad1.left_stick_y > 0.5) {revolutions[method]+=0.001;}
+            else if (gamepad1.left_stick_y < -0.5) {revolutions[method]-=0.001;}
+
+            //CHANGE METHOD
+            if (gamepad1.right_stick_y > 0.5) {method = (method+1)%4;}
+            else if (gamepad1.right_stick_y < -0.5) {method = (method+3)%4;}
+
+            //TELEMETRY
+            if (method == 0) {
+                telemetry.addData("GO STRAIGHT: ", revolutions[0]);
+                telemetry.addData("turn left: ", revolutions[1]);
+                telemetry.addData("turn right: ", revolutions[2]);
+                telemetry.addData("slide left: ", revolutions[3]);
+                telemetry.update();
+            } else if (method == 1) {
+                telemetry.addData("go straight: ", revolutions[0]);
+                telemetry.addData("TURN LEFT: ", revolutions[1]);
+                telemetry.addData("turn right: ", revolutions[2]);
+                telemetry.addData("slide left: ", revolutions[3]);
+                telemetry.update();
+            } else if (method == 2) {
+                telemetry.addData("go straight: ", revolutions[0]);
+                telemetry.addData("turn left: ", revolutions[1]);
+                telemetry.addData("TURN RIGHT: ", revolutions[2]);
+                telemetry.addData("slide left: ", revolutions[3]);
+                telemetry.update();
+            } else if (method == 3) {
+                telemetry.addData("go straight: ", revolutions[0]);
+                telemetry.addData("turn left: ", revolutions[1]);
+                telemetry.addData("turn right: ", revolutions[2]);
+                telemetry.addData("SLIDE LEFT: ", revolutions[3]);
+                telemetry.update();
+            }
+
         }
     }
     void goStraight(double revolutions) {
