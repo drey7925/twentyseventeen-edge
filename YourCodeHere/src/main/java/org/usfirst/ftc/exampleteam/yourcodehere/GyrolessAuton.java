@@ -111,8 +111,8 @@ public class GyrolessAuton extends SynchronousOpMode {
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, blue
-                goStraight(0.3);
-                turnRight(0.75);
+                goStraight(0.15);
+                turnRight(0.65);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
@@ -132,7 +132,7 @@ public class GyrolessAuton extends SynchronousOpMode {
                 pressButtonSequence(Direction.BACKWARD);
 
             } else {                                           //midline side, blue
-                goStraight(0.3);
+                goStraight(0.15);
                 turnRight(0.5);
                 goStraight(0.6); // go to position of mountainside
                 shootCatapult();
@@ -157,12 +157,12 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
         } else if (teamColor.equals(ResqAuton.Colors.RED)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, red
-                goStraight(0.3);
-                turnRight(0.5);
+                goStraight(0.15);
+                turnRight(0.7);
                 shootCatapult();
                 runBallPickerTime();
                 shootCatapult();
-                turnLeft(1);
+                turnLeft(1.5);
                 while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
                     lMotor.setPower(0.25);
                     rMotor.setPower(0.25);
@@ -173,8 +173,8 @@ public class GyrolessAuton extends SynchronousOpMode {
                 lMotor.setPower(0);
                 rMotor.setPower(0);
                 Thread.sleep(1000);
-                turnRight(0.5);
-                goStraight(0.5);
+                turnRight(0.7);
+                goStraight(0.2);
                 Thread.sleep(1000);
                 pressButtonSequence(Direction.FORWARD);
                 goStraight(0.5);

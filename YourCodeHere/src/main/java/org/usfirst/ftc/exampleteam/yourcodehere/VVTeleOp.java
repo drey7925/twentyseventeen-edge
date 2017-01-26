@@ -56,8 +56,6 @@ public class VVTeleOp extends SynchronousOpMode {
         double lSweeperPosition = 0;
         double rSweeperPosition = 0;
 
-        double sweeperSafePos = .5;
-
         // Wait for the game to start
         waitForStart();
         while (opModeIsActive()) {
@@ -68,11 +66,11 @@ public class VVTeleOp extends SynchronousOpMode {
             else {correctedSpeedRatio = driveSpeedRatio;}
 
             //SET MOTOR POWER: gamepad1 left and right sticks
-            if (this.gamepad1.left_stick_y > 0.1) {this.motorLeft.setPower(-driveSpeedRatio);}
-            else if (this.gamepad1.left_stick_y < -0.1){this.motorLeft.setPower(driveSpeedRatio);}
+            if (this.gamepad1.left_stick_y > 0.1) {this.motorLeft.setPower(-correctedSpeedRatio);}
+            else if (this.gamepad1.left_stick_y < -0.1){this.motorLeft.setPower(correctedSpeedRatio);}
             else {this.motorLeft.setPower(0);}
-            if (this.gamepad1.right_stick_y > 0.1) {this.motorRight.setPower(-driveSpeedRatio);}
-            else if (this.gamepad1.right_stick_y < -0.1) {this.motorRight.setPower(driveSpeedRatio);}
+            if (this.gamepad1.right_stick_y > 0.1) {this.motorRight.setPower(-correctedSpeedRatio);}
+            else if (this.gamepad1.right_stick_y < -0.1) {this.motorRight.setPower(correctedSpeedRatio);}
             else {this.motorRight.setPower(0);}
 
             //SET MIDDLE OMNI POWER: gamepad1 dpad left and right
