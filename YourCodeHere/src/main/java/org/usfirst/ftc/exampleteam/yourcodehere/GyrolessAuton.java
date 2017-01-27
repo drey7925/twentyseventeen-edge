@@ -107,7 +107,7 @@ public class GyrolessAuton extends SynchronousOpMode {
 
         lSweeper.setPosition(.40);
         rSweeper.setPosition(.30);
-        buttonPusher.setPosition(1);
+        buttonPusher.setPosition(0);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, blue
@@ -127,9 +127,9 @@ public class GyrolessAuton extends SynchronousOpMode {
                 turnRight(0.75);
                 slideLeft(0.3);
                 goStraight(-0.5);
-                pressButtonSequence(Direction.BACKWARD);
+                pressButtonSequence(Orientation.BACKWARD);
                 goStraight(-0.5);
-                pressButtonSequence(Direction.BACKWARD);
+                pressButtonSequence(Orientation.BACKWARD);
 
             } else {                                           //midline side, blue
                 goStraight(0.15);
@@ -151,9 +151,9 @@ public class GyrolessAuton extends SynchronousOpMode {
                 turnRight(0.5);
                 goStraight(-0.5);
                 Thread.sleep(1000);
-                pressButtonSequence(Direction.BACKWARD);
+                pressButtonSequence(Orientation.BACKWARD);
                 goStraight(-0.5);
-                pressButtonSequence(Direction.BACKWARD);
+                pressButtonSequence(Orientation.BACKWARD);
             }
         } else if (teamColor.equals(ResqAuton.Colors.RED)) {
             if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, red
@@ -176,9 +176,9 @@ public class GyrolessAuton extends SynchronousOpMode {
                 turnRight(0.7);
                 goStraight(0.2);
                 Thread.sleep(1000);
-                pressButtonSequence(Direction.FORWARD);
+                pressButtonSequence(Orientation.FORWARD);
                 goStraight(0.5);
-                pressButtonSequence(Direction.FORWARD);
+                pressButtonSequence(Orientation.FORWARD);
             } else {                                   //midline side, red
                 goStraight(0.3);
                 turnRight(0.5);
@@ -200,9 +200,9 @@ public class GyrolessAuton extends SynchronousOpMode {
                 turnRight(0.5);
                 goStraight(0.5);
                 Thread.sleep(1000);
-                pressButtonSequence(Direction.FORWARD);
+                pressButtonSequence(Orientation.FORWARD);
                 goStraight(0.5);
-                pressButtonSequence(Direction.FORWARD);
+                pressButtonSequence(Orientation.FORWARD);
             }
         }
 
@@ -357,14 +357,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         buttonPusher.setPosition(1);
     }
 
-    void pressButtonSequence (Direction direction) {
+    void pressButtonSequence (Orientation direction) {
         this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         int lPos = -lMotor.getCurrentPosition();
         int rPos = -rMotor.getCurrentPosition();
         this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        if (direction == Direction.FORWARD) {
+        if (direction == Orientation.FORWARD) {
             rMotor.setDirection(DcMotor.Direction.FORWARD);
             lMotor.setDirection(DcMotor.Direction.REVERSE);
         } else {
@@ -373,15 +373,12 @@ public class GyrolessAuton extends SynchronousOpMode {
         }
         double motorPower = 0;
         //double initialWhiteness = colorSensorWhiteness();
-        while (lPos == lMotor.getCurrentPosition() || rPos == rMotor.getCurrentPosition()) {
-            telemetry.addData("Left Motor Position:", lPos);
-            telemetry.addData("Right Motor Position:", rPos);
-            lPos = -lMotor.getCurrentPosition();
-            rPos = -rMotor.getCurrentPosition();
+        double rStartPos = rMotor.getCurrentPosition();
+        double lStartPos = lMotor.getCurrentPosition();
+        while (lStartPos == lMotor.getCurrentPosition() || rStartPos == rMotor.getCurrentPosition()) {
             motorPower += 0.01;
             rMotor.setPower(motorPower);
             lMotor.setPower(motorPower);
-            telemetry.update();
         }
         while (true) {
             if (cb.equals("BR")||cb.equals("RB")) {
@@ -395,14 +392,14 @@ public class GyrolessAuton extends SynchronousOpMode {
                 break;
             }*/
         }
-        if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
-        else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-        else if (cb.equals("RB") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
-        else if (cb.equals("BR") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-        else if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
-        else if (cb.equals("RB") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.equals("BR") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+        if (cb.equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
+        else if (cb.equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+        else if (cb.equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
+        else if (cb.equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+        else if (cb.equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+        else if (cb.equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
+        else if (cb.equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+        else if (cb.equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
         else {
             telemetry.addData("welp message: ", "oh shet boi");
             telemetry.update();
@@ -412,14 +409,14 @@ public class GyrolessAuton extends SynchronousOpMode {
             while (true) {
                 iterations++;
                 if (cb.equals("RB") && cb.equals("BR")) {
-                    if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
-                    else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-                    else if (cb.equals("RB") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
-                    else if (cb.equals("BR") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-                    else if (cb.equals("RB") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.equals("BR") && direction.equals(Direction.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
-                    else if (cb.equals("RB") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.equals("BR") && direction.equals(Direction.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+                    if (cb.equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
+                    else if (cb.equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+                    else if (cb.equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
+                    else if (cb.equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+                    else if (cb.equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+                    else if (cb.equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
+                    else if (cb.equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+                    else if (cb.equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
                     break;
                 }
                 if (iterations > 100) {
@@ -455,6 +452,6 @@ public class GyrolessAuton extends SynchronousOpMode {
 
     double colorSensorWhiteness () {return ((cSensor.red()+cSensor.blue()+cSensor.green())/3);}
 
-    enum Direction {FORWARD, BACKWARD};
+    enum Orientation {FORWARD, BACKWARD};
 
 }
