@@ -22,6 +22,8 @@ public class ColorSensorTester extends SynchronousOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
+
+
             telemetry.addData("Raw value: ", sensor.getLightDetectedRaw());
             telemetry.update();
         }

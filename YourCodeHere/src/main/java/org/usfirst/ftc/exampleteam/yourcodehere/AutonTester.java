@@ -5,9 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.FrameLayout;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.*;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
@@ -27,6 +25,7 @@ public class AutonTester extends SynchronousOpMode {
     protected Servo buttonPusher = null;
     protected Servo lSweeper = null;
     protected Servo rSweeper = null;
+    protected LightSensor lightSensor = null;
     double DRIVE_SPEED_RATIO = 0.5; //sets the top speed for drive train
     double OMNI_SPEED_RATIO = 1;
     int COUNTS_PER_ENCODER = 1120;
@@ -70,6 +69,7 @@ public class AutonTester extends SynchronousOpMode {
         this.lSweeper = this.hardwareMap.servo.get("lSweeper");
         this.rSweeper = this.hardwareMap.servo.get("rSweeper");
         this.buttonPusher = this.hardwareMap.servo.get("buttonPusher");
+        this.lightSensor = this.hardwareMap.lightSensor.get("lightSensor");
          this.lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.lMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -86,7 +86,7 @@ public class AutonTester extends SynchronousOpMode {
         startCamera();
         while (opModeIsActive()) {
             this.updateGamepads();
-
+            lightSensor.enableLed(true);
             //RUN SELECTED METHOD
             if (gamepad1.x) {
                 if (method == 0) {goStraight(revolutions[0]);}
@@ -114,9 +114,26 @@ public class AutonTester extends SynchronousOpMode {
 
             //ADD METHOD TO AUTON SEQUENCE
             if (gamepad2.a) {
-                autonSequence.add(new double[] {method, revolutions[method]});
+                autonSequence.add(Math.min(pointer+1, autonSequence.size()), new double[] {method, revolutions[method]});
+                pointer++;
             }
 
+            //REMOVE METHOD FROM AUTON SEQUENCE
+            if (gamepad2.x) autonSequence.remove(pointer);
+
+            //CHANGE POINTER VALUE
+            if (gamepad2.dpad_up && pointer > 0) pointer--;
+            if (gamepad2.dpad_down && pointer < autonSequence.size()-1) pointer++;
+
+            //RUN AUTON SEQUENCE
+            if (gamepad2.b) {
+                for (double[] arr: autonSequence) {
+                    if (arr[0] == 0) goStraight(arr[1]);
+                    else if (arr[0] == 1) turnLeft(arr[1]);
+                    else if (arr[0] == 2) turnRight(arr[1]);
+                    else if (arr[0] == 3) slideLeft(arr[1]);
+                }
+            }
 
             //TELEMETRY
             if (method == 0) {
@@ -126,8 +143,8 @@ public class AutonTester extends SynchronousOpMode {
                 telemetry.addData("slide left: ", revolutions[3]);
                 telemetry.addData("Right Sweeper Pos: ", rSweeperPosition);
                 telemetry.addData("Left Sweeper Pos: ", lSweeperPosition);
+                telemetry.addData("Light Sensor: ", lightSensor.getLightDetectedRaw());
                 telemetry.addData("","");
-                telemetry.update();
             } else if (method == 1) {
                 telemetry.addData("go straight: ", revolutions[0]);
                 telemetry.addData("TURN LEFT: ", revolutions[1]);
@@ -135,8 +152,8 @@ public class AutonTester extends SynchronousOpMode {
                 telemetry.addData("slide left: ", revolutions[3]);
                 telemetry.addData("Right Sweeper Pos: ", rSweeperPosition);
                 telemetry.addData("Left Sweeper Pos: ", lSweeperPosition);
+                telemetry.addData("Light Sensor: ", lightSensor.getLightDetectedRaw());
                 telemetry.addData("","");
-                telemetry.update();
             } else if (method == 2) {
                 telemetry.addData("go straight: ", revolutions[0]);
                 telemetry.addData("turn left: ", revolutions[1]);
@@ -144,8 +161,8 @@ public class AutonTester extends SynchronousOpMode {
                 telemetry.addData("slide left: ", revolutions[3]);
                 telemetry.addData("Right Sweeper Pos: ", rSweeperPosition);
                 telemetry.addData("Left Sweeper Pos: ", lSweeperPosition);
+                telemetry.addData("Light Sensor: ", lightSensor.getLightDetectedRaw());
                 telemetry.addData("","");
-                telemetry.update();
             } else if (method == 3) {
                 telemetry.addData("go straight: ", revolutions[0]);
                 telemetry.addData("turn left: ", revolutions[1]);
@@ -153,8 +170,8 @@ public class AutonTester extends SynchronousOpMode {
                 telemetry.addData("SLIDE LEFT: ", revolutions[3]);
                 telemetry.addData("Right Sweeper Pos: ", rSweeperPosition);
                 telemetry.addData("Left Sweeper Pos: ", lSweeperPosition);
+                telemetry.addData("Light Sensor: ", lightSensor.getLightDetectedRaw());
                 telemetry.addData("","");
-                telemetry.update();
             }
             int location = 0;
             for (double[] arr: autonSequence) {
@@ -168,7 +185,7 @@ public class AutonTester extends SynchronousOpMode {
                 else if (arr[0] == 3) telemetry.addData("Slide Left: ", arr[1]);
                 location++;
             }
-
+            telemetry.update();
             Thread.sleep(100);
         }
     }
@@ -313,11 +330,12 @@ public class AutonTester extends SynchronousOpMode {
         double rStartPos = rMotor.getCurrentPosition();
         double lStartPos = lMotor.getCurrentPosition();
         while (lStartPos == lMotor.getCurrentPosition() || rStartPos == rMotor.getCurrentPosition()) {
-            motorPower += 0.0001;
+            motorPower += 0.001;
             rMotor.setPower(motorPower);
             lMotor.setPower(motorPower);
         }
-
+        rMotor.setPower(motorPower-0.005);
+        lMotor.setPower(motorPower-0.005);
         while (true) {
             if (cb.getState().equals("BR")||cb.getState().equals("RB")) {
                 rMotor.setPower(0);
@@ -357,8 +375,6 @@ public class AutonTester extends SynchronousOpMode {
                 }
             }
         }
-        telemetry.addData("DETECTED BEACON: ", true);
-        telemetry.update();
         pressButton();
         rMotor.setDirection(DcMotor.Direction.FORWARD);
         lMotor.setDirection(DcMotor.Direction.REVERSE);

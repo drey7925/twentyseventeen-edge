@@ -33,7 +33,7 @@ public class GyrolessAuton extends SynchronousOpMode {
     protected UltrasonicSensor ultrasonic = null;
     protected Servo lSweeper = null;
     protected Servo rSweeper = null;
-
+    protected LightSensor lightSensor = null;
 
     static MatColorSpreadCallback cb;
     private OpenCvActivityHelper ocvh;
@@ -88,7 +88,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         }
         this.lSweeper = this.hardwareMap.servo.get("lSweeper");
         this.rSweeper = this.hardwareMap.servo.get("rSweeper");
-
+        this.lightSensor = this.hardwareMap.lightSensor.get("lightSensor");
         this.lMotor = this.hardwareMap.dcMotor.get("lMotor");
         this.rMotor = this.hardwareMap.dcMotor.get("rMotor");
         this.catapult = this.hardwareMap.dcMotor.get("catapult");
@@ -110,100 +110,39 @@ public class GyrolessAuton extends SynchronousOpMode {
         buttonPusher.setPosition(0);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
-            if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, blue
-                goStraight(0.15);
-                turnRight(0.65);
-                shootCatapult();
-                runBallPickerTime();
-                shootCatapult();
-                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel() == 0) {
-                    lMotor.setPower(0.25);
-                    rMotor.setPower(0.25);
-                    telemetry.addData("Is Running: ", opModeIsActive());
-                    telemetry.update();
-                }
-                lMotor.setPower(0);
-                rMotor.setPower(0);
-                turnRight(0.75);
-                slideLeft(0.3);
-                goStraight(-0.5);
-                pressButtonSequence(Orientation.BACKWARD);
-                goStraight(-0.5);
-                pressButtonSequence(Orientation.BACKWARD);
-
-            } else {                                           //midline side, blue
-                goStraight(0.15);
-                turnRight(0.5);
-                goStraight(0.6); // go to position of mountainside
-                shootCatapult();
-                runBallPickerTime();
-                shootCatapult();
-                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
-                    lMotor.setPower(0.25);
-                    rMotor.setPower(0.25);
-                    telemetry.addData("Is Running: ", opModeIsActive());
-                    telemetry.update();
-                }
-
-                lMotor.setPower(0);
-                rMotor.setPower(0);
-                Thread.sleep(1000);
-                turnRight(0.5);
-                goStraight(-0.5);
-                Thread.sleep(1000);
-                pressButtonSequence(Orientation.BACKWARD);
-                goStraight(-0.5);
-                pressButtonSequence(Orientation.BACKWARD);
+            int initialLightness = lightSensor.getLightDetectedRaw();
+            goStraight(0.15);
+            turnRight(0.8);
+            shootCatapult();
+            runBallPickerTime();
+            shootCatapult();
+            turnLeft(0.8);
+            goStraight(0.5);
+            turnRight(0.55);
+            while (ultrasonic.getUltrasonicLevel() > 10 || ultrasonic.getUltrasonicLevel()==0) {
+                lMotor.setPower(0.2);
+                rMotor.setPower(0.2);
+                telemetry.addData("Is Running: ", opModeIsActive());
+                telemetry.update();
             }
+            lMotor.setPower(0);
+            rMotor.setPower(0);
+            turnRight(0.7);
+            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
+                lMotor.setPower(-0.2);
+                rMotor.setPower(-0.2);
+            }
+            lMotor.setPower(0);
+            rMotor.setPower(0);
+            pressButtonSequence(Orientation.BACKWARD);
+            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
+                lMotor.setPower(-0.2);
+                rMotor.setPower(-0.2);
+            }
+            pressButtonSequence(Orientation.BACKWARD);
+
         } else if (teamColor.equals(ResqAuton.Colors.RED)) {
-            if (startSide.equals(ResqAuton.Side.MOUNTAIN)) {  //mountain side, red
-                goStraight(0.15);
-                turnRight(0.7);
-                shootCatapult();
-                runBallPickerTime();
-                shootCatapult();
-                turnLeft(1.5);
-                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
-                    lMotor.setPower(0.25);
-                    rMotor.setPower(0.25);
-                    telemetry.addData("Is Running: ", opModeIsActive());
-                    telemetry.update();
-                }
 
-                lMotor.setPower(0);
-                rMotor.setPower(0);
-                Thread.sleep(1000);
-                turnRight(0.7);
-                goStraight(0.2);
-                Thread.sleep(1000);
-                pressButtonSequence(Orientation.FORWARD);
-                goStraight(0.5);
-                pressButtonSequence(Orientation.FORWARD);
-            } else {                                   //midline side, red
-                goStraight(0.3);
-                turnRight(0.5);
-                goStraight(-0.6);
-                shootCatapult();
-                runBallPickerTime();
-                shootCatapult();
-                turnLeft(1);
-                while (ultrasonic.getUltrasonicLevel() > 50 || ultrasonic.getUltrasonicLevel()==0) {
-                    lMotor.setPower(0.25);
-                    rMotor.setPower(0.25);
-                    telemetry.addData("Is Running: ", opModeIsActive());
-                    telemetry.update();
-                }
-
-                lMotor.setPower(0);
-                rMotor.setPower(0);
-                Thread.sleep(1000);
-                turnRight(0.5);
-                goStraight(0.5);
-                Thread.sleep(1000);
-                pressButtonSequence(Orientation.FORWARD);
-                goStraight(0.5);
-                pressButtonSequence(Orientation.FORWARD);
-            }
         }
 
     }
@@ -219,7 +158,6 @@ public class GyrolessAuton extends SynchronousOpMode {
             lMotor.setDirection(DcMotor.Direction.FORWARD);
             rMotor.setDirection(DcMotor.Direction.REVERSE);
         }
-
         this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
         this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
         int ticks = 0;
@@ -324,7 +262,7 @@ public class GyrolessAuton extends SynchronousOpMode {
     void shootCatapult() {
         this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         //this.catapult.setTargetPosition(1760);
-        this.catapult.setTargetPosition(5000);
+        this.catapult.setTargetPosition(6000);
 
         this.catapult.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.catapult.setPower(0.25);
@@ -376,12 +314,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         double rStartPos = rMotor.getCurrentPosition();
         double lStartPos = lMotor.getCurrentPosition();
         while (lStartPos == lMotor.getCurrentPosition() || rStartPos == rMotor.getCurrentPosition()) {
-            motorPower += 0.01;
+            motorPower += 0.001;
             rMotor.setPower(motorPower);
             lMotor.setPower(motorPower);
         }
+        rMotor.setPower(motorPower-0.005);
+        lMotor.setPower(motorPower-0.005);
         while (true) {
-            if (cb.equals("BR")||cb.equals("RB")) {
+            if (cb.getState().equals("BR")||cb.getState().equals("RB")) {
                 rMotor.setPower(0);
                 lMotor.setPower(0);
                 break;
@@ -401,7 +341,7 @@ public class GyrolessAuton extends SynchronousOpMode {
         else if (cb.equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
         else if (cb.equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
         else {
-            telemetry.addData("welp message: ", "oh shet boi");
+            telemetry.addData("Robot Moved: ", "Keep going");
             telemetry.update();
             lMotor.setPower(motorPower);
             rMotor.setPower(motorPower);
