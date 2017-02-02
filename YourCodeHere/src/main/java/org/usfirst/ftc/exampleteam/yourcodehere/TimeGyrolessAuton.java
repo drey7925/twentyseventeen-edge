@@ -9,17 +9,13 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.swerverobotics.library.SynchronousOpMode;
-import org.swerverobotics.library.interfaces.Autonomous;
 import resq.MatColorSpreadCallback;
 import resq.ResqAuton;
 
 /**
- * Created by hon07726 on 10/28/2016.
+ * Created by rirriput on 02/02/2017.
  */
-@Autonomous(name = "Gyroless Auton")
-public class GyrolessAuton extends SynchronousOpMode {
-    public static final int START_SLEW_RATIO = 40;
-    public static final int COUNTS_PER_ENCODER = 1120;
+public class TimeGyrolessAuton extends SynchronousOpMode {
     protected DcMotor lMotor;
     protected DcMotor rMotor;
     protected DcMotor centerOmni;
@@ -101,6 +97,8 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.lMotor.setDirection(DcMotor.Direction.REVERSE);
         this.rMotor.setDirection(DcMotor.Direction.FORWARD);
         lightSensor.enableLed(true);
+
+
         this.startCamera();
         this.waitForStart();
 
@@ -109,14 +107,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         buttonPusher.setPosition(0);
 
         if (teamColor.equals(ResqAuton.Colors.BLUE)) {
-            goStraight(0.15);
-            turnRight(0.9);
+            goForwardTime(.3);
+            turnRightTime(0.5);
             shootCatapult();
             runBallPickerTime();
             shootCatapult();
-            turnLeft(0.9);
-            goStraight(0.5);
-            turnRight(0.7);
+            turnLeftTime(0.5);
+            goForwardTime(0.2);
+            turnRightTime(0.3);
             while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
                 lMotor.setPower(0.1);
                 rMotor.setPower(0.1);
@@ -125,7 +123,7 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            turnRight(0.7);
+            turnRightTime(0.3);
             int initialLightness = lightSensor.getLightDetectedRaw();
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(-0.1);
@@ -133,19 +131,21 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            pressButtonSequence(Orientation.BACKWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.BACKWARD);
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(-0.1);
                 rMotor.setPower(-0.1);
             }
-            pressButtonSequence(Orientation.BACKWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.BACKWARD);
+            lMotor.setPower(0);
+            rMotor.setPower(0);
 
         }
         else if(teamColor.equals(ResqAuton.Colors.BLUE) && ResqAuton.Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN")).equals("MIDLINE")){
-            goStraight(0.15);
-            turnRight(0.7);
+            goForwardTime(0.5);
+            turnRightTime(0.3);
 
-            while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
+            while (ultrasonic.getUltrasonicLevel() > 15 ) {
                 lMotor.setPower(0.1);
                 rMotor.setPower(0.1);
                 telemetry.addData("Is Running: ", ultrasonic.getUltrasonicLevel());
@@ -153,7 +153,7 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            turnRight(0.7);
+            turnRightTime(0.3);
             int initialLightness = lightSensor.getLightDetectedRaw();
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(-0.1);
@@ -161,23 +161,25 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            pressButtonSequence(Orientation.BACKWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.BACKWARD);
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(-0.1);
                 rMotor.setPower(-0.1);
             }
-            pressButtonSequence(Orientation.BACKWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.BACKWARD);
+            lMotor.setPower(0);
+            rMotor.setPower(0);
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)) {
-            goStraight(0.15);
-            turnRight(0.8);
+            goForwardTime(0.3);
+            turnRightTime(0.5);
             shootCatapult();
             runBallPickerTime();
             shootCatapult();
-            turnLeft(0.8);
-            goStraight(0.5);
-            turnLeft(0.8);
-            while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
+            turnLeftTime(0.5);
+            goForwardTime(0.2);
+            turnLeftTime(0.3);
+            while (ultrasonic.getUltrasonicLevel() > 15) {
                 lMotor.setPower(0.1);
                 rMotor.setPower(0.1);
                 telemetry.addData("Is Running: ", opModeIsActive());
@@ -185,7 +187,7 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            turnRight(0.7);
+            turnRightTime(0.3);
             int initialLightness = lightSensor.getLightDetectedRaw();
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(0.1);
@@ -193,114 +195,79 @@ public class GyrolessAuton extends SynchronousOpMode {
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            pressButtonSequence(Orientation.FORWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.FORWARD);
             while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
                 lMotor.setPower(0.1);
                 rMotor.setPower(0.1);
             }
-            pressButtonSequence(Orientation.FORWARD);
+            pressButtonSequence(GyrolessAuton.Orientation.FORWARD);
+            lMotor.setPower(0);
+            rMotor.setPower(0);
         }
 
     }
 
-    void goStraight(double revolutions) {
-        this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        int lPos = -lMotor.getCurrentPosition();
-        int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        if (revolutions < 0) {
-            lMotor.setDirection(DcMotor.Direction.FORWARD);
-            rMotor.setDirection(DcMotor.Direction.REVERSE);
+    void turnRightTime(double seconds) {
+        lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        lMotor.setPower(DRIVE_SPEED_RATIO);
+        rMotor.setPower(-DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
         }
-        this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
-            lPos = -lMotor.getCurrentPosition();
-            rPos = -rMotor.getCurrentPosition();
-            rMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + rPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - rPos) / COUNTS_PER_ENCODER));
-            lMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + lPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - lPos) / COUNTS_PER_ENCODER));
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - lPos < 0) lMotor.setPower(0);
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - rPos < 0) rMotor.setPower(0);
-        }
-        lMotor.setPower(0);
-        rMotor.setPower(0);
-        lPos = -lMotor.getCurrentPosition();
-        rPos = -rMotor.getCurrentPosition();
-        telemetry.addData("Left Overshoot", lPos - COUNTS_PER_ENCODER * Math.abs(revolutions));
-        telemetry.addData("Right Overshoot", rPos - COUNTS_PER_ENCODER * Math.abs(revolutions));
-        telemetry.update();
-        if (revolutions < 0) {
-            lMotor.setDirection(DcMotor.Direction.REVERSE);
-            rMotor.setDirection(DcMotor.Direction.FORWARD);
-        }
-    }
-
-    void turnLeft(double revolutions) {
-        this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        int lPos = -lMotor.getCurrentPosition();
-        int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        lMotor.setDirection(DcMotor.Direction.FORWARD);
-        this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
-            lPos = -lMotor.getCurrentPosition();
-            rPos = -rMotor.getCurrentPosition();
-            rMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + rPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - rPos) / COUNTS_PER_ENCODER));
-            lMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + lPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - lPos) / COUNTS_PER_ENCODER));
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - lPos < 0) lMotor.setPower(0);
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - rPos < 0) rMotor.setPower(0);
-        }
-        lMotor.setPower(0);
-        rMotor.setPower(0);
-        lMotor.setDirection(DcMotor.Direction.REVERSE);
-    }
-
-    void turnRight(double revolutions) {
-        this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        int lPos = -lMotor.getCurrentPosition();
-        int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        rMotor.setDirection(DcMotor.Direction.REVERSE);
-        this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
-        while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
-            lPos = -lMotor.getCurrentPosition();
-            rPos = -rMotor.getCurrentPosition();
-            rMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + rPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - rPos) / COUNTS_PER_ENCODER));
-            lMotor.setPower(Math.min(Math.min(DRIVE_SPEED_RATIO * (560 + lPos) / COUNTS_PER_ENCODER, DRIVE_SPEED_RATIO), DRIVE_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - lPos) / COUNTS_PER_ENCODER));
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - lPos < 0) lMotor.setPower(0);
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - rPos < 0) rMotor.setPower(0);
-        }
-        lMotor.setPower(0);
-        rMotor.setPower(0);
-        rMotor.setDirection(DcMotor.Direction.FORWARD);
-    }
-
-    void slideLeft(double revolutions) {
-        this.centerOmni.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        int pos = -centerOmni.getCurrentPosition();
-        this.centerOmni.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        if (revolutions < 0) {centerOmni.setDirection(DcMotor.Direction.REVERSE);}
-        this.centerOmni.setPower(0.5);
-        int ticks = 0;
-        while (pos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
-            telemetry.addData("Omni Position:", pos);
-            pos = -lMotor.getCurrentPosition();
-            ticks++;
-            centerOmni.setPower(Math.min(Math.min(Math.max(OMNI_SPEED_RATIO * (560 + pos) / COUNTS_PER_ENCODER, ticks / START_SLEW_RATIO), OMNI_SPEED_RATIO), OMNI_SPEED_RATIO * (560 + revolutions * COUNTS_PER_ENCODER - pos) / COUNTS_PER_ENCODER));
-            if (COUNTS_PER_ENCODER * Math.abs(revolutions) - pos < 0) centerOmni.setPower(0);
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
             telemetry.update();
         }
-        centerOmni.setPower(0);
-        centerOmni.setDirection(DcMotor.Direction.FORWARD);
+        lMotor.setPower(0);
+        rMotor.setPower(0);
     }
+    void turnLeftTime(double seconds) {
+        lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        lMotor.setPower(-DRIVE_SPEED_RATIO);
+        rMotor.setPower(DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        lMotor.setPower(0);
+        rMotor.setPower(0);
+    }
+    void goForwardTime(double seconds) {
+        lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        lMotor.setPower(DRIVE_SPEED_RATIO);
+        rMotor.setPower(DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        lMotor.setPower(0);
+        rMotor.setPower(0);
+    }
+    void goBackwardTime(double seconds) {
+        lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        lMotor.setPower(-DRIVE_SPEED_RATIO);
+        rMotor.setPower(-DRIVE_SPEED_RATIO);
+        try {
+            Thread.sleep((long)(seconds*1000.0));
+        }
+        catch (Exception e) {
+            telemetry.addData("Ohnoes", "welplew");
+            telemetry.update();
+        }
+        lMotor.setPower(0);
+        rMotor.setPower(0);
+    }
+
 
     void shootCatapult() {
         this.catapult.setMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -326,14 +293,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         buttonPusher.setPosition(1);
     }
 
-    void pressButtonSequence (Orientation direction) {
+    void pressButtonSequence (GyrolessAuton.Orientation direction) {
         this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         int lPos = -lMotor.getCurrentPosition();
         int rPos = -rMotor.getCurrentPosition();
         this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        if (direction == Orientation.FORWARD) {
+        if (direction == GyrolessAuton.Orientation.FORWARD) {
             rMotor.setDirection(DcMotor.Direction.FORWARD);
             lMotor.setDirection(DcMotor.Direction.REVERSE);
         } else {
@@ -344,14 +311,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         //double initialWhiteness = colorSensorWhiteness();
         double rStartPos = rMotor.getCurrentPosition();
         double lStartPos = lMotor.getCurrentPosition();
-        if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-        else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-        else if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
-        else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+        if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goForwardTime(0.1);}
+        else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+        else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goBackwardTime(0.1);}
+        else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+        else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+        else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goForwardTime(0.1);}
+        else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+        else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goBackwardTime(-0.1);}
         else {
             telemetry.addData("Two Beacon Colors Not Detected", "Keep going");
             telemetry.update();
@@ -360,14 +327,14 @@ public class GyrolessAuton extends SynchronousOpMode {
             long startTime = System.currentTimeMillis();
             while (true) {
                 if (cb.getState().equals("RB") || cb.getState().equals("BR")) {
-                    if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-                    else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-                    else if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
-                    else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+                    if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goForwardTime(0.1);}
+                    else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+                    else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goBackwardTime(-0.1);}
+                    else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
+                    else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+                    else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goForwardTime(0.1);}
+                    else if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
+                    else if (cb.getState().equals("BR") && direction.equals(GyrolessAuton.Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goBackwardTime(-0.1);}
                     break;
                 }
                 if (System.currentTimeMillis()-startTime > 3000) {
@@ -402,5 +369,4 @@ public class GyrolessAuton extends SynchronousOpMode {
     }
 
     enum Orientation {FORWARD, BACKWARD};
-
 }
