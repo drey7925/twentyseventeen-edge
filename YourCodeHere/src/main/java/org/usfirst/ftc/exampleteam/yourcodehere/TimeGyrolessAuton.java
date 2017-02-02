@@ -9,12 +9,14 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 import ftc.team6460.javadeck.ftc.vision.OpenCvActivityHelper;
 import org.swerverobotics.library.SynchronousOpMode;
+import org.swerverobotics.library.interfaces.TeleOp;
 import resq.MatColorSpreadCallback;
 import resq.ResqAuton;
 
 /**
  * Created by rirriput on 02/02/2017.
  */
+@TeleOp(name = "Time Based Auton")
 public class TimeGyrolessAuton extends SynchronousOpMode {
     protected DcMotor lMotor;
     protected DcMotor rMotor;
@@ -106,7 +108,7 @@ public class TimeGyrolessAuton extends SynchronousOpMode {
         rSweeper.setPosition(.30);
         buttonPusher.setPosition(0);
 
-        if (teamColor.equals(ResqAuton.Colors.BLUE)) {
+        if (teamColor.equals(ResqAuton.Colors.BLUE ) && !(ResqAuton.Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN")).equals("MIDLINE"))) {
             goForwardTime(.3);
             turnRightTime(0.5);
             shootCatapult();
@@ -145,7 +147,7 @@ public class TimeGyrolessAuton extends SynchronousOpMode {
             goForwardTime(0.5);
             turnRightTime(0.3);
 
-            while (ultrasonic.getUltrasonicLevel() > 15 ) {
+            while (ultrasonic.getUltrasonicLevel() > 15  || ultrasonic.getUltrasonicLevel()==0) {
                 lMotor.setPower(0.1);
                 rMotor.setPower(0.1);
                 telemetry.addData("Is Running: ", ultrasonic.getUltrasonicLevel());
@@ -283,7 +285,7 @@ public class TimeGyrolessAuton extends SynchronousOpMode {
         this.catapult.setPower(0);
     }
 
-    void pressButton () {
+    void pressButton() {
         buttonPusher.setPosition(0);
         try {
             Thread.sleep(500);
@@ -293,7 +295,7 @@ public class TimeGyrolessAuton extends SynchronousOpMode {
         buttonPusher.setPosition(1);
     }
 
-    void pressButtonSequence (GyrolessAuton.Orientation direction) {
+    void pressButtonSequence(GyrolessAuton.Orientation direction) {
         this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         int lPos = -lMotor.getCurrentPosition();
@@ -308,7 +310,6 @@ public class TimeGyrolessAuton extends SynchronousOpMode {
             lMotor.setDirection(DcMotor.Direction.FORWARD);
         }
         double motorPower = 0.1;
-        //double initialWhiteness = colorSensorWhiteness();
         double rStartPos = rMotor.getCurrentPosition();
         double lStartPos = lMotor.getCurrentPosition();
         if (cb.getState().equals("RB") && direction.equals(GyrolessAuton.Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goForwardTime(0.1);}

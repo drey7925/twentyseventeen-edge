@@ -116,87 +116,126 @@ public class GyrolessAuton extends SynchronousOpMode {
             shootCatapult();
             turnLeft(0.9);
             goStraight(0.5);
-            turnRight(0.7);
-            while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
-                lMotor.setPower(0.1);
-                rMotor.setPower(0.1);
+            turnRight(0.47);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            double latestUltrasonic = ultrasonic.getUltrasonicLevel();
+            while (latestUltrasonic > 20 || latestUltrasonic==0) {
+                lMotor.setPower(0.25);
+                rMotor.setPower(0.25);
                 telemetry.addData("Is Running: ", ultrasonic.getUltrasonicLevel());
                 telemetry.update();
+                latestUltrasonic = ultrasonic.getUltrasonicLevel();
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
-            turnRight(0.7);
+            turnRight(0.62);
             int initialLightness = lightSensor.getLightDetectedRaw();
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(-0.1);
-                rMotor.setPower(-0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(-0.25);
+                rMotor.setPower(-0.25);
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
             pressButtonSequence(Orientation.BACKWARD);
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(-0.1);
-                rMotor.setPower(-0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            long curtime = System.currentTimeMillis();
+            while(System.currentTimeMillis() - curtime < 100){
+                lMotor.setPower(-0.18);
+                rMotor.setPower(-0.18);
             }
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(-0.25);
+                rMotor.setPower(-0.25);
+            }
+            lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             pressButtonSequence(Orientation.BACKWARD);
-
         }
         else if(teamColor.equals(ResqAuton.Colors.BLUE) && ResqAuton.Side.valueOf(sharedPref.getString("auton_start_position","MOUNTAIN")).equals("MIDLINE")){
             goStraight(0.15);
-            turnRight(0.7);
-
-            while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
-                lMotor.setPower(0.1);
-                rMotor.setPower(0.1);
+            turnRight(0.5);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            double latestUltrasonic = ultrasonic.getUltrasonicLevel();
+            while (latestUltrasonic > 25 || latestUltrasonic==0) {
+                lMotor.setPower(0.25);
+                rMotor.setPower(0.25);
                 telemetry.addData("Is Running: ", ultrasonic.getUltrasonicLevel());
                 telemetry.update();
+                latestUltrasonic = ultrasonic.getUltrasonicLevel();
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
             turnRight(0.7);
             int initialLightness = lightSensor.getLightDetectedRaw();
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(-0.1);
-                rMotor.setPower(-0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(-0.25);
+                rMotor.setPower(-0.25);
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
+            lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             pressButtonSequence(Orientation.BACKWARD);
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(-0.1);
-                rMotor.setPower(-0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(-0.25);
+                rMotor.setPower(-0.25);
             }
+            lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+            lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
             pressButtonSequence(Orientation.BACKWARD);
         }
         else if (teamColor.equals(ResqAuton.Colors.RED)) {
             goStraight(0.15);
-            turnRight(0.8);
+            turnRight(0.9);
             shootCatapult();
             runBallPickerTime();
             shootCatapult();
-            turnLeft(0.8);
+            turnLeft(0.9);
             goStraight(0.5);
-            turnLeft(0.8);
-            while (ultrasonic.getUltrasonicLevel() > 15 || ultrasonic.getUltrasonicLevel()==0) {
-                lMotor.setPower(0.1);
-                rMotor.setPower(0.1);
-                telemetry.addData("Is Running: ", opModeIsActive());
+            turnRight(0.5);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            double latestUltrasonic = ultrasonic.getUltrasonicLevel();
+            while (latestUltrasonic > 25 || latestUltrasonic==0) {
+                lMotor.setPower(0.25);
+                rMotor.setPower(0.25);
+                telemetry.addData("Is Running: ", ultrasonic.getUltrasonicLevel());
                 telemetry.update();
+                latestUltrasonic = ultrasonic.getUltrasonicLevel();
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
             turnRight(0.7);
             int initialLightness = lightSensor.getLightDetectedRaw();
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(0.1);
-                rMotor.setPower(0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(0.25);
+                rMotor.setPower(0.25);
             }
             lMotor.setPower(0);
             rMotor.setPower(0);
             pressButtonSequence(Orientation.FORWARD);
-            while (Math.abs(lightSensor.getLightDetectedRaw()-initialLightness) < 10) {
-                lMotor.setPower(0.1);
-                rMotor.setPower(0.1);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            while (lightSensor.getLightDetectedRaw()-initialLightness < 15) {
+                lMotor.setPower(0.25);
+                rMotor.setPower(0.25);
             }
             pressButtonSequence(Orientation.FORWARD);
         }
@@ -208,12 +247,14 @@ public class GyrolessAuton extends SynchronousOpMode {
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         int lPos = -lMotor.getCurrentPosition();
         int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.lMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.rMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         if (revolutions < 0) {
             lMotor.setDirection(DcMotor.Direction.FORWARD);
             rMotor.setDirection(DcMotor.Direction.REVERSE);
         }
+        lMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
+        rMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
         this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
         this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
         while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
@@ -231,20 +272,22 @@ public class GyrolessAuton extends SynchronousOpMode {
         telemetry.addData("Left Overshoot", lPos - COUNTS_PER_ENCODER * Math.abs(revolutions));
         telemetry.addData("Right Overshoot", rPos - COUNTS_PER_ENCODER * Math.abs(revolutions));
         telemetry.update();
-        if (revolutions < 0) {
-            lMotor.setDirection(DcMotor.Direction.REVERSE);
-            rMotor.setDirection(DcMotor.Direction.FORWARD);
-        }
+        this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.rMotor.setDirection(DcMotor.Direction.FORWARD);
     }
 
     void turnLeft(double revolutions) {
         this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        lMotor.setDirection(DcMotor.Direction.FORWARD);
         int lPos = -lMotor.getCurrentPosition();
         int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        lMotor.setDirection(DcMotor.Direction.FORWARD);
+        this.lMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.rMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        lMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
+        rMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
+
+
         this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
         this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
         while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
@@ -257,17 +300,21 @@ public class GyrolessAuton extends SynchronousOpMode {
         }
         lMotor.setPower(0);
         rMotor.setPower(0);
-        lMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.rMotor.setDirection(DcMotor.Direction.FORWARD);
     }
 
     void turnRight(double revolutions) {
         this.lMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
         this.rMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        rMotor.setDirection(DcMotor.Direction.REVERSE);
         int lPos = -lMotor.getCurrentPosition();
         int rPos = -rMotor.getCurrentPosition();
-        this.lMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.rMotor.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        rMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.lMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.rMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        lMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
+        rMotor.setTargetPosition((int) (revolutions * COUNTS_PER_ENCODER));
+
         this.lMotor.setPower(DRIVE_SPEED_RATIO / 2);
         this.rMotor.setPower(DRIVE_SPEED_RATIO / 2);
         while (lPos < COUNTS_PER_ENCODER * Math.abs(revolutions) && rPos < COUNTS_PER_ENCODER * Math.abs(revolutions)) {
@@ -280,7 +327,8 @@ public class GyrolessAuton extends SynchronousOpMode {
         }
         lMotor.setPower(0);
         rMotor.setPower(0);
-        rMotor.setDirection(DcMotor.Direction.FORWARD);
+        this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+        this.rMotor.setDirection(DcMotor.Direction.FORWARD);
     }
 
     void slideLeft(double revolutions) {
@@ -318,12 +366,10 @@ public class GyrolessAuton extends SynchronousOpMode {
 
     void pressButton () {
         buttonPusher.setPosition(0);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis()-startTime > 500) {}
         buttonPusher.setPosition(1);
+        while (System.currentTimeMillis()-startTime > 700) {}
     }
 
     void pressButtonSequence (Orientation direction) {
@@ -340,40 +386,47 @@ public class GyrolessAuton extends SynchronousOpMode {
             rMotor.setDirection(DcMotor.Direction.REVERSE);
             lMotor.setDirection(DcMotor.Direction.FORWARD);
         }
-        double motorPower = 0.1;
         //double initialWhiteness = colorSensorWhiteness();
         double rStartPos = rMotor.getCurrentPosition();
         double lStartPos = lMotor.getCurrentPosition();
-        if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
+        if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.05);}
         else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-        else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
+        else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.05);}
         else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
         else if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
+        else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.05);}
         else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-        else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+        else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.05);}
         else {
             telemetry.addData("Two Beacon Colors Not Detected", "Keep going");
             telemetry.update();
-            lMotor.setPower(motorPower);
-            rMotor.setPower(motorPower);
+            lMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            rMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            this.lMotor.setDirection(DcMotor.Direction.REVERSE);
+            this.rMotor.setDirection(DcMotor.Direction.FORWARD);
+            lMotor.setPower(0.17);
+            rMotor.setPower(0.17);
             long startTime = System.currentTimeMillis();
             while (true) {
                 if (cb.getState().equals("RB") || cb.getState().equals("BR")) {
-                    if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.1);}
+                    lMotor.setPower(0);
+                    rMotor.setPower(0);
+                    if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(0.05);}
                     else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
-                    else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.1);}
+                    else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {goStraight(-0.05);}
                     else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.RED)) {}
                     else if (cb.getState().equals("RB") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.1);}
+                    else if (cb.getState().equals("BR") && direction.equals(Orientation.BACKWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(0.05);}
                     else if (cb.getState().equals("RB") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {}
-                    else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.1);}
+                    else if (cb.getState().equals("BR") && direction.equals(Orientation.FORWARD) && teamColor.equals(ResqAuton.Colors.BLUE)) {goStraight(-0.05);}
                     break;
                 }
                 if (System.currentTimeMillis()-startTime > 3000) {
                     break;
                 }
             }
+            lMotor.setPower(0);
+            rMotor.setPower(0);
         }
         pressButton();
         rMotor.setDirection(DcMotor.Direction.FORWARD);
