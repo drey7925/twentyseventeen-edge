@@ -107,12 +107,12 @@ public class VVTeleOp extends SynchronousOpMode {
             if (gamepad2.left_stick_y > 0.5 && !this.gamepad2.left_bumper && this.gamepad2.left_trigger <= 0.5) {
                 lSweeperPosition = Math.min(.84, lSweeperPosition + 0.05);
                 rSweeperPosition = -83*lSweeperPosition/79 + 1663/1580;
-                lSweeper.setPosition(lSweeperPosition);
+                lSweeper.setPosition(Math.min(lSweeperPosition, 0.55));
                 rSweeper.setPosition(rSweeperPosition);
             } else if (gamepad2.left_stick_y < -0.5 && !this.gamepad2.left_bumper && this.gamepad2.left_trigger <= 0.5) {
                 lSweeperPosition = Math.max(0.05, lSweeperPosition - 0.05);
                 rSweeperPosition = -83*lSweeperPosition/79 + 1663/1580;
-                lSweeper.setPosition(lSweeperPosition);
+                lSweeper.setPosition(Math.min(lSweeperPosition, 0.55));
                 rSweeper.setPosition(rSweeperPosition);
             }
 
