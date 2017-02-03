@@ -48,8 +48,7 @@ public class VVTeleOp extends SynchronousOpMode {
 
 
         double driveSpeedRatio = 1; //sets the top speed for drive train
-        double correctedSpeedRatio = driveSpeedRatio; //sets a correction factor for accuracy mode
-        double actualSpeed = 0;
+        double correctedSpeedRatio; //sets a correction factor for accuracy mode
         double catapultSpeed = 0.25; //sets top catapult speed
         double ballPickerSpeed = 0.25; //sets top ball picker speed
         double buttonPusherPosition = 1;
